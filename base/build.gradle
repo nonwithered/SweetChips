@@ -1,0 +1,22 @@
+apply plugin: 'java-library'
+
+dependencies {
+
+}
+
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'org.sweetchips'
+            artifactId 'base'
+            version '1.0.0'
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = gradle.buildUrl
+        }
+    }
+}

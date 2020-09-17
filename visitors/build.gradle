@@ -1,0 +1,30 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation project(':base')
+    implementation 'org.ow2.asm:asm:5.1'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.sweetchips.visitors.demo.Launcher'
+        attributes 'Class-Path': 'base-1.0.0.jar'
+    }
+}
+
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'org.sweetchips'
+            artifactId 'visitors'
+            version '1.0.0'
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = gradle.buildUrl
+        }
+    }
+}
