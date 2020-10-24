@@ -14,7 +14,7 @@ public class UncheckcastDumpClassVisitor extends ClassVisitor {
     private boolean mContains;
 
     public UncheckcastDumpClassVisitor(ClassVisitor cv) {
-        super(Util.ASM_API, cv);
+        super(Util.ASM_API.get(), cv);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class UncheckcastDumpClassVisitor extends ClassVisitor {
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         if (mContains || mTarget != null && mTarget.contains(new Elements(name, desc))) {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            return new MethodVisitor(Util.ASM_API, mv) {
+            return new MethodVisitor(api, mv) {
                 @Override
                 public void visitTypeInsn(int opcode, String type) {
                     if (opcode == Opcodes.CHECKCAST) {

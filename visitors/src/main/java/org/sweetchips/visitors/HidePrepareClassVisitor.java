@@ -15,7 +15,7 @@ public class HidePrepareClassVisitor extends ClassVisitor {
     private Elements mElements = null;
 
     public HidePrepareClassVisitor(ClassVisitor cv) {
-        super(Util.ASM_API, cv);
+        super(Util.ASM_API.get(), cv);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class HidePrepareClassVisitor extends ClassVisitor {
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
         mElements = new Elements(name, desc);
         FieldVisitor fv = super.visitField(access, name, desc, signature, value);
-        return new FieldVisitor(Util.ASM_API, fv) {
+        return new FieldVisitor(api, fv) {
             @Override
             public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                 if (mTarget != null && desc.equals(Util.HIDE_NAME)) {
@@ -52,7 +52,7 @@ public class HidePrepareClassVisitor extends ClassVisitor {
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         mElements = new Elements(name, desc);
         MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-        return new MethodVisitor(Util.ASM_API, mv) {
+        return new MethodVisitor(api, mv) {
             @Override
             public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                 if (mTarget != null && desc.equals(Util.HIDE_NAME)) {

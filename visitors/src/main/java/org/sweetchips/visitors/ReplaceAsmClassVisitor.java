@@ -18,7 +18,7 @@ class ReplaceAsmClassVisitor extends ClassVisitor {
     }
 
     public ReplaceAsmClassVisitor(ClassVisitor cv) {
-        super(Util.ASM_API, cv);
+        super(Util.ASM_API.get(), cv);
     }
 
     @Override
@@ -46,7 +46,7 @@ class ReplaceAsmClassVisitor extends ClassVisitor {
         for (int i = 0; exceptions != null && i < exceptions.length; i++) {
             exceptions[i] = replace(exceptions[i]);
         }
-        return new MethodVisitor(Util.ASM_API, super.visitMethod(access, name, desc, signature, exceptions)) {
+        return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
             @Override
             public void visitTypeInsn(int opcode, String type) {
                 type = replace(type);

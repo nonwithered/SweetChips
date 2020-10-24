@@ -8,11 +8,12 @@ import org.objectweb.asm.Opcodes;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public interface Util {
 
-    int ASM_API = Opcodes.ASM5;
+    AtomicInteger ASM_API = new AtomicInteger(Opcodes.ASM5);
 
     String HIDE_NAME = "L" + Hide.class.getName().replace(".", "/") + ";";
     Map<String, Collection<Elements>> HIDE_TARGET = new ConcurrentHashMap<>();
