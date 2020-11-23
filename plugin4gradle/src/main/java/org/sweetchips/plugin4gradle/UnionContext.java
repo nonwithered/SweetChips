@@ -11,6 +11,5 @@ public interface UnionContext {
 
     Collection<Class<? extends ClassVisitor>> PREPARE = new ConcurrentLinkedQueue<>();
 
-    Collection<Class<? extends ClassVisitor>> TRANSFORM = new ConcurrentLinkedQueue<>();
-
+    Collection<Class<? extends ClassVisitor>> DUMP = new ConcurrentLinkedQueue<>();
 }

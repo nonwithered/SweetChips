@@ -6,13 +6,15 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashSet;
 
 public class HidePrepareClassVisitor extends ClassVisitor {
 
-    private Collection<Elements> mTarget;
+    private final Collection<HideElement> mTarget = new HashSet<>();
 
-    private Elements mElements = null;
+    private HideElement mElements = null;
+
+    private String mName;
 
     public HidePrepareClassVisitor(ClassVisitor cv) {
         super(Util.ASM_API.get(), cv);
@@ -20,14 +22,14 @@ public class HidePrepareClassVisitor extends ClassVisitor {
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        mElements = new Elements(superName, String.valueOf(signature));
-        Util.HIDE_TARGET.put(name, mTarget = ConcurrentHashMap.newKeySet());
+        mElements = new HideElement(name, superName);
+        Util.HIDE_TARGET.put(mName = name, mTarget);
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        if (mTarget != null && desc.equals(Util.HIDE_NAME)) {
+        if (desc.equals(Util.HIDE_NAME)) {
             mTarget.add(mElements);
         }
         return super.visitAnnotation(desc, visible);
@@ -35,12 +37,11 @@ public class HidePrepareClassVisitor extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        mElements = new Elements(name, desc);
-        FieldVisitor fv = super.visitField(access, name, desc, signature, value);
-        return new FieldVisitor(api, fv) {
+        mElements = new HideElement(name, desc);
+        return new FieldVisitor(api, super.visitField(access, name, desc, signature, value)) {
             @Override
             public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                if (mTarget != null && desc.equals(Util.HIDE_NAME)) {
+                if (desc.equals(Util.HIDE_NAME)) {
                     mTarget.add(mElements);
                 }
                 return super.visitAnnotation(desc, visible);
@@ -50,12 +51,11 @@ public class HidePrepareClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        mElements = new Elements(name, desc);
-        MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-        return new MethodVisitor(api, mv) {
+        mElements = new HideElement(name, desc);
+        return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
             @Override
             public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                if (mTarget != null && desc.equals(Util.HIDE_NAME)) {
+                if (desc.equals(Util.HIDE_NAME)) {
                     mTarget.add(mElements);
                 }
                 return super.visitAnnotation(desc, visible);
@@ -63,5 +63,12 @@ public class HidePrepareClassVisitor extends ClassVisitor {
         };
     }
 
+    @Override
+    public void visitEnd() {
+        if (mTarget.isEmpty()) {
+            Util.HIDE_TARGET.remove(mName);
+        }
+        super.visitEnd();
+    }
 }
 

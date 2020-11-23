@@ -98,6 +98,5 @@ public class TransformTask extends RecursiveAction {
                 HideDumpClassVisitor::new,
                 UncheckcastDumpClassVisitor::new);
     }
-
 }
 

@@ -13,7 +13,7 @@ public abstract class BasePlugin implements Plugin<Project> {
     public final void apply(Project project) {
         onApply(project);
         UnionContext.PREPARE.addAll(onPrepare());
-        UnionContext.TRANSFORM.addAll(onTransform());
+        UnionContext.DUMP.addAll(onTransform());
     }
 
     protected abstract void onApply(Project project);
@@ -27,5 +27,4 @@ public abstract class BasePlugin implements Plugin<Project> {
     protected Collection<Class<? extends ClassVisitor>> onTransform() {
         return (Collection<Class<? extends ClassVisitor>>) Collections.EMPTY_LIST;
     }
-
 }

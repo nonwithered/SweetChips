@@ -10,7 +10,7 @@ import java.util.Collection;
 
 public class HideDumpClassVisitor extends ClassVisitor {
 
-    private Collection<Elements> mTarget;
+    private Collection<HideElement> mTarget;
 
     public HideDumpClassVisitor(ClassVisitor cv) {
         super(Util.ASM_API.get(), cv);
@@ -19,7 +19,7 @@ public class HideDumpClassVisitor extends ClassVisitor {
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         mTarget = Util.HIDE_TARGET.get(name);
-        if (mTarget != null && mTarget.contains(new Elements(superName, String.valueOf(signature)))) {
+        if (mTarget != null && mTarget.contains(new HideElement(name, superName))) {
             access |= Opcodes.ACC_SYNTHETIC;
         }
         super.visit(version, access, name, signature, superName, interfaces);
@@ -35,10 +35,9 @@ public class HideDumpClassVisitor extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        if (mTarget != null && mTarget.contains(new Elements(name, desc))) {
+        if (mTarget != null && mTarget.contains(new HideElement(name, desc))) {
             access |= Opcodes.ACC_SYNTHETIC;
-            FieldVisitor fv = super.visitField(access, name, desc, signature, value);
-            return new FieldVisitor(api, fv) {
+            return new FieldVisitor(api, super.visitField(access, name, desc, signature, value)) {
                 @Override
                 public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                     if (desc.equals(Util.HIDE_NAME)) {
@@ -53,10 +52,9 @@ public class HideDumpClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        if (mTarget != null && mTarget.contains(new Elements(name, desc))) {
+        if (mTarget != null && mTarget.contains(new HideElement(name, desc))) {
             access |= Opcodes.ACC_SYNTHETIC;
-            MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            return new MethodVisitor(api, mv) {
+            return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
                 @Override
                 public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                     if (desc.equals(Util.HIDE_NAME)) {
@@ -68,5 +66,4 @@ public class HideDumpClassVisitor extends ClassVisitor {
         }
         return super.visitMethod(access, name, desc, signature, exceptions);
     }
-
 }

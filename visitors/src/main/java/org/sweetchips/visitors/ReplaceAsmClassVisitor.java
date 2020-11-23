@@ -26,8 +26,10 @@ class ReplaceAsmClassVisitor extends ClassVisitor {
         name = replace(name);
         signature = replace(signature);
         superName = replace(superName);
-        for (int i = 0; interfaces != null && i < interfaces.length; i++) {
-            interfaces[i] = replace(interfaces[i]);
+        if (interfaces != null) {
+            for (int i = 0; i < interfaces.length; i++) {
+                interfaces[i] = replace(interfaces[i]);
+            }
         }
         super.visit(version, access, name, signature, superName, interfaces);
     }
@@ -43,8 +45,10 @@ class ReplaceAsmClassVisitor extends ClassVisitor {
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         desc = replace(desc);
         signature = replace(signature);
-        for (int i = 0; exceptions != null && i < exceptions.length; i++) {
-            exceptions[i] = replace(exceptions[i]);
+        if (exceptions != null) {
+            for (int i = 0; i < exceptions.length; i++) {
+                exceptions[i] = replace(exceptions[i]);
+            }
         }
         return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
             @Override
@@ -88,10 +92,12 @@ class ReplaceAsmClassVisitor extends ClassVisitor {
 
             @Override
             public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
-                for (int i = 0; local != null && i < local.length; i++) {
-                    Object arg = local[i];
-                    if (arg instanceof String) {
-                        local[i] = replace((String) arg);
+                if (local != null) {
+                    for (int i = 0; i < local.length; i++) {
+                        Object arg = local[i];
+                        if (arg instanceof String) {
+                            local[i] = replace((String) arg);
+                        }
                     }
                 }
                 super.visitFrame(type, nLocal, local, nStack, stack);
@@ -100,29 +106,29 @@ class ReplaceAsmClassVisitor extends ClassVisitor {
             @Override
             public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
                 desc = replace(desc);
-                for (int i = 0; bsmArgs != null && i < bsmArgs.length; i++) {
-                    Object bsmArg = bsmArgs[i];
-                    if (bsmArg instanceof String) {
-                        String string = (String) bsmArg;
-                        bsmArgs[i] = replace(string);
-                    } else if (bsmArg instanceof Type) {
-                        Type type = (Type) bsmArg;
-                        bsmArgs[i] = Type.getType(replace(type.toString()));
-                    } else if (bsmArg instanceof Handle) {
-                        Handle handle = (Handle) bsmArg;
-                        bsmArgs[i] = new Handle(
-                                handle.getTag(),
-                                replace(handle.getOwner()),
-                                handle.getName(),
-                                replace(handle.getDesc()),
-                                handle.isInterface()
-                        );
+                if (bsmArgs != null) {
+                    for (int i = 0; i < bsmArgs.length; i++) {
+                        Object bsmArg = bsmArgs[i];
+                        if (bsmArg instanceof String) {
+                            String string = (String) bsmArg;
+                            bsmArgs[i] = replace(string);
+                        } else if (bsmArg instanceof Type) {
+                            Type type = (Type) bsmArg;
+                            bsmArgs[i] = Type.getType(replace(type.toString()));
+                        } else if (bsmArg instanceof Handle) {
+                            Handle handle = (Handle) bsmArg;
+                            bsmArgs[i] = new Handle(
+                                    handle.getTag(),
+                                    replace(handle.getOwner()),
+                                    handle.getName(),
+                                    replace(handle.getDesc()),
+                                    handle.isInterface());
+                        }
                     }
                 }
                 super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
             }
         };
     }
-
 }
 

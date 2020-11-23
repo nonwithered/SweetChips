@@ -1,17 +1,14 @@
 package org.sweetchips.visitors;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.*;
 
-import java.util.Collection;
+import java.util.Map;
 
 public class UncheckcastDumpClassVisitor extends ClassVisitor {
 
-    private Collection<Elements> mTarget;
+    private Map<UncheckcastElement, UncheckcastElement> mTarget;
 
-    private boolean mContains;
+    private UncheckcastElement mElementClazz;
 
     public UncheckcastDumpClassVisitor(ClassVisitor cv) {
         super(Util.ASM_API.get(), cv);
@@ -20,7 +17,9 @@ public class UncheckcastDumpClassVisitor extends ClassVisitor {
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         mTarget = Util.UNCHECKCAST_TARGET.get(name);
-        mContains = mTarget != null && mTarget.contains(new Elements(superName, String.valueOf(signature)));
+        if (mTarget != null) {
+            mElementClazz = mTarget.get(new UncheckcastElement(name, superName));
+        }
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
@@ -34,26 +33,35 @@ public class UncheckcastDumpClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        if (mContains || mTarget != null && mTarget.contains(new Elements(name, desc))) {
-            MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            return new MethodVisitor(api, mv) {
-                @Override
-                public void visitTypeInsn(int opcode, String type) {
-                    if (opcode == Opcodes.CHECKCAST) {
+        UncheckcastElement elementMethod = null;
+        if (mTarget != null) {
+            elementMethod = mTarget.get(new UncheckcastElement(name, desc));
+        }
+        UncheckcastElement mElementMethod = elementMethod;
+        return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
+            @Override
+            public void visitTypeInsn(int opcode, String type) {
+                if (opcode == Opcodes.CHECKCAST) {
+                    String s = type;
+                    if (type.charAt(0) != '[') {
+                        s = 'L' + s + ';';
+                    }
+                    Type t = Type.getType(s);
+                    if (mElementClazz != null && (mElementClazz.isEmptyTypes() || mElementClazz.containsType(t))
+                            || mElementMethod != null && (mElementMethod.isEmptyTypes() || mElementMethod.containsType(t))) {
                         return;
                     }
-                    super.visitTypeInsn(opcode, type);
                 }
-                @Override
-                public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                    if (desc.equals(Util.UNCHECKCAST_NAME)) {
-                        return null;
-                    }
-                    return super.visitAnnotation(desc, visible);
-                }
-            };
-        }
-        return super.visitMethod(access, name, desc, signature, exceptions);
-    }
+                super.visitTypeInsn(opcode, type);
+            }
 
+            @Override
+            public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+                if (desc.equals(Util.UNCHECKCAST_NAME)) {
+                    return null;
+                }
+                return super.visitAnnotation(desc, visible);
+            }
+        };
+    }
 }

@@ -39,7 +39,7 @@ public class Launcher {
                 if (tag != null) {
                     UnionContext.PREPARE.add(clazz);
                 } else {
-                    UnionContext.TRANSFORM.add(clazz);
+                    UnionContext.DUMP.add(clazz);
                 }
             }
             new UnionTransform().transform(new Invocation(output, input));
@@ -88,7 +88,6 @@ public class Launcher {
         public boolean isIncremental() {
             throw new UnsupportedOperationException();
         }
-        
     }
     
     static class Input implements TransformInput {
@@ -114,7 +113,6 @@ public class Launcher {
         public Collection<DirectoryInput> getDirectoryInputs() {
             return directoryInputs;
         }
-        
     }
     
     static class Jar implements JarInput {
@@ -151,7 +149,6 @@ public class Launcher {
         public Set<? super Scope> getScopes() {
             return (Set<? super Scope>) Collections.EMPTY_SET;
         }
-        
     }
     
     static class Directory implements DirectoryInput {
@@ -222,5 +219,4 @@ public class Launcher {
             }
         }
     }
-    
 }

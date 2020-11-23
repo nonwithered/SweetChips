@@ -12,6 +12,5 @@ public class Launcher {
                         .map(Paths::get)
                         .collect(Collectors.toList()));
     }
-
 }
 

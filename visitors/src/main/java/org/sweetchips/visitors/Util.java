@@ -16,10 +16,11 @@ public interface Util {
     AtomicInteger ASM_API = new AtomicInteger(Opcodes.ASM5);
 
     String HIDE_NAME = "L" + Hide.class.getName().replace(".", "/") + ";";
-    Map<String, Collection<Elements>> HIDE_TARGET = new ConcurrentHashMap<>();
+    Map<String, Collection<HideElement>> HIDE_TARGET = new ConcurrentHashMap<>();
 
     String UNCHECKCAST_NAME = "L" + Uncheckcast.class.getName().replace(".", "/") + ";";
-    Map<String, Collection<Elements>> UNCHECKCAST_TARGET = new ConcurrentHashMap<>();
+    Map<String, Map<UncheckcastElement, UncheckcastElement>> UNCHECKCAST_TARGET = new ConcurrentHashMap<>();
+    String VALUE_NAME = "value";
 
     @SafeVarargs
     static ClassVisitor newInstance(ClassVisitor cv, Function<ClassVisitor, ClassVisitor>... functions) {
@@ -37,5 +38,4 @@ public interface Util {
         }
         return cv;
     }
-
 }

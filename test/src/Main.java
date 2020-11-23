@@ -8,8 +8,6 @@ public class Main {
 
     @Uncheckcast
     public static void main(String[] args) {
-        new Test().test();
-        ((Test) new Object()).test();
+        Test test = new Test().test();
     }
-
 }

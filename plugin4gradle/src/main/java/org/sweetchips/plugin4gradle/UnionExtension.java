@@ -36,5 +36,4 @@ public class UnionExtension {
     public void setAsmApi(int asmApi) {
         this.asmApi = asmApi;
     }
-
 }

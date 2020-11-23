@@ -8,6 +8,9 @@ import java.lang.annotation.*;
         ElementType.METHOD,
         ElementType.CONSTRUCTOR})
 public @interface Uncheckcast {
+
+    Class<?>[] value() default {};
 }
+
 
 

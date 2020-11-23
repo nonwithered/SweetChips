@@ -16,5 +16,4 @@ public class UnionPlugin implements Plugin<Project> {
             }
         }
     }
-
 }
