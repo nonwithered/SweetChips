@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
-public class UnionContext {
+public class BaseContext {
 
     private final String mName;
 
@@ -16,7 +16,7 @@ public class UnionContext {
 
     private final Collection<Class<? extends ClassVisitor>> mDump;
 
-    public UnionContext(String name, BaseExtension ext) {
+    public BaseContext(String name, BaseExtension ext) {
         mName = name;
         mExt = ext;
         mPrepare = new ConcurrentLinkedQueue<>();

@@ -2,6 +2,7 @@ package org.sweetchips.plugin4gradle;
 
 import com.android.build.api.transform.*;
 import com.android.build.gradle.internal.pipeline.TransformManager;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -14,6 +15,8 @@ import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.CRC32;
@@ -23,19 +26,21 @@ import java.util.zip.ZipOutputStream;
 
 public class UnionTransform extends Transform {
 
-    private static final Function<InputStream, byte[]> PREPARE = UnionTransform::prepare;
+    private final Function<InputStream, byte[]> mPrepare = this::prepare;
 
-    private static final Function<InputStream, byte[]> DUMP = UnionTransform::dump;
+    private final Function<InputStream, byte[]> mDump = this::dump;
 
     private volatile Function<InputStream, byte[]> mVisitor = null;
 
-    public UnionTransform() {
-        super();
+    private final BaseContext mContext;
+
+    public UnionTransform(BaseContext context) {
+        mContext = context;
     }
 
     @Override
     public String getName() {
-        return Util.NAME;
+        return mContext.getName();
     }
 
     @Override
@@ -50,15 +55,15 @@ public class UnionTransform extends Transform {
 
     @Override
     public boolean isIncremental() {
-        return UnionContext.EXT.isIncremental();
+        return mContext.getExtension().isIncremental();
     }
 
     @Override
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
         try {
-            mVisitor = PREPARE;
+            mVisitor = mPrepare;
             eachTransformInvocation(transformInvocation);
-            mVisitor = DUMP;
+            mVisitor = mDump;
             eachTransformInvocation(transformInvocation);
         } catch (Throwable e) {
             while (e instanceof AssertionError) {
@@ -217,7 +222,7 @@ public class UnionTransform extends Transform {
     private Void eachChangedFile(File changedFileInput, File changedFileOutput, Status status) throws IOException {
         switch (status) {
             case NOTCHANGED:
-                if (mVisitor == DUMP) {
+                if (mVisitor == mDump) {
                     Files.move(changedFileInput.toPath(), changedFileOutput.toPath());
                 }
                 break;
@@ -286,26 +291,32 @@ public class UnionTransform extends Transform {
         return forkJoinTask.join();
     }
 
-    private static byte[] prepare(InputStream in) {
-        return transform(in, UnionContext.PREPARE);
+    private byte[] prepare(InputStream in) {
+        return transform(in, mContext::forEachPrepare);
     }
 
-    private static byte[] dump(InputStream in) {
-        return transform(in, UnionContext.DUMP);
+    private byte[] dump(InputStream in) {
+        return transform(in, mContext::forEachDump);
     }
 
-    private static byte[] transform(InputStream in, Collection<Class<? extends ClassVisitor>> clazzes) {
+    private static byte[] transform(InputStream in, Consumer<Consumer<Class<? extends ClassVisitor>>> consumer) {
         try {
             ClassReader cr = new ClassReader(in);
             ClassWriter cw = new ClassWriter(0);
-            ClassVisitor cv = cw;
-            for (Class<? extends ClassVisitor> clazz : clazzes) {
-                Constructor<? extends ClassVisitor> constructor = clazz.getConstructor(ClassVisitor.class);
-                constructor.setAccessible(true);
-                cv = constructor.newInstance(cv);
-            }
-            cr.accept(cv, ClassReader.EXPAND_FRAMES);
+            AtomicReference<ClassVisitor> ref = new AtomicReference<>(cw);
+            consumer.accept((clazz) -> ref.set(newInstance(ref.get(), clazz)));
+            cr.accept(ref.get(), ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private static ClassVisitor newInstance(ClassVisitor cv, Class<? extends ClassVisitor> clazz) {
+        try {
+            Constructor<? extends ClassVisitor> constructor = clazz.getConstructor(ClassVisitor.class);
+            constructor.setAccessible(true);
+            return constructor.newInstance(cv);
         } catch (Exception e) {
             throw new AssertionError(e);
         }

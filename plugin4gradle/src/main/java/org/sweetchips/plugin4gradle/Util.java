@@ -1,6 +1,11 @@
 package org.sweetchips.plugin4gradle;
 
-interface Util {
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-    String NAME = "UnionTransform";
+public interface Util {
+
+    String NAME = "SweetChips";
+
+    Map<String, BaseContext> CONTEXTS = new ConcurrentHashMap<>();
 }

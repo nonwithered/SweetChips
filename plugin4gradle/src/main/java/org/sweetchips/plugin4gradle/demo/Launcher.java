@@ -1,21 +1,40 @@
 package org.sweetchips.plugin4gradle.demo;
 
-import com.android.build.api.transform.*;
-import org.sweetchips.plugin4gradle.UnionContext;
-import org.sweetchips.plugin4gradle.UnionTransform;
+import com.android.build.api.transform.Context;
+import com.android.build.api.transform.DirectoryInput;
+import com.android.build.api.transform.Format;
+import com.android.build.api.transform.JarInput;
+import com.android.build.api.transform.QualifiedContent;
+import com.android.build.api.transform.SecondaryInput;
+import com.android.build.api.transform.Status;
+import com.android.build.api.transform.TransformInput;
+import com.android.build.api.transform.TransformInvocation;
+import com.android.build.api.transform.TransformOutputProvider;
+
 import org.objectweb.asm.ClassVisitor;
+import org.sweetchips.plugin4gradle.BaseContext;
+import org.sweetchips.plugin4gradle.BaseExtension;
+import org.sweetchips.plugin4gradle.UnionTransform;
+import org.sweetchips.plugin4gradle.Util;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Launcher {
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
+        BaseContext context = new BaseContext(Util.NAME, new BaseExtension());
         try (Scanner scanner = new Scanner(System.in)) {
             String tag;
             do {
@@ -37,12 +56,12 @@ public class Launcher {
                 }
                 Class<? extends ClassVisitor> clazz = (Class<? extends ClassVisitor>) Class.forName(string);
                 if (tag != null) {
-                    UnionContext.PREPARE.add(clazz);
+                    context.addPrepare(clazz);
                 } else {
-                    UnionContext.DUMP.add(clazz);
+                    context.addDump(clazz);
                 }
             }
-            new UnionTransform().transform(new Invocation(output, input));
+            new UnionTransform(context).transform(new Invocation(output, input));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -203,7 +222,7 @@ public class Launcher {
         }
 
         @Override
-        public void deleteAll() throws IOException {
+        public void deleteAll() {
             throw new UnsupportedOperationException();
         }
 
