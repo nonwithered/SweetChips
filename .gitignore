@@ -1,9 +1,12 @@
 .DS_Store
 .idea
 *.iml
-local.properties
+
 .gradle
 gradle
 gradlew
 gradlew.bat
+
+local.properties
+
 build
