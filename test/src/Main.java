@@ -2,7 +2,7 @@ package main;
 
 import test.Test;
 
-import org.sweetchips.base.Uncheckcast;
+import org.sweetchips.annotation.Uncheckcast;
 
 public class Main {
 

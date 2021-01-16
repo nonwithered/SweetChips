@@ -1,14 +1,14 @@
 apply plugin: 'java-library'
 
 dependencies {
-    implementation project(':base')
+    implementation project(':utility')
     implementation 'org.ow2.asm:asm:5.1'
 }
 
 jar {
     manifest {
         attributes 'Main-Class': 'org.sweetchips.visitors.demo.Launcher'
-        attributes 'Class-Path': 'base-1.0.0.jar'
+        attributes 'Class-Path': 'utility-1.0.0.jar'
     }
 }
 

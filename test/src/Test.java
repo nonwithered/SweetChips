@@ -2,9 +2,9 @@ package test;
 
 import main.Main;
 
-import org.sweetchips.base.Hide;
+import org.sweetchips.annotation.Hide;
 
-import org.sweetchips.base.Uncheckcast;
+import org.sweetchips.annotation.Uncheckcast;
 
 public class Test extends Main {
 

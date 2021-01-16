@@ -9,7 +9,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId 'org.sweetchips'
-            artifactId 'base'
+            artifactId 'utility'
             version '1.0.0'
             from components.java
         }

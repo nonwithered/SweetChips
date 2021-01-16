@@ -1,6 +1,6 @@
 package org.sweetchips.visitors;
 
-import org.sweetchips.base.Hide;
+import org.sweetchips.annotation.Hide;
 
 import java.util.Collection;
 import java.util.Map;
