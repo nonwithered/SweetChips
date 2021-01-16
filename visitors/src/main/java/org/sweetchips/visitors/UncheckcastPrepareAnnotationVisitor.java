@@ -9,8 +9,8 @@ public class UncheckcastPrepareAnnotationVisitor extends AnnotationVisitor {
 
     private final Consumer<Type> mConsumer;
 
-    public UncheckcastPrepareAnnotationVisitor(AnnotationVisitor av, Consumer<Type> consumer) {
-        super(Util.ASM_API.get(), av);
+    public UncheckcastPrepareAnnotationVisitor(int api, AnnotationVisitor av, Consumer<Type> consumer) {
+        super(api, av);
         mConsumer = consumer;
     }
     @Override

@@ -17,8 +17,8 @@ class ReplaceAsmClassVisitor extends ClassVisitor {
         return string;
     }
 
-    public ReplaceAsmClassVisitor(ClassVisitor cv) {
-        super(Util.ASM_API.get(), cv);
+    public ReplaceAsmClassVisitor(int api, ClassVisitor cv) {
+        super(api, cv);
     }
 
     @Override
@@ -51,6 +51,14 @@ class ReplaceAsmClassVisitor extends ClassVisitor {
             }
         }
         return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
+            @Override
+            public void visitLdcInsn(Object cst) {
+                if (cst instanceof Type) {
+                    cst = Type.getType(replace(cst.toString()));
+                }
+                super.visitLdcInsn(cst);
+            }
+
             @Override
             public void visitTypeInsn(int opcode, String type) {
                 type = replace(type);

@@ -12,8 +12,8 @@ import com.android.build.api.transform.TransformInvocation;
 import com.android.build.api.transform.TransformOutputProvider;
 
 import org.objectweb.asm.ClassVisitor;
-import org.sweetchips.plugin4gradle.BaseContext;
-import org.sweetchips.plugin4gradle.BaseExtension;
+import org.sweetchips.plugin4gradle.UnionContext;
+import org.sweetchips.plugin4gradle.UnionExtension;
 import org.sweetchips.plugin4gradle.UnionTransform;
 import org.sweetchips.plugin4gradle.Util;
 
@@ -34,7 +34,7 @@ public class Launcher {
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        BaseContext context = new BaseContext(Util.NAME, new BaseExtension());
+        UnionContext context = new UnionContext(Util.NAME, new UnionExtension());
         try (Scanner scanner = new Scanner(System.in)) {
             String tag;
             do {

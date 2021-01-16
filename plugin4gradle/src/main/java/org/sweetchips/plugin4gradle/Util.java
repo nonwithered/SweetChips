@@ -7,5 +7,5 @@ public interface Util {
 
     String NAME = "SweetChips";
 
-    Map<String, BaseContext> CONTEXTS = new ConcurrentHashMap<>();
+    Map<String, UnionContext> CONTEXTS = new ConcurrentHashMap<>();
 }

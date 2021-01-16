@@ -16,8 +16,8 @@ public class HidePrepareClassVisitor extends ClassVisitor {
 
     private String mName;
 
-    public HidePrepareClassVisitor(ClassVisitor cv) {
-        super(Util.ASM_API.get(), cv);
+    public HidePrepareClassVisitor(int api, ClassVisitor cv) {
+        super(api, cv);
     }
 
     @Override

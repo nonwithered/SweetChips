@@ -89,14 +89,16 @@ public class TransformTask extends RecursiveAction {
 
     private static ClassVisitor prepareClassVisitor() {
         return Util.newInstance(Opcodes.ASM5,
-                HidePrepareClassVisitor::new,
-                UncheckcastPrepareClassVisitor::new);
+                null,
+                HidePrepareClassVisitor.class,
+                UncheckcastPrepareClassVisitor.class);
     }
 
     private static ClassVisitor dumpClassVisitor(ClassWriter cw) {
-        return Util.newInstance(cw,
-                HideDumpClassVisitor::new,
-                UncheckcastDumpClassVisitor::new);
+        return Util.newInstance(Opcodes.ASM5,
+                cw,
+                HideDumpClassVisitor.class,
+                UncheckcastDumpClassVisitor.class);
     }
 }
 

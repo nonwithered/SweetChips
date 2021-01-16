@@ -12,7 +12,7 @@ public abstract class BasePlugin implements Plugin<Project> {
 
     @Override
     public final void apply(Project project) {
-        ensure(project);
+        init(project);
         onApply(project);
         prepare();
         transform();
@@ -30,34 +30,38 @@ public abstract class BasePlugin implements Plugin<Project> {
         return (Collection<Class<? extends ClassVisitor>>) Collections.EMPTY_LIST;
     }
 
-    protected void addPrepare(String name, Class<? extends ClassVisitor> cv) {
-        BaseContext context = Util.CONTEXTS.get(name);
+    protected final void addPrepare(String name, Class<? extends ClassVisitor> cv) {
+        UnionContext context = Util.CONTEXTS.get(name);
         if (context != null) {
             context.addPrepare(cv);
         }
     }
 
-    protected void addTransform(String name, Class<? extends ClassVisitor> cv) {
-        BaseContext context = Util.CONTEXTS.get(name);
+    protected final void addTransform(String name, Class<? extends ClassVisitor> cv) {
+        UnionContext context = Util.CONTEXTS.get(name);
         if (context != null) {
             context.addDump(cv);
         }
     }
 
     private void prepare() {
-        BaseContext context = Util.CONTEXTS.get(Util.NAME);
-        onPrepare().forEach(context::addPrepare);
+        UnionContext context = Util.CONTEXTS.get(Util.NAME);
+        if (context != null) {
+            onPrepare().forEach(context::addPrepare);
+        }
     }
 
     private void transform() {
-        BaseContext context = Util.CONTEXTS.get(Util.NAME);
-        onTransform().forEach(context::addDump);
+        UnionContext context = Util.CONTEXTS.get(Util.NAME);
+        if (context != null) {
+            onTransform().forEach(context::addDump);
+        }
     }
 
-    private void ensure(Project project) {
-        if (project.getPlugins().findPlugin("com.android.application") == null
-                && project.getPlugins().findPlugin("com.android.library") == null) {
-            throw new ProjectConfigurationException("SweetChips plugin should be enabled first", (Throwable) null);
+    private void init(Project project) {
+        if (project.getPlugins().findPlugin(Util.NAME) == null) {
+            throw new ProjectConfigurationException(Util.NAME + " plugin should be enabled first",
+                    new IllegalStateException(Util.NAME + " plugin should be enabled first"));
         }
     }
 }

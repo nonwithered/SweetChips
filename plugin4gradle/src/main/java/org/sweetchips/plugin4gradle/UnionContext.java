@@ -6,17 +6,17 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
-public class BaseContext {
+public class UnionContext {
 
     private final String mName;
 
-    private final BaseExtension mExt;
+    private final UnionExtension mExt;
 
     private final Collection<Class<? extends ClassVisitor>> mPrepare;
 
     private final Collection<Class<? extends ClassVisitor>> mDump;
 
-    public BaseContext(String name, BaseExtension ext) {
+    public UnionContext(String name, UnionExtension ext) {
         mName = name;
         mExt = ext;
         mPrepare = new ConcurrentLinkedQueue<>();
@@ -27,7 +27,7 @@ public class BaseContext {
         return mName;
     }
 
-    BaseExtension getExtension() {
+    UnionExtension getExtension() {
         return mExt;
     }
 

@@ -15,8 +15,8 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
 
     private String mName;
 
-    public UncheckcastPrepareClassVisitor(ClassVisitor cv) {
-        super(Util.ASM_API.get(), cv);
+    public UncheckcastPrepareClassVisitor(int api, ClassVisitor cv) {
+        super(api, cv);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         if (desc.equals(Util.UNCHECKCAST_NAME)) {
             mTarget.put(mElements, mElements);
-            return new UncheckcastPrepareAnnotationVisitor(super.visitAnnotation(desc, visible), mElements::addType);
+            return new UncheckcastPrepareAnnotationVisitor(api, super.visitAnnotation(desc, visible), mElements::addType);
         }
         return super.visitAnnotation(desc, visible);
     }
@@ -44,7 +44,7 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
             public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                 if (desc.equals(Util.UNCHECKCAST_NAME)) {
                     mTarget.put(mElements, mElements);
-                    return new UncheckcastPrepareAnnotationVisitor(super.visitAnnotation(desc, visible), mElements::addType);
+                    return new UncheckcastPrepareAnnotationVisitor(api, super.visitAnnotation(desc, visible), mElements::addType);
                 }
                 return super.visitAnnotation(desc, visible);
             }

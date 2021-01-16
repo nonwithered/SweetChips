@@ -1,6 +1,6 @@
-gradle.ext.buildUrl = uri('./build')
-
 rootProject.name = 'SweetChips'
-include 'base'
-include 'visitors'
-include 'plugin4gradle'
+include ':base'
+include ':visitors'
+include ':plugin4gradle'
+
+gradle.ext.buildUrl = uri('./build')

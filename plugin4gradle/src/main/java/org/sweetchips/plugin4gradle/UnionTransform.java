@@ -32,9 +32,9 @@ public class UnionTransform extends Transform {
 
     private volatile Function<InputStream, byte[]> mVisitor = null;
 
-    private final BaseContext mContext;
+    private final UnionContext mContext;
 
-    public UnionTransform(BaseContext context) {
+    public UnionTransform(UnionContext context) {
         mContext = context;
     }
 
@@ -299,7 +299,7 @@ public class UnionTransform extends Transform {
         return transform(in, mContext::forEachDump);
     }
 
-    private static byte[] transform(InputStream in, Consumer<Consumer<Class<? extends ClassVisitor>>> consumer) {
+    private byte[] transform(InputStream in, Consumer<Consumer<Class<? extends ClassVisitor>>> consumer) {
         try {
             ClassReader cr = new ClassReader(in);
             ClassWriter cw = new ClassWriter(0);
@@ -312,11 +312,11 @@ public class UnionTransform extends Transform {
         }
     }
 
-    private static ClassVisitor newInstance(ClassVisitor cv, Class<? extends ClassVisitor> clazz) {
+    private ClassVisitor newInstance(ClassVisitor cv, Class<? extends ClassVisitor> clazz) {
         try {
-            Constructor<? extends ClassVisitor> constructor = clazz.getConstructor(ClassVisitor.class);
+            Constructor<? extends ClassVisitor> constructor = clazz.getConstructor(int.class, ClassVisitor.class);
             constructor.setAccessible(true);
-            return constructor.newInstance(cv);
+            return constructor.newInstance(mContext.getExtension().getAsmApi(), cv);
         } catch (Exception e) {
             throw new AssertionError(e);
         }

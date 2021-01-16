@@ -12,8 +12,8 @@ public class HideDumpClassVisitor extends ClassVisitor {
 
     private Collection<HideElement> mTarget;
 
-    public HideDumpClassVisitor(ClassVisitor cv) {
-        super(Util.ASM_API.get(), cv);
+    public HideDumpClassVisitor(int api, ClassVisitor cv) {
+        super(api, cv);
     }
 
     @Override

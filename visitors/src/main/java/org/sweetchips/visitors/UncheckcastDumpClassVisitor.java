@@ -10,8 +10,8 @@ public class UncheckcastDumpClassVisitor extends ClassVisitor {
 
     private UncheckcastElement mElementClazz;
 
-    public UncheckcastDumpClassVisitor(ClassVisitor cv) {
-        super(Util.ASM_API.get(), cv);
+    public UncheckcastDumpClassVisitor(int api, ClassVisitor cv) {
+        super(api, cv);
     }
 
     @Override
