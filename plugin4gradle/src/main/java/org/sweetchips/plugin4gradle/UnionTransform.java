@@ -28,7 +28,7 @@ public class UnionTransform extends Transform {
 
     private final Function<InputStream, byte[]> mPrepare = this::prepare;
 
-    private final Function<InputStream, byte[]> mDump = this::dump;
+    private final Function<InputStream, byte[]> mTransform = this::transform;
 
     private volatile Function<InputStream, byte[]> mVisitor = null;
 
@@ -63,7 +63,7 @@ public class UnionTransform extends Transform {
         try {
             mVisitor = mPrepare;
             eachTransformInvocation(transformInvocation);
-            mVisitor = mDump;
+            mVisitor = mTransform;
             eachTransformInvocation(transformInvocation);
         } catch (Throwable e) {
             while (e instanceof AssertionError) {
@@ -222,7 +222,7 @@ public class UnionTransform extends Transform {
     private Void eachChangedFile(File changedFileInput, File changedFileOutput, Status status) throws IOException {
         switch (status) {
             case NOTCHANGED:
-                if (mVisitor == mDump) {
+                if (mVisitor == mTransform) {
                     Files.move(changedFileInput.toPath(), changedFileOutput.toPath());
                 }
                 break;
@@ -295,8 +295,8 @@ public class UnionTransform extends Transform {
         return transform(in, mContext::forEachPrepare);
     }
 
-    private byte[] dump(InputStream in) {
-        return transform(in, mContext::forEachDump);
+    private byte[] transform(InputStream in) {
+        return transform(in, mContext::forEachTransform);
     }
 
     private byte[] transform(InputStream in, Consumer<Consumer<Class<? extends ClassVisitor>>> consumer) {

@@ -7,6 +7,8 @@ import java.util.function.Consumer;
 
 public class UncheckcastPrepareAnnotationVisitor extends AnnotationVisitor {
 
+    private static final String VALUE_STRING = "value";
+
     private final Consumer<Type> mConsumer;
 
     public UncheckcastPrepareAnnotationVisitor(int api, AnnotationVisitor av, Consumer<Type> consumer) {
@@ -15,7 +17,7 @@ public class UncheckcastPrepareAnnotationVisitor extends AnnotationVisitor {
     }
     @Override
     public AnnotationVisitor visitArray(String name) {
-        if (name.equals(Util.VALUE_NAME)) {
+        if (name.equals(VALUE_STRING)) {
             return new AnnotationVisitor(api, super.visitArray(name)) {
                 @Override
                 public void visit(String name, Object value) {

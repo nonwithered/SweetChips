@@ -9,9 +9,9 @@ import java.util.Map;
 
 public class UncheckcastPrepareClassVisitor extends ClassVisitor {
 
-    private final Map<UncheckcastElement, UncheckcastElement> mTarget = new HashMap<>();
+    private final Map<UncheckcastRecord, UncheckcastRecord> mTarget = new HashMap<>();
 
-    private UncheckcastElement mElements = null;
+    private UncheckcastRecord mElements = null;
 
     private String mName;
 
@@ -21,14 +21,14 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        mElements = new UncheckcastElement(name, superName);
-        Util.UNCHECKCAST_TARGET.put(mName = name, mTarget);
+        mElements = new UncheckcastRecord(name, superName);
+        UncheckcastRecord.targets().put(mName = name, mTarget);
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        if (desc.equals(Util.UNCHECKCAST_NAME)) {
+        if (desc.equals(UncheckcastRecord.NAME)) {
             mTarget.put(mElements, mElements);
             return new UncheckcastPrepareAnnotationVisitor(api, super.visitAnnotation(desc, visible), mElements::addType);
         }
@@ -37,12 +37,12 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        mElements = new UncheckcastElement(name, desc);
+        mElements = new UncheckcastRecord(name, desc);
         MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
         return new MethodVisitor(api, mv) {
             @Override
             public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                if (desc.equals(Util.UNCHECKCAST_NAME)) {
+                if (desc.equals(UncheckcastRecord.NAME)) {
                     mTarget.put(mElements, mElements);
                     return new UncheckcastPrepareAnnotationVisitor(api, super.visitAnnotation(desc, visible), mElements::addType);
                 }
@@ -54,7 +54,7 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
     @Override
     public void visitEnd() {
         if (mTarget.isEmpty()) {
-            Util.UNCHECKCAST_TARGET.remove(mName);
+            UncheckcastRecord.targets().remove(mName);
         }
         super.visitEnd();
     }

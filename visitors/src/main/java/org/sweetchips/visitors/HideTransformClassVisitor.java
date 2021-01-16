@@ -8,18 +8,18 @@ import org.objectweb.asm.Opcodes;
 
 import java.util.Collection;
 
-public class HideDumpClassVisitor extends ClassVisitor {
+public class HideTransformClassVisitor extends ClassVisitor {
 
-    private Collection<HideElement> mTarget;
+    private Collection<HideRecord> mTarget;
 
-    public HideDumpClassVisitor(int api, ClassVisitor cv) {
+    public HideTransformClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        mTarget = Util.HIDE_TARGET.get(name);
-        if (mTarget != null && mTarget.contains(new HideElement(name, superName))) {
+        mTarget = HideRecord.targets().get(name);
+        if (mTarget != null && mTarget.contains(new HideRecord(name, superName))) {
             access |= Opcodes.ACC_SYNTHETIC;
         }
         super.visit(version, access, name, signature, superName, interfaces);
@@ -27,7 +27,7 @@ public class HideDumpClassVisitor extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        if (desc.equals(Util.HIDE_NAME)) {
+        if (desc.equals(HideRecord.NAME)) {
             return null;
         }
         return super.visitAnnotation(desc, visible);
@@ -35,12 +35,12 @@ public class HideDumpClassVisitor extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        if (mTarget != null && mTarget.contains(new HideElement(name, desc))) {
+        if (mTarget != null && mTarget.contains(new HideRecord(name, desc))) {
             access |= Opcodes.ACC_SYNTHETIC;
             return new FieldVisitor(api, super.visitField(access, name, desc, signature, value)) {
                 @Override
                 public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                    if (desc.equals(Util.HIDE_NAME)) {
+                    if (desc.equals(HideRecord.NAME)) {
                         return null;
                     }
                     return super.visitAnnotation(desc, visible);
@@ -52,12 +52,12 @@ public class HideDumpClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        if (mTarget != null && mTarget.contains(new HideElement(name, desc))) {
+        if (mTarget != null && mTarget.contains(new HideRecord(name, desc))) {
             access |= Opcodes.ACC_SYNTHETIC;
             return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
                 @Override
                 public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                    if (desc.equals(Util.HIDE_NAME)) {
+                    if (desc.equals(HideRecord.NAME)) {
                         return null;
                     }
                     return super.visitAnnotation(desc, visible);

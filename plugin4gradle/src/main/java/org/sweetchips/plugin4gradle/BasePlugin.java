@@ -5,6 +5,7 @@ import org.gradle.api.Project;
 import org.gradle.api.ProjectConfigurationException;
 import org.objectweb.asm.ClassVisitor;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -30,32 +31,14 @@ public abstract class BasePlugin implements Plugin<Project> {
         return (Collection<Class<? extends ClassVisitor>>) Collections.EMPTY_LIST;
     }
 
-    protected final void addPrepare(String name, Class<? extends ClassVisitor> cv) {
-        UnionContext context = Util.CONTEXTS.get(name);
-        if (context != null) {
-            context.addPrepare(cv);
-        }
+    @SafeVarargs
+    protected final void addPrepare(String name, Class<? extends ClassVisitor>... cv) {
+        UnionContext.addPrepare(name, Arrays.asList(cv));
     }
 
-    protected final void addTransform(String name, Class<? extends ClassVisitor> cv) {
-        UnionContext context = Util.CONTEXTS.get(name);
-        if (context != null) {
-            context.addDump(cv);
-        }
-    }
-
-    private void prepare() {
-        UnionContext context = Util.CONTEXTS.get(Util.NAME);
-        if (context != null) {
-            onPrepare().forEach(context::addPrepare);
-        }
-    }
-
-    private void transform() {
-        UnionContext context = Util.CONTEXTS.get(Util.NAME);
-        if (context != null) {
-            onTransform().forEach(context::addDump);
-        }
+    @SafeVarargs
+    protected final void addTransform(String name, Class<? extends ClassVisitor>... cv) {
+        UnionContext.addTransform(name, Arrays.asList(cv));
     }
 
     private void init(Project project) {
@@ -63,5 +46,13 @@ public abstract class BasePlugin implements Plugin<Project> {
             throw new ProjectConfigurationException(Util.NAME + " plugin should be enabled first",
                     new IllegalStateException(Util.NAME + " plugin should be enabled first"));
         }
+    }
+
+    private void prepare() {
+        UnionContext.addPrepare(null, onPrepare());
+    }
+
+    private void transform() {
+        UnionContext.addTransform(null, onPrepare());
     }
 }

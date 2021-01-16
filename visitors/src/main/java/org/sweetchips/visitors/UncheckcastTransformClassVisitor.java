@@ -4,28 +4,28 @@ import org.objectweb.asm.*;
 
 import java.util.Map;
 
-public class UncheckcastDumpClassVisitor extends ClassVisitor {
+public class UncheckcastTransformClassVisitor extends ClassVisitor {
 
-    private Map<UncheckcastElement, UncheckcastElement> mTarget;
+    private Map<UncheckcastRecord, UncheckcastRecord> mTarget;
 
-    private UncheckcastElement mElementClazz;
+    private UncheckcastRecord mElementClazz;
 
-    public UncheckcastDumpClassVisitor(int api, ClassVisitor cv) {
+    public UncheckcastTransformClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        mTarget = Util.UNCHECKCAST_TARGET.get(name);
+        mTarget = UncheckcastRecord.targets().get(name);
         if (mTarget != null) {
-            mElementClazz = mTarget.get(new UncheckcastElement(name, superName));
+            mElementClazz = mTarget.get(new UncheckcastRecord(name, superName));
         }
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        if (desc.equals(Util.UNCHECKCAST_NAME)) {
+        if (desc.equals(UncheckcastRecord.NAME)) {
             return null;
         }
         return super.visitAnnotation(desc, visible);
@@ -33,11 +33,11 @@ public class UncheckcastDumpClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        UncheckcastElement elementMethod = null;
+        UncheckcastRecord elementMethod = null;
         if (mTarget != null) {
-            elementMethod = mTarget.get(new UncheckcastElement(name, desc));
+            elementMethod = mTarget.get(new UncheckcastRecord(name, desc));
         }
-        UncheckcastElement mElementMethod = elementMethod;
+        UncheckcastRecord mElementMethod = elementMethod;
         return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
             @Override
             public void visitTypeInsn(int opcode, String type) {
@@ -57,7 +57,7 @@ public class UncheckcastDumpClassVisitor extends ClassVisitor {
 
             @Override
             public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                if (desc.equals(Util.UNCHECKCAST_NAME)) {
+                if (desc.equals(UncheckcastRecord.NAME)) {
                     return null;
                 }
                 return super.visitAnnotation(desc, visible);

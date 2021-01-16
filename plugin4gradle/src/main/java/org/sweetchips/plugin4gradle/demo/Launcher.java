@@ -7,6 +7,7 @@ import com.android.build.api.transform.JarInput;
 import com.android.build.api.transform.QualifiedContent;
 import com.android.build.api.transform.SecondaryInput;
 import com.android.build.api.transform.Status;
+import com.android.build.api.transform.TransformException;
 import com.android.build.api.transform.TransformInput;
 import com.android.build.api.transform.TransformInvocation;
 import com.android.build.api.transform.TransformOutputProvider;
@@ -15,9 +16,9 @@ import org.objectweb.asm.ClassVisitor;
 import org.sweetchips.plugin4gradle.UnionContext;
 import org.sweetchips.plugin4gradle.UnionExtension;
 import org.sweetchips.plugin4gradle.UnionTransform;
-import org.sweetchips.plugin4gradle.Util;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -32,45 +33,84 @@ import java.util.stream.Collectors;
 
 public class Launcher {
 
-    @SuppressWarnings("unchecked")
-    public static void main(String[] args) {
-        UnionContext context = new UnionContext(Util.NAME, new UnionExtension());
-        try (Scanner scanner = new Scanner(System.in)) {
-            String tag;
-            do {
-                tag = scanner.nextLine();
-            } while (tag.length() == 0);
-            Path output = Paths.get(tag);
-            Collection<Path> input = Arrays.stream(args).map(Paths::get).collect(Collectors.toList());
-            do {
-                tag = scanner.nextLine();
-            } while (tag.length() == 0);
-            while (scanner.hasNextLine()) {
-                String string;
-                do {
-                    string = scanner.nextLine();
-                } while (string.length() == 0);
-                if (tag != null && tag.equals(string)) {
-                    tag = null;
-                    continue;
-                }
-                Class<? extends ClassVisitor> clazz = (Class<? extends ClassVisitor>) Class.forName(string);
-                if (tag != null) {
-                    context.addPrepare(clazz);
-                } else {
-                    context.addDump(clazz);
-                }
+    private static final Scanner sScanner = new Scanner(System.in);
+
+    private static final UnionContext sContext = UnionContext.newInstance(null, new UnionExtension());
+
+    private static final Collection<Class<? extends ClassVisitor>> sVisitors = new ArrayList<>();
+
+    private static Invocation sInvocation;
+
+    private static String sTag;
+
+    private static UnionTransform sUnionTransform;
+
+    public static void main(String[] args) throws Throwable {
+        init(Arrays.asList(args));
+        prepare();
+        transform();
+        start();
+    }
+
+    private static void init(Collection<String> paths) {
+        Path output = Paths.get(nextLine());
+        Collection<Path> input = paths.stream().map(Paths::get).collect(Collectors.toList());
+        sInvocation = new Invocation(output, input);
+        sTag = nextLine();
+    }
+
+    private static void prepare() {
+        while (sScanner.hasNextLine()) {
+            String name = nextLine();
+            if (name.equals(sTag)) {
+                break;
+            } else {
+                addClassVisitor(name);
             }
-            new UnionTransform(context).transform(new Invocation(output, input));
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+        UnionContext.addPrepare(null, sVisitors);
+        sVisitors.clear();
+    }
+
+    private static void transform() {
+        while (sScanner.hasNextLine()) {
+            String name = nextLine();
+            addClassVisitor(name);
+        }
+        UnionContext.addTransform(null, sVisitors);
+        sUnionTransform = new UnionTransform(sContext);
+    }
+
+    private static void start() throws TransformException, InterruptedException, IOException {
+        sUnionTransform.transform(sInvocation);
+    }
+
+    private static String nextLine() {
+        String string;
+        do {
+            string = sScanner.nextLine();
+        } while (string.length() == 0);
+        return string;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void addClassVisitor(String name) {
+        try {
+            Class<?> clazz = Class.forName(name);
+            if (ClassVisitor.class.isAssignableFrom(clazz)) {
+                sVisitors.add((Class<? extends ClassVisitor>) clazz);
+            } else {
+                throw new IllegalArgumentException(name);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
     static class Invocation implements TransformInvocation {
 
         final TransformOutputProvider outputProvider;
-        
+
         final Collection<TransformInput> inputs;
 
         Invocation(Path output, Collection<Path> input) {
@@ -108,9 +148,9 @@ public class Launcher {
             throw new UnsupportedOperationException();
         }
     }
-    
+
     static class Input implements TransformInput {
-        
+
         final Collection<JarInput> jarInputs = new ArrayList<>();
 
         final Collection<DirectoryInput> directoryInputs = new ArrayList<>();
@@ -133,7 +173,7 @@ public class Launcher {
             return directoryInputs;
         }
     }
-    
+
     static class Jar implements JarInput {
 
         final Path path;
@@ -169,7 +209,7 @@ public class Launcher {
             return (Set<? super Scope>) Collections.EMPTY_SET;
         }
     }
-    
+
     static class Directory implements DirectoryInput {
 
         final Path path;
@@ -217,7 +257,7 @@ public class Launcher {
         OutputProvider(Path path) {
             this.path = path;
             if (!path.toFile().exists() || !path.toFile().isDirectory()) {
-                throw  new IllegalArgumentException();
+                throw new IllegalArgumentException();
             }
         }
 
