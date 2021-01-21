@@ -256,8 +256,8 @@ public class Launcher {
 
         OutputProvider(Path path) {
             this.path = path;
-            if (!path.toFile().exists() || !path.toFile().isDirectory()) {
-                throw new IllegalArgumentException();
+            if (!path.toFile().isDirectory() && !path.toFile().mkdirs()) {
+                throw new IllegalArgumentException(path.toString() + !path.toFile().isDirectory());
             }
         }
 

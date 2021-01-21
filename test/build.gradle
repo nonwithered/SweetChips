@@ -1,0 +1,75 @@
+import java.nio.file.Paths
+
+task clean(type: Delete) {
+    delete project.buildDir
+}
+
+task prepare(type: Exec) {
+    dependsOn clean
+    def pro = ['utility', 'visitors', 'plugin4gradle']
+    pro.each {
+        dependsOn ":$it:publish"
+    }
+    def cp = ''
+    Paths.get('test', 'lib').toFile().listFiles().each {
+        cp += ":lib/${it.name}"
+    }
+    def path = '../build/org/sweetchips/'
+    def pkgs = []
+    pro.each {
+        cp += ":$path$it/1.0.0/$it-1.0.0.jar"
+        pkgs += "$path$it/1.0.0/$it-1.0.0.jar"
+    }
+    cp = '.' + cp
+    def arr = ['java',
+               '-cp', "$cp",
+               'org.sweetchips.plugin4gradle.demo.Launcher'
+    ]
+    pkgs.each {
+        arr += it
+    }
+    try {
+        standardInput = new FileInputStream(Paths.get('test', 'in.txt').toFile())
+    } catch (IOException e) {
+        throw new IllegalStateException(e)
+    }
+    commandLine arr
+}
+
+task assemble(type: Exec) {
+    dependsOn prepare
+    commandLine 'javac',
+            '-cp', '../build/org/sweetchips/utility/1.0.0/utility-1.0.0.jar',
+            '-d', 'build/classes',
+            'src/Test.java', 'src/Main.java'
+    doFirst {
+        Paths.get('test', 'build', 'classes').toFile().with {
+            if (!it.isDirectory()) {
+                it.mkdirs()
+            }
+        }
+    }
+}
+
+task transform(type: Exec) {
+    dependsOn assemble
+    commandLine 'java',
+            '-jar', 'build/lib/visitors-1.0.0.jar',
+            'build'
+}
+
+task launch(type: Exec) {
+    dependsOn transform
+    standardOutput = System.out
+    commandLine 'java',
+            '-cp', 'build/classes',
+            'main.Main'
+}
+
+task test(type: Exec) {
+    dependsOn launch
+    commandLine 'javac',
+            '-cp', 'build/classes:../build/org/sweetchips/utility/1.0.0/utility-1.0.0.jar',
+            '-d', 'build/classes',
+            'src/Main.java'
+}
