@@ -9,6 +9,7 @@ import org.objectweb.asm.ClassWriter;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
@@ -24,7 +25,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-public class UnionTransform extends Transform {
+class UnionTransform extends Transform {
 
     private final Function<InputStream, byte[]> mPrepare = this::prepare;
 
@@ -59,25 +60,13 @@ public class UnionTransform extends Transform {
     }
 
     @Override
-    public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
+    public void transform(TransformInvocation transformInvocation) throws TransformException {
         try {
             mVisitor = mPrepare;
             eachTransformInvocation(transformInvocation);
             mVisitor = mTransform;
             eachTransformInvocation(transformInvocation);
-        } catch (Throwable e) {
-            while (e instanceof AssertionError) {
-                e = e.getCause();
-            }
-            if (e instanceof TransformException) {
-                throw (TransformException) e;
-            }
-            if (e instanceof InterruptedException) {
-                throw (InterruptedException) e;
-            }
-            if (e instanceof IOException) {
-                throw (IOException) e;
-            }
+        } catch (RuntimeException e) {
             throw new TransformException(e);
         }
     }
@@ -136,56 +125,35 @@ public class UnionTransform extends Transform {
                             zipOutputStream.write(it.getValue());
                             zipOutputStream.closeEntry();
                         } catch (IOException e) {
-                            throw new AssertionError(e);
+                            throw new IllegalStateException(e);
                         }
                     });
             zipOutputStream.flush();
-        } catch (AssertionError e) {
-            Throwable except = e.getCause();
-            while (except instanceof AssertionError) {
-                except = except.getCause();
-            }
-            if (except instanceof IOException) {
-                throw (IOException) except;
-            }
-            throw new AssertionError(except);
         }
         return null;
     }
 
     private Map.Entry<ZipEntry, byte[]> eachZipEntryInput(ZipEntry zipEntryInput, ZipFile zipFileInput) throws IOException {
-        return new Map.Entry<ZipEntry, byte[]>() {
-
-            private final ZipEntry key;
-
-            private final byte[] value;
-
-            {
-                InputStream inputStream = zipFileInput.getInputStream(zipEntryInput);
-                if (!zipEntryInput.getName().endsWith(".class")) {
-                    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-                        int n;
-                        byte[] b = new byte[1024];
-                        while ((n = inputStream.read(b, 0, 1024)) >= 0) {
-                            outputStream.write(b, 0, n);
-                        }
-                        value = outputStream.toByteArray();
-                    }
-                } else {
-                    value = mVisitor.apply(inputStream);
-                }
-                key = new ZipEntry(zipEntryInput.getName());
-                CRC32 crc32 = new CRC32();
-                crc32.update(value, 0, value.length);
-                key.setCrc(crc32.getValue());
-                key.setMethod(ZipEntry.STORED);
-                key.setSize(value.length);
-                key.setCompressedSize(value.length);
-                FileTime fileTime = FileTime.fromMillis(0L);
-                key.setLastAccessTime(fileTime);
-                key.setLastModifiedTime(fileTime);
-                key.setCreationTime(fileTime);
+        byte[] value;
+        try (InputStream inputStream = zipFileInput.getInputStream(zipEntryInput)) {
+            if (!zipEntryInput.getName().endsWith(".class")) {
+                value = eachZipBytes(inputStream);
+            } else {
+                value = mVisitor.apply(inputStream);
             }
+        }
+        ZipEntry key = new ZipEntry(zipEntryInput.getName());
+        CRC32 crc32 = new CRC32();
+        crc32.update(value, 0, value.length);
+        key.setCrc(crc32.getValue());
+        key.setMethod(ZipEntry.STORED);
+        key.setSize(value.length);
+        key.setCompressedSize(value.length);
+        FileTime fileTime = FileTime.fromMillis(0L);
+        key.setLastAccessTime(fileTime);
+        key.setLastModifiedTime(fileTime);
+        key.setCreationTime(fileTime);
+        return new Map.Entry<ZipEntry, byte[]>() {
 
             @Override
             public ZipEntry getKey() {
@@ -202,6 +170,17 @@ public class UnionTransform extends Transform {
                 throw new UnsupportedOperationException();
             }
         };
+    }
+
+    private static byte[] eachZipBytes(InputStream inputStream) throws IOException {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            int n;
+            byte[] b = new byte[1024];
+            while ((n = inputStream.read(b, 0, 1024)) >= 0) {
+                outputStream.write(b, 0, n);
+            }
+            return outputStream.toByteArray();
+        }
     }
 
     private Void eachDirectoryInput(DirectoryInput directoryInput, File directoryOutput) throws IOException {
@@ -307,8 +286,8 @@ public class UnionTransform extends Transform {
             consumer.accept((clazz) -> ref.set(newInstance(ref.get(), clazz)));
             cr.accept(ref.get(), ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
-        } catch (Exception e) {
-            throw new AssertionError(e);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -317,8 +296,8 @@ public class UnionTransform extends Transform {
             Constructor<? extends ClassVisitor> constructor = clazz.getConstructor(int.class, ClassVisitor.class);
             constructor.setAccessible(true);
             return constructor.newInstance(mContext.getExtension().getAsmApi(), cv);
-        } catch (Exception e) {
-            throw new AssertionError(e);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 }

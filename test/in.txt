@@ -1,4 +1,4 @@
-build/lib
+build/libs
 -
 -
 org.sweetchips.visitors.ReplaceAsmClassVisitor

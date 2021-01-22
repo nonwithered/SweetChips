@@ -1,6 +1,5 @@
-package org.sweetchips.visitors.demo;
+package org.sweetchips.visitors;
 
-import org.sweetchips.visitors.*;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -10,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,24 +31,17 @@ public class TransformTask extends RecursiveAction {
     }
 
     static void transform(Collection<Path> paths) {
-        try {
-            paths.stream()
-                    .map(TransformTask::fork)
-                    .collect(Collectors.toList())
-                    .forEach(ForkJoinTask::join);
-        } catch (Throwable e) {
-            while (e instanceof AssertionError) {
-                e = e.getCause();
-            }
-            throw new AssertionError(e);
-        }
+        paths.stream()
+                .map(TransformTask::fork)
+                .collect(Collectors.toList())
+                .forEach(ForkJoinTask::join);
     }
 
     @Override
     protected void compute() {
         try {
             Path in = mPath;
-            if (in.toFile().isDirectory()) {
+            if (Files.isDirectory(in)) {
                 Files.list(in)
                         .map(TransformTask::fork)
                         .collect(Collectors.toList())
@@ -73,14 +66,12 @@ public class TransformTask extends RecursiveAction {
                     cr.accept(cv, ClassReader.EXPAND_FRAMES);
                     output.write(cw.toByteArray());
                 }
-                if (in.toFile().delete()) {
-                    if (!out.toFile().renameTo(in.toFile())) {
-                        throw new IOException();
-                    }
+                if (Files.deleteIfExists(in)) {
+                    Files.move(out, out.resolveSibling(in.getFileName()));
                 }
             }
         } catch (IOException e) {
-            throw new AssertionError(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -116,8 +107,8 @@ public class TransformTask extends RecursiveAction {
             Constructor<? extends ClassVisitor> constructor = clazz.getConstructor(int.class, ClassVisitor.class);
             constructor.setAccessible(true);
             return constructor.newInstance(api, cv);
-        } catch (Exception e) {
-            throw new AssertionError(e);
+        } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 }

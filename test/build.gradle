@@ -1,73 +1,82 @@
+import java.nio.file.Files
 import java.nio.file.Paths
 
 task clean(type: Delete) {
     delete project.buildDir
 }
 
-task prepare(type: Exec) {
+task testPrepare(type: Exec) {
     dependsOn clean
-    def pro = ['utility', 'visitors', 'plugin4gradle']
-    pro.each {
-        dependsOn ":$it:publish"
+    [':utility', ':visitors', ':plugin4gradle', ':plugin4gradle:demo', ':visitors:demo'].each {
+        dependsOn "$it:publish"
     }
-    def cp = ''
-    Paths.get('test', 'lib').toFile().listFiles().each {
-        cp += ":lib/${it.name}"
+    doFirst {
+        def cp = '.'
+        Files.list(Paths.get("$projectDir", 'libs')).each {
+            cp += ":${it.toAbsolutePath()}"
+        }
+        def path = Paths.get("$projectDir", '..', 'build', 'org', 'sweetchips')
+        def args = []
+        ['utility', 'visitors', 'visitors-demo', 'plugin4gradle', 'plugin4gradle-demo'].each {
+            def tmp = path.resolve(Paths.get("$it", '1.0.0', "$it-1.0.0.jar")).toAbsolutePath()
+            cp += ":${tmp}"
+            args += "${tmp}"
+        }
+        cp = '.' + cp
+        def arr = [
+                'java',
+                '-cp', "$cp",
+                'org.sweetchips.plugin4gradle.Launcher'
+        ] + args
+        try {
+            standardInput = Files.newInputStream(Paths.get("$projectDir", 'in.txt'))
+        } catch (IOException e) {
+            throw new IllegalStateException(e)
+        }
+        commandLine arr
     }
-    def path = '../build/org/sweetchips/'
-    def pkgs = []
-    pro.each {
-        cp += ":$path$it/1.0.0/$it-1.0.0.jar"
-        pkgs += "$path$it/1.0.0/$it-1.0.0.jar"
-    }
-    cp = '.' + cp
-    def arr = ['java',
-               '-cp', "$cp",
-               'org.sweetchips.plugin4gradle.demo.Launcher'
-    ]
-    pkgs.each {
-        arr += it
-    }
-    try {
-        standardInput = new FileInputStream(Paths.get('test', 'in.txt').toFile())
-    } catch (IOException e) {
-        throw new IllegalStateException(e)
-    }
-    commandLine arr
 }
 
-task assemble(type: Exec) {
-    dependsOn prepare
+task testCompile(type: Exec) {
+    dependsOn testPrepare
     commandLine 'javac',
             '-cp', '../build/org/sweetchips/utility/1.0.0/utility-1.0.0.jar',
             '-d', 'build/classes',
             'src/Test.java', 'src/Main.java'
     doFirst {
-        Paths.get('test', 'build', 'classes').toFile().with {
-            if (!it.isDirectory()) {
-                it.mkdirs()
+        Paths.get("$projectDir", 'build', 'classes').with {
+            if (!Files.isDirectory(it)) {
+                Files.createDirectories(it)
             }
         }
     }
 }
 
-task transform(type: Exec) {
-    dependsOn assemble
+task testTransform(type: Exec) {
+    dependsOn testCompile
+    def path = Paths.get("$projectDir", 'build', 'libs')
+    def cp = '.'
+    ['utility', 'visitors', 'visitors-demo'].each {
+        def tmp = path.resolve(Paths.get("$it-1.0.0.jar")).toAbsolutePath()
+        cp += ":${tmp}"
+    }
+    standardOutput = System.out
     commandLine 'java',
-            '-jar', 'build/lib/visitors-1.0.0.jar',
+            '-cp', "$cp",
+            'org.sweetchips.visitors.Launcher',
             'build'
 }
 
-task launch(type: Exec) {
-    dependsOn transform
+task testLaunch(type: Exec) {
+    dependsOn testTransform
     standardOutput = System.out
     commandLine 'java',
             '-cp', 'build/classes',
             'main.Main'
 }
 
-task test(type: Exec) {
-    dependsOn launch
+task testAssemble(type: Exec) {
+    dependsOn testLaunch
     commandLine 'javac',
             '-cp', 'build/classes:../build/org/sweetchips/utility/1.0.0/utility-1.0.0.jar',
             '-d', 'build/classes',

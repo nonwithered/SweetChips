@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class UnionContext {
+class UnionContext {
 
     private static final Map<String, UnionContext> sContexts = new HashMap<>();
 

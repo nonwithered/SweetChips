@@ -1,4 +1,4 @@
-package org.sweetchips.plugin4gradle.demo;
+package org.sweetchips.plugin4gradle;
 
 import com.android.build.api.transform.Context;
 import com.android.build.api.transform.DirectoryInput;
@@ -13,12 +13,10 @@ import com.android.build.api.transform.TransformInvocation;
 import com.android.build.api.transform.TransformOutputProvider;
 
 import org.objectweb.asm.ClassVisitor;
-import org.sweetchips.plugin4gradle.UnionContext;
-import org.sweetchips.plugin4gradle.UnionExtension;
-import org.sweetchips.plugin4gradle.UnionTransform;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -95,15 +93,16 @@ public class Launcher {
 
     @SuppressWarnings("unchecked")
     private static void addClassVisitor(String name) {
+        Class<?> clazz;
         try {
-            Class<?> clazz = Class.forName(name);
-            if (ClassVisitor.class.isAssignableFrom(clazz)) {
-                sVisitors.add((Class<? extends ClassVisitor>) clazz);
-            } else {
-                throw new IllegalArgumentException(name);
-            }
+            clazz = Class.forName(name);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(e);
+        }
+        if (ClassVisitor.class.isAssignableFrom(clazz)) {
+            sVisitors.add((Class<? extends ClassVisitor>) clazz);
+        } else {
+            throw new IllegalArgumentException(name);
         }
     }
 
@@ -156,7 +155,7 @@ public class Launcher {
         final Collection<DirectoryInput> directoryInputs = new ArrayList<>();
 
         Input(Path path) {
-            if (path.toFile().isDirectory()) {
+            if (Files.isDirectory(path)) {
                 directoryInputs.add(new Directory(path));
             } else if (path.getFileName().toString().endsWith(".jar")) {
                 jarInputs.add(new Jar(path));
@@ -256,8 +255,8 @@ public class Launcher {
 
         OutputProvider(Path path) {
             this.path = path;
-            if (!path.toFile().isDirectory() && !path.toFile().mkdirs()) {
-                throw new IllegalArgumentException(path.toString() + !path.toFile().isDirectory());
+            if (!Files.isDirectory(path) && !path.toFile().mkdirs()) {
+                throw new IllegalArgumentException(path.toString() + !Files.isDirectory(path));
             }
         }
 
@@ -274,7 +273,7 @@ public class Launcher {
                 case JAR:
                     return Paths.get(path.toString(), Paths.get(name).getFileName().toString()).toFile();
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
     }

@@ -1,8 +1,15 @@
 apply plugin: 'java-library'
 
 dependencies {
-    implementation project(':utility')
+    implementation project(':visitors')
     implementation 'org.ow2.asm:asm:5.1'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.sweetchips.visitors.Launcher'
+        attributes 'Class-Path': 'utility-1.0.0.jar'
+    }
 }
 
 apply plugin: 'maven-publish'
@@ -10,7 +17,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId 'org.sweetchips'
-            artifactId 'visitors'
+            artifactId 'visitors-demo'
             version '1.0.0'
             from components.java
         }

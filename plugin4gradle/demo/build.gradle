@@ -1,8 +1,17 @@
 apply plugin: 'java-library'
 
 dependencies {
-    implementation project(':utility')
+    implementation project(':plugin4gradle')
+    implementation gradleApi()
+    implementation 'com.android.tools.build:gradle:3.1.4'
+    implementation 'com.android.tools.build:gradle-api:3.1.4'
     implementation 'org.ow2.asm:asm:5.1'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.sweetchips.plugin4gradle.Launcher'
+    }
 }
 
 apply plugin: 'maven-publish'
@@ -10,7 +19,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId 'org.sweetchips'
-            artifactId 'visitors'
+            artifactId 'plugin4gradle-demo'
             version '1.0.0'
             from components.java
         }

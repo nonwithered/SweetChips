@@ -1,4 +1,4 @@
-package org.sweetchips.visitors.demo;
+package org.sweetchips.visitors;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
