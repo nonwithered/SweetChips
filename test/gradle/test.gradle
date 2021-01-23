@@ -1,0 +1,105 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
+def sep = org.gradle.internal.os.OperatingSystem.current().isWindows() ? ';' : ':'
+
+def javaSrc = Paths.get("$projectDir", 'src', 'main', 'java', 'org', 'sweetchips', 'test')
+
+task testPrepare(type: Exec, dependsOn: clean) {
+    [
+            ':utility',
+            ':visitors',
+            ':plugin4gradle',
+            ':plugin4gradle:demo',
+            ':visitors:demo',
+    ].each {
+        dependsOn "$it:publish"
+    }
+    def cp = '.'
+    Files.list(Paths.get("$projectDir", 'libs')).each {
+        cp += "$sep${it.toAbsolutePath()}"
+    }
+    def args = []
+    def path = Paths.get("$projectDir", '..', 'build', 'org', 'sweetchips')
+    [
+            'utility',
+            'visitors',
+            'visitors-demo',
+            'plugin4gradle',
+            'plugin4gradle-demo',
+    ].each {
+        def tmp = path.resolve(Paths.get("$it", '1.0.0', "$it-1.0.0.jar"))
+        cp += "$sep${tmp.toAbsolutePath()}"
+        args += "${tmp.toAbsolutePath()}"
+    }
+    def cmd = [
+            'java',
+            '-cp', "$cp",
+            'org.sweetchips.plugin4gradle.Launcher'
+    ] + args
+    try {
+        standardInput = Files.newInputStream(Paths.get("$projectDir", 'in.txt'))
+    } catch (IOException e) {
+        throw new IllegalStateException(e)
+    }
+    standardOutput = System.out
+    errorOutput = System.err
+    commandLine cmd
+}
+
+task testCompile(type: Exec, dependsOn: testPrepare) {
+    def d = Paths.get("$projectDir", 'build', 'classes')
+    def src = []
+    [
+            'Test.java',
+            'Main.java',
+
+    ].each {
+        src += "${javaSrc.resolve(Paths.get(it)).toAbsolutePath()}"
+    }
+    def cp = '.'
+    def path = Paths.get("$projectDir", '..', 'build', 'org', 'sweetchips')
+    [
+            'utility',
+    ].each {
+        def tmp = path.resolve(Paths.get("$it", '1.0.0', "$it-1.0.0.jar"))
+        cp += "$sep${tmp.toAbsolutePath()}"
+    }
+    def cmd = [
+            'javac',
+            '-cp', "$cp",
+            '-d', "${d.toAbsolutePath()}",
+    ] + src
+    standardOutput = System.out
+    errorOutput = System.err
+    commandLine cmd
+    doFirst {
+        if (!Files.isDirectory(d)) {
+            Files.createDirectories(d)
+        }
+    }
+}
+
+task testTransform(type: Exec, dependsOn: testCompile) {
+    def path = Paths.get("$projectDir", 'build', 'libs')
+    def cp = '.'
+    ['utility', 'visitors', 'visitors-demo'].each {
+        def tmp = path.resolve(Paths.get("$it-1.0.0.jar"))
+        cp += "$sep${tmp.toAbsolutePath()}"
+    }
+    standardOutput = System.out
+    errorOutput = System.err
+    commandLine 'java',
+            '-cp', "$cp",
+            'org.sweetchips.visitors.Launcher',
+            'build'
+}
+
+task testLaunch(type: Exec, dependsOn: testTransform) {
+    standardOutput = System.out
+    errorOutput = System.err
+    def cp = Paths.get("$projectDir", 'build', 'classes')
+    commandLine 'java',
+            '-cp', "${cp.toAbsolutePath()}",
+            'org.sweetchips.test.Main'
+}

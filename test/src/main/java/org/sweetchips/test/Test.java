@@ -1,6 +1,4 @@
-package test;
-
-import main.Main;
+package org.sweetchips.test;
 
 import org.sweetchips.annotation.Hide;
 

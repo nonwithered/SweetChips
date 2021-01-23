@@ -1,8 +1,6 @@
-package main;
+package org.sweetchips.test;
 
 import java.lang.reflect.Member;
-
-import test.Test;
 
 import org.sweetchips.annotation.Uncheckcast;
 
