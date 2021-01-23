@@ -1,1 +1,0 @@
-javac -cp ../build/org/sweetchips/utility/1.0.0/utility-1.0.0.jar -d build/classes src/Test.java src/Main.java
