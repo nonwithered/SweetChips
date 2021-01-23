@@ -17,7 +17,6 @@ public class Test extends Main {
         System.out.println("init: " + msg);
     }
 
-    @Hide
     @Uncheckcast({Test.class, Main.class})
     public Test test() {
         Test test = new Test();
@@ -27,7 +26,9 @@ public class Test extends Main {
         return (Test) main;
     }
 
-    public void test(String msg) {
+    @Hide
+    public Test test(String msg) {
         System.out.println("test: " + msg);
+        return this;
     }
 }
