@@ -17,7 +17,7 @@ publishing {
     }
     repositories {
         maven {
-            url = gradle.buildUrl
+            url = rootProject.ext.buildUri
         }
     }
 }

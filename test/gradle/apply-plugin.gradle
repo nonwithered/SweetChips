@@ -1,0 +1,6 @@
+if (rootProject.ext.applyPlugin4Gradle) {
+    apply plugin: 'SweetChips'
+    SweetChips {
+        enable = true
+    }
+}

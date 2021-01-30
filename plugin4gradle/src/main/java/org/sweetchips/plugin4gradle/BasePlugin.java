@@ -1,5 +1,7 @@
 package org.sweetchips.plugin4gradle;
 
+import com.android.annotations.NonNull;
+
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.ProjectConfigurationException;
@@ -12,7 +14,7 @@ import java.util.Collections;
 public abstract class BasePlugin implements Plugin<Project> {
 
     @Override
-    public final void apply(Project project) {
+    public final void apply(@NonNull Project project) {
         init(project);
         onApply(project);
         prepare();

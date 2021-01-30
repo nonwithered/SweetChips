@@ -1,5 +1,6 @@
 package org.sweetchips.plugin4gradle;
 
+import com.android.annotations.NonNull;
 import com.android.build.gradle.BaseExtension;
 
 import org.gradle.api.Plugin;
@@ -11,7 +12,7 @@ public class UnionPlugin implements Plugin<Project> {
     private BaseExtension android;
 
     @Override
-    public void apply(Project project) {
+    public void apply(@NonNull Project project) {
         init(project);
         UnionExtension extension = project.getExtensions().create(Util.NAME, UnionExtension.class);
         if (extension.isEnable()) {

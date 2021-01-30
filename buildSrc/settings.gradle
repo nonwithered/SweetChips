@@ -1,0 +1,3 @@
+include ':stub'
+
+gradle.ext.repoUri = uri('../build')

@@ -4,7 +4,15 @@ import java.util.stream.Collectors
 
 def sep = org.gradle.internal.os.OperatingSystem.current().isWindows() ? ';' : ':'
 
-def javaSrc = Paths.get("$projectDir", 'src', 'main', 'java', 'org', 'sweetchips', 'test')
+def javaSrc = Paths.get(
+        "$projectDir",
+        'src',
+        'main',
+        'java',
+        'org',
+        'sweetchips',
+        'test'
+)
 
 def proList = [
         ':utility',
@@ -22,15 +30,37 @@ def jarList = [
         'visitors-demo',
 ]
 
-def repPath = Paths.get("$projectDir", '..', 'build', 'org', 'sweetchips')
+def repPath = Paths.get(
+        "${rootProject.projectDir}",
+        'build',
+        'org',
+        'sweetchips'
+)
 
-def depPath = Paths.get("$projectDir", 'libs')
+def depPath = Paths.get(
+        "$projectDir",
+        'libs'
+)
 
-def depFind = { it -> repPath.resolve(Paths.get("$it", '1.0.0', "$it-1.0.0.jar")) }
+def depFind = {
+    it -> repPath.resolve(Paths.get(
+            "$it",
+            '1.0.0',
+            "$it-1.0.0.jar"
+    ))
+}
 
-def libPath = Paths.get("$projectDir", 'build', 'libs')
+def libPath = Paths.get(
+        "$projectDir",
+        'build',
+        'libs'
+)
 
-def clsPath = Paths.get("$projectDir", 'build', 'classes')
+def clsPath = Paths.get(
+        "$projectDir",
+        'build',
+        'classes'
+)
 
 task testPrepare(type: Exec, dependsOn: clean) {
     proList.each {

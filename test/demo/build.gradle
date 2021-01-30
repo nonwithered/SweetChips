@@ -1,0 +1,8 @@
+apply plugin: 'java'
+
+dependencies {
+
+    implementation project(':utility')
+}
+
+apply from: 'gradle/launch.gradle'

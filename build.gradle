@@ -1,21 +1,31 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
 buildscript {
-    ext.kotlin_version = '1.3.61'
+
     repositories {
         maven {
-            url gradle.buildUrl
+            url gradle.buildUri
         }
         google()
         jcenter()
 //        mavenCentral()
     }
+
     dependencies {
+        classpath 'com.android.tools.build:gradle:3.6.1'
+
+        if (gradle.applyPlugin4Gradle()) {
+            classpath 'org.sweetchips:plugin4gradle:1.0.0'
+        }
     }
 }
 
 allprojects {
+
     repositories {
         maven {
-            url gradle.buildUrl
+            url gradle.buildUri
         }
         google()
         jcenter()
@@ -25,4 +35,10 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+ext {
+
+    buildUri = uri('./build')
+    applyPlugin4Gradle = gradle.applyPlugin4Gradle()
 }

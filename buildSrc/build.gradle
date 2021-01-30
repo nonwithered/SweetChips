@@ -1,0 +1,34 @@
+apply from: 'gradle/check.gradle'
+
+buildscript {
+
+    repositories {
+        maven {
+            url gradle.repoUri
+        }
+        google()
+        jcenter()
+    }
+
+    dependencies {
+    }
+}
+
+allprojects {
+
+    repositories {
+        maven {
+            url gradle.repoUri
+        }
+        google()
+        jcenter()
+    }
+}
+
+dependencies {
+    if (rootProject.ext.applyPlugin4Gradle) {
+        implementation 'org.sweetchips:plugin4gradle:1.0.0'
+    } else {
+        compileOnly project(':stub')
+    }
+}

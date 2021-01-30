@@ -10,7 +10,7 @@ public class UnionExtension {
     public UnionExtension() {
     }
 
-    private boolean mIsEnable = true;
+    private boolean mIsEnable = false;
 
     boolean isEnable() {
         return mIsEnable;
@@ -32,21 +32,21 @@ public class UnionExtension {
 
     private List<String> mMultiTransform = Collections.emptyList();
 
-    public void setMultiTransform(List<String> list) {
-        mMultiTransform = list;
-    }
-
     List<String> getMultiTransform() {
         return mMultiTransform;
     }
 
-    private int mAsmApi = Opcodes.ASM5;
-
-    public void setAsmApi(int asmApi) {
-        mAsmApi = asmApi;
+    public void setMultiTransform(List<String> list) {
+        mMultiTransform = list;
     }
+
+    private int mAsmApi = Opcodes.ASM5;
 
     int getAsmApi() {
         return mAsmApi;
+    }
+
+    public void setAsmApi(int asmApi) {
+        mAsmApi = asmApi;
     }
 }
