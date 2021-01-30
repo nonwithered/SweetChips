@@ -1,5 +1,6 @@
 package org.sweetchips.plugin4gradle;
 
+import org.gradle.api.Project;
 import org.objectweb.asm.ClassVisitor;
 
 import java.util.ArrayList;
@@ -14,17 +15,17 @@ class UnionContext {
 
     private static UnionContext sUnionContext;
 
-    public static UnionContext newInstance(String name, UnionExtension extension) {
+    public static UnionContext newInstance(Project project, String name, UnionExtension extension) {
         if (name == null) {
-            if (sUnionContext == null) {
-                sUnionContext = new UnionContext(Util.NAME, extension);
-            }
-            return sUnionContext;
+            name = Util.NAME;
         }
         UnionContext context = sContexts.get(name);
         if (context == null) {
-            context = new UnionContext(name, extension);
+            context = new UnionContext(project, name, extension);
             sContexts.put(name, context);
+            if (name.equals(Util.NAME)) {
+                sUnionContext = context;
+            }
         }
         return context;
     }
@@ -43,6 +44,8 @@ class UnionContext {
         }
     }
 
+    private final Project mProject;
+
     private final String mName;
 
     private final UnionExtension mExt;
@@ -51,9 +54,14 @@ class UnionContext {
 
     private final Collection<Class<? extends ClassVisitor>> mTransform = new ArrayList<>();
 
-    private UnionContext(String name, UnionExtension ext) {
+    private UnionContext(Project project, String name, UnionExtension ext) {
+        mProject = project;
         mName = name;
         mExt = ext;
+    }
+
+    Project getProject() {
+        return mProject;
     }
 
     String getName() {

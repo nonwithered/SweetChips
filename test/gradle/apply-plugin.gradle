@@ -2,5 +2,11 @@ if (rootProject.ext.applyPlugin4Gradle) {
     apply plugin: 'SweetChips'
     SweetChips {
         enable = true
+        multiTransform = [
+                'trace',
+        ]
     }
+
+    apply plugin: 'test-main'
+    apply plugin: 'test-trace'
 }

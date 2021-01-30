@@ -4,7 +4,7 @@ buildscript {
 
     repositories {
         maven {
-            url gradle.repoUri
+            url gradle.buildUri
         }
         google()
         jcenter()
@@ -18,7 +18,7 @@ allprojects {
 
     repositories {
         maven {
-            url gradle.repoUri
+            url gradle.buildUri
         }
         google()
         jcenter()
@@ -26,9 +26,25 @@ allprojects {
 }
 
 dependencies {
+    implementation gradleApi()
+    implementation 'com.android.tools.build:gradle:3.1.4'
+    implementation 'com.android.tools.build:gradle-api:3.1.4'
+    implementation 'org.ow2.asm:asm:5.1'
+
     if (rootProject.ext.applyPlugin4Gradle) {
         implementation 'org.sweetchips:plugin4gradle:1.0.0'
     } else {
-        compileOnly project(':stub')
+        implementation project(':plugin4gradle')
     }
+
+    if (rootProject.ext.applyVisitors) {
+        implementation 'org.sweetchips:visitors:1.0.0'
+    } else {
+        implementation project(':visitors')
+    }
+}
+
+ext {
+
+    buildUri = gradle.buildUri
 }

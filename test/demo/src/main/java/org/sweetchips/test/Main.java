@@ -6,19 +6,25 @@ import org.sweetchips.annotation.Uncheckcast;
 
 public class Main {
 
-    @Uncheckcast({String.class})
+    private static final String TAG = "Main";
+
     public static void main(String[] args) {
+        new Main().test(args);
+    }
+
+    @Uncheckcast({String.class})
+    public void test(String[] args) {
         Object test = new Test("default").test();
         try {
             String s = (String) test;
         } catch (ClassCastException e) {
-            e.printStackTrace();
+            TestLogger.log(TAG, e);
         }
-        System.out.println(checkFlags(0x00001000, Test.class, "test", String.class));
-        System.out.println(checkFlags(0x00001000, Test.class, "<init>"));
+        TestLogger.log(TAG, checkFlags(0x00001000, Test.class, "test", String.class));
+        TestLogger.log(TAG, checkFlags(0x00001000, Test.class, "<init>"));
     }
 
-    private static boolean checkFlags(int flags, Class<?> clazz, String methodName, Class<?>... argsTypes) {
+    private boolean checkFlags(int flags, Class<?> clazz, String methodName, Class<?>... argsTypes) {
         Member member;
         try {
             if ("<init>".equals(methodName)) {

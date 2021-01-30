@@ -16,8 +16,8 @@ public class UnionPlugin implements Plugin<Project> {
         init(project);
         UnionExtension extension = project.getExtensions().create(Util.NAME, UnionExtension.class);
         if (extension.isEnable()) {
-            addTransform(null, extension);
-            extension.getMultiTransform().forEach((name) -> addTransform(name, extension));
+            addTransform(project, null, extension);
+            extension.getMultiTransform().forEach((name) -> addTransform(project, name, extension));
         }
     }
 
@@ -34,7 +34,7 @@ public class UnionPlugin implements Plugin<Project> {
         return (BaseExtension) project.getExtensions().getByName("android");
     }
 
-    private void addTransform(String name, UnionExtension extension) {
-        android.registerTransform(new UnionTransform(UnionContext.newInstance(name, extension)));
+    private void addTransform(Project project, String name, UnionExtension extension) {
+        android.registerTransform(new UnionTransform(UnionContext.newInstance(project, name, extension)));
     }
 }

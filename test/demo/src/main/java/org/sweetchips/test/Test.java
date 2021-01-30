@@ -6,13 +6,15 @@ import org.sweetchips.annotation.Uncheckcast;
 
 public class Test extends Main {
 
+    private static final String TAG = "Test";
+
     @Hide
     public Test() {
         this("default");
     }
 
     public Test(String msg) {
-        System.out.println("init: " + msg);
+        TestLogger.log(TAG, "init: " + msg);
     }
 
     @Uncheckcast({Test.class, Main.class})
@@ -26,7 +28,7 @@ public class Test extends Main {
 
     @Hide
     public Test test(String msg) {
-        System.out.println("test: " + msg);
+        TestLogger.log(TAG, "test: " + msg);
         return this;
     }
 }

@@ -1,8 +1,9 @@
 apply plugin: 'java-library'
 
 dependencies {
-    implementation project(':utility')
     implementation 'org.ow2.asm:asm:5.1'
+
+    implementation project(':utility')
 }
 
 apply plugin: 'maven-publish'

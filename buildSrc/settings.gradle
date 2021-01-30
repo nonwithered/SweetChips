@@ -1,3 +1,10 @@
-include ':stub'
+import java.nio.file.Paths
 
-gradle.ext.repoUri = uri('../build')
+include ':utility'
+project(':utility').projectDir = Paths.get("${rootProject.projectDir}", '..', 'utility').toFile()
+include ':visitors'
+project(':visitors').projectDir = Paths.get("${rootProject.projectDir}", '..', 'visitors').toFile()
+include ':plugin4gradle'
+project(':plugin4gradle').projectDir = Paths.get("${rootProject.projectDir}", '..', 'plugin4gradle').toFile()
+
+gradle.ext.buildUri = uri('../build')
