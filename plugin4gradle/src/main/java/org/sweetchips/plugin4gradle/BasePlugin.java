@@ -44,7 +44,7 @@ public abstract class BasePlugin implements Plugin<Project> {
     }
 
     private void init(Project project) {
-        if (project.getPlugins().findPlugin(Util.NAME) == null) {
+        if (UnionContext.getProject() == null) {
             throw new ProjectConfigurationException(Util.NAME + " plugin should be enabled first",
                     new IllegalStateException(Util.NAME + " plugin should be enabled first"));
         }

@@ -13,8 +13,6 @@ final class UnionContext {
 
     private static final Map<String, UnionContext> sContexts = new HashMap<>();
 
-    private static UnionContext sUnionContext;
-
     public static UnionContext getInstance(String name) {
         if (name == null) {
             name = Util.NAME;
@@ -23,9 +21,6 @@ final class UnionContext {
         if (context == null) {
             context = new UnionContext(name);
             sContexts.put(name, context);
-            if (name.equals(Util.NAME)) {
-                sUnionContext = context;
-            }
         }
         return context;
     }

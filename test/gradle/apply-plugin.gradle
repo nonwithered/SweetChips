@@ -1,6 +1,7 @@
 if (rootProject.ext.applyPlugin4Gradle) {
     apply plugin: 'SweetChips'
     SweetChips {
+        incremental = true
         addTransform 'trace'
     }
 

@@ -30,6 +30,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -49,6 +52,8 @@ final class UnionTransform extends Transform {
     private volatile Function<InputStream, byte[]> mVisitor = null;
 
     private final UnionContext mContext;
+
+    private final ExecutorService mExecutor = Executors.newWorkStealingPool();
 
     public UnionTransform(UnionContext context) {
         mContext = context;
@@ -75,7 +80,7 @@ final class UnionTransform extends Transform {
     }
 
     @Override
-    public void transform(TransformInvocation transformInvocation) throws TransformException {
+    public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
         try {
             mVisitor = mPrepare;
             eachTransformInvocation(transformInvocation);
@@ -83,14 +88,22 @@ final class UnionTransform extends Transform {
             eachTransformInvocation(transformInvocation);
         } catch (RuntimeException e) {
             throw new TransformException(e);
+        } finally {
+            mExecutor.shutdownNow();
         }
     }
 
-    private void eachTransformInvocation(TransformInvocation transformInvocation) {
-        transformInvocation.getInputs().stream()
-                .map(it -> fork(() -> eachTransformInput(it, transformInvocation.getOutputProvider())))
-                .collect(Collectors.toList())
-                .forEach(UnionTransform::join);
+    private void eachTransformInvocation(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
+        try {
+            mExecutor.submit(() ->
+                    transformInvocation.getInputs().stream()
+                            .map(it -> fork(() -> eachTransformInput(it, transformInvocation.getOutputProvider())))
+                            .collect(Collectors.toList())
+                            .forEach(UnionTransform::join))
+                    .get();
+        } catch (ExecutionException e) {
+            throw new TransformException(e.getCause());
+        }
     }
 
     private Void eachTransformInput(TransformInput transformInput, TransformOutputProvider transformOutputProvider) {
@@ -106,16 +119,12 @@ final class UnionTransform extends Transform {
     }
 
     private Void eachJarInput(JarInput jarInput, Path jarOutput) throws IOException {
-        if (!UnionContext.getExtension().isIncremental()) {
-            return eachZipFile(new ZipFile(jarInput.getFile()), jarOutput);
-        }
         switch (jarInput.getStatus()) {
             case NOTCHANGED:
-                Files.copy(jarInput.getFile().toPath(), jarOutput);
-                break;
             case ADDED:
             case CHANGED:
-                return eachZipFile(new ZipFile(jarInput.getFile()), jarOutput);
+                eachZipFile(new ZipFile(jarInput.getFile()), jarOutput);
+                break;
             case REMOVED:
                 Files.deleteIfExists(jarOutput);
                 break;
@@ -123,7 +132,7 @@ final class UnionTransform extends Transform {
         return null;
     }
 
-    private Void eachZipFile(ZipFile zipFileInput, Path zipFileOutput) throws IOException {
+    private void eachZipFile(ZipFile zipFileInput, Path zipFileOutput) throws IOException {
         try (OutputStream fileOutputStream = Files.newOutputStream(zipFileOutput);
              ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
             Collections.list(zipFileInput.entries()).stream()
@@ -142,7 +151,6 @@ final class UnionTransform extends Transform {
                     });
             zipOutputStream.flush();
         }
-        return null;
     }
 
     private Map.Entry<ZipEntry, byte[]> eachZipEntryInput(ZipEntry zipEntryInput, ZipFile zipFileInput) throws IOException {
@@ -195,33 +203,37 @@ final class UnionTransform extends Transform {
         }
     }
 
-    private Void eachDirectoryInput(DirectoryInput directoryInput, Path directoryOutput) throws IOException {
-        Files.createDirectories(directoryOutput);
-        if (!UnionContext.getExtension().isIncremental()) {
-            eachFile(directoryInput.getFile().toPath(), directoryOutput);
+    private Void eachDirectoryInput(DirectoryInput directoryInput, Path pathOutput) throws IOException {
+        Path pathInput = directoryInput.getFile().toPath();
+        if (!isIncremental() || directoryInput.getChangedFiles().size() == 0) {
+            eachFile(pathInput, pathOutput);
+            return null;
         }
         directoryInput.getChangedFiles().entrySet().stream()
                 .map(it -> fork(() -> eachChangedFile(
                         it.getKey().toPath(),
-                        fileOutput(it.getKey().toPath(), directoryInput.getFile().toPath(), directoryOutput),
+                        fileOutput(it.getKey().toPath(), pathInput, pathOutput),
                         it.getValue())))
                 .collect(Collectors.toList())
                 .forEach(UnionTransform::join);
+
         return null;
     }
 
     private Void eachChangedFile(Path changedFileInput, Path changedFileOutput, Status status) throws IOException {
         switch (status) {
             case NOTCHANGED:
-                if (mVisitor == mTransform) {
-                    Files.move(changedFileInput, changedFileOutput);
+                if (Files.exists(changedFileOutput) && !Files.isDirectory(changedFileOutput)) {
+                    break;
                 }
-                break;
             case ADDED:
             case CHANGED:
                 eachFile(changedFileInput, changedFileOutput);
+                break;
             case REMOVED:
-                Files.deleteIfExists(changedFileOutput);
+                if (!Files.isDirectory(changedFileOutput)) {
+                    Files.deleteIfExists(changedFileOutput);
+                }
                 break;
         }
         return null;
@@ -230,6 +242,7 @@ final class UnionTransform extends Transform {
     private Void eachFile(Path fileInput, Path fileOutput) throws IOException {
         if (!Files.isDirectory(fileInput)) {
             if (!fileInput.getFileName().toString().endsWith(".class")) {
+                Files.deleteIfExists(fileOutput);
                 Files.copy(fileInput, fileOutput);
             } else {
                 try (
@@ -240,7 +253,7 @@ final class UnionTransform extends Transform {
                 }
             }
         } else {
-            if (!Files.isDirectory(fileOutput)) {
+            if (!Files.exists(fileOutput)) {
                 Files.createDirectories(fileOutput);
             }
             Files.list(fileInput)

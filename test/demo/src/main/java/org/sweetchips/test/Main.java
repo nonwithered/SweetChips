@@ -6,7 +6,7 @@ import org.sweetchips.annotation.Uncheckcast;
 
 public class Main {
 
-    private static final String TAG = "Main";
+    private static final String TAG = "Test";
 
     public static void main(String[] args) {
         new Main().test(args);
@@ -18,7 +18,7 @@ public class Main {
         try {
             String s = (String) test;
         } catch (ClassCastException e) {
-            TestLogger.log(TAG, e);
+            TestLogger.log(TAG, e.toString());
         }
         TestLogger.log(TAG, checkFlags(0x00001000, Test.class, "test", String.class));
         TestLogger.log(TAG, checkFlags(0x00001000, Test.class, "<init>"));
