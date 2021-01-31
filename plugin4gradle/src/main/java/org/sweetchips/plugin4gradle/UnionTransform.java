@@ -26,7 +26,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-class UnionTransform extends Transform {
+final class UnionTransform extends Transform {
 
     private final Function<InputStream, byte[]> mPrepare = this::prepare;
 
@@ -57,7 +57,7 @@ class UnionTransform extends Transform {
 
     @Override
     public boolean isIncremental() {
-        return mContext.getExtension().isIncremental();
+        return UnionContext.getExtension().isIncremental();
     }
 
     @Override
@@ -92,7 +92,7 @@ class UnionTransform extends Transform {
     }
 
     private Void eachJarInput(JarInput jarInput, File jarOutput) throws IOException {
-        if (!isIncremental()) {
+        if (!UnionContext.getExtension().isIncremental()) {
             return eachZipFile(new ZipFile(jarInput.getFile()), jarOutput);
         }
         switch (jarInput.getStatus()) {
@@ -186,7 +186,7 @@ class UnionTransform extends Transform {
 
     private Void eachDirectoryInput(DirectoryInput directoryInput, File directoryOutput) throws IOException {
         Files.createDirectories(directoryOutput.toPath());
-        if (!isIncremental()) {
+        if (!UnionContext.getExtension().isIncremental()) {
             eachFile(directoryInput.getFile(), directoryOutput);
         }
         directoryInput.getChangedFiles().entrySet().stream()
@@ -233,6 +233,9 @@ class UnionTransform extends Transform {
                 }
             }
         } else {
+            if (Files.isDirectory(fileInput.toPath())) {
+                Files.createDirectories(fileOutput.toPath());
+            }
             Arrays.stream(Objects.requireNonNull(fileInput.listFiles()))
                     .map(it -> fork(() -> eachFile(it, fileOutput(it, fileInput, fileOutput))))
                     .collect(Collectors.toList())
@@ -296,7 +299,7 @@ class UnionTransform extends Transform {
         try {
             Constructor<? extends ClassVisitor> constructor = clazz.getConstructor(int.class, ClassVisitor.class);
             constructor.setAccessible(true);
-            return constructor.newInstance(mContext.getExtension().getAsmApi(), cv);
+            return constructor.newInstance(UnionContext.getExtension().getAsmApi(), cv);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }

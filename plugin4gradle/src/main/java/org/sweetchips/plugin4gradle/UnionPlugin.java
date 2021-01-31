@@ -7,7 +7,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.ProjectConfigurationException;
 
-public class UnionPlugin implements Plugin<Project> {
+public final class UnionPlugin implements Plugin<Project> {
 
     private BaseExtension android;
 
@@ -15,10 +15,10 @@ public class UnionPlugin implements Plugin<Project> {
     public void apply(@NonNull Project project) {
         init(project);
         UnionExtension extension = project.getExtensions().create(Util.NAME, UnionExtension.class);
-        if (extension.isEnable()) {
-            addTransform(project, null, extension);
-            extension.getMultiTransform().forEach((name) -> addTransform(project, name, extension));
-        }
+        UnionContext.setPlugin(this);
+        UnionContext.setProject(project);
+        UnionContext.setExtension(extension);
+        addTransform(null);
     }
 
     private void init(Project project) {
@@ -34,7 +34,7 @@ public class UnionPlugin implements Plugin<Project> {
         return (BaseExtension) project.getExtensions().getByName("android");
     }
 
-    private void addTransform(Project project, String name, UnionExtension extension) {
-        android.registerTransform(new UnionTransform(UnionContext.newInstance(project, name, extension)));
+    void addTransform(String name) {
+        android.registerTransform(new UnionTransform(UnionContext.getInstance(name)));
     }
 }

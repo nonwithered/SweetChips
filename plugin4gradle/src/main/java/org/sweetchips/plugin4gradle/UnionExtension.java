@@ -2,22 +2,13 @@ package org.sweetchips.plugin4gradle;
 
 import org.objectweb.asm.Opcodes;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class UnionExtension {
 
     public UnionExtension() {
-    }
-
-    private boolean mIsEnable = false;
-
-    boolean isEnable() {
-        return mIsEnable;
-    }
-
-    public void setEnable(boolean isEnable) {
-        mIsEnable = isEnable;
     }
 
     private boolean mIsIncremental = false;
@@ -30,16 +21,6 @@ public class UnionExtension {
         mIsIncremental = isIncremental;
     }
 
-    private List<String> mMultiTransform = Collections.emptyList();
-
-    List<String> getMultiTransform() {
-        return mMultiTransform;
-    }
-
-    public void setMultiTransform(List<String> list) {
-        mMultiTransform = list;
-    }
-
     private int mAsmApi = Opcodes.ASM5;
 
     int getAsmApi() {
@@ -48,5 +29,9 @@ public class UnionExtension {
 
     public void setAsmApi(int asmApi) {
         mAsmApi = asmApi;
+    }
+
+    public void addTransform(String... name) {
+        Arrays.stream(name).forEach(UnionContext.getPlugin()::addTransform);
     }
 }

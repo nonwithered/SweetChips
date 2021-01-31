@@ -33,7 +33,7 @@ public class Launcher {
 
     private static final Scanner sScanner = new Scanner(System.in);
 
-    private static final UnionContext sContext = UnionContext.newInstance(null, null, new UnionExtension());
+    private static final UnionContext sContext = UnionContext.getInstance(null);
 
     private static final Collection<Class<? extends ClassVisitor>> sVisitors = new ArrayList<>();
 

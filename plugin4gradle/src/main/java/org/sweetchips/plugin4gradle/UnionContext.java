@@ -9,25 +9,55 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-class UnionContext {
+final class UnionContext {
 
     private static final Map<String, UnionContext> sContexts = new HashMap<>();
 
     private static UnionContext sUnionContext;
 
-    public static UnionContext newInstance(Project project, String name, UnionExtension extension) {
+    public static UnionContext getInstance(String name) {
         if (name == null) {
             name = Util.NAME;
         }
         UnionContext context = sContexts.get(name);
         if (context == null) {
-            context = new UnionContext(project, name, extension);
+            context = new UnionContext(name);
             sContexts.put(name, context);
             if (name.equals(Util.NAME)) {
                 sUnionContext = context;
             }
         }
         return context;
+    }
+
+    private static Project sProject;
+
+    static void setProject(Project project) {
+        sProject = project;
+    }
+
+    static Project getProject() {
+        return sProject;
+    }
+
+    private static UnionPlugin sPlugin;
+
+    static void setPlugin(UnionPlugin plugin) {
+        sPlugin = plugin;
+    }
+
+    static UnionPlugin getPlugin() {
+        return sPlugin;
+    }
+
+    private static UnionExtension sExtension;
+
+    static void setExtension(UnionExtension extension) {
+        sExtension = extension;
+    }
+
+    static UnionExtension getExtension() {
+        return sExtension;
     }
 
     public static void addPrepare(String name, Collection<Class<? extends ClassVisitor>> visitors) {
@@ -44,32 +74,18 @@ class UnionContext {
         }
     }
 
-    private final Project mProject;
-
     private final String mName;
-
-    private final UnionExtension mExt;
 
     private final Collection<Class<? extends ClassVisitor>> mPrepare = new ArrayList<>();
 
     private final Collection<Class<? extends ClassVisitor>> mTransform = new ArrayList<>();
 
-    private UnionContext(Project project, String name, UnionExtension ext) {
-        mProject = project;
+    private UnionContext(String name) {
         mName = name;
-        mExt = ext;
-    }
-
-    Project getProject() {
-        return mProject;
     }
 
     String getName() {
         return mName;
-    }
-
-    UnionExtension getExtension() {
-        return mExt;
     }
 
     void forEachPrepare(Consumer<Class<? extends ClassVisitor>> consumer) {
