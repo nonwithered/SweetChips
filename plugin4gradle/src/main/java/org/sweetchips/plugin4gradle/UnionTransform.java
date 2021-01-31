@@ -1,20 +1,34 @@
 package org.sweetchips.plugin4gradle;
 
-import com.android.build.api.transform.*;
+import com.android.build.api.transform.DirectoryInput;
+import com.android.build.api.transform.Format;
+import com.android.build.api.transform.JarInput;
+import com.android.build.api.transform.QualifiedContent;
+import com.android.build.api.transform.Status;
+import com.android.build.api.transform.Transform;
+import com.android.build.api.transform.TransformException;
+import com.android.build.api.transform.TransformInput;
+import com.android.build.api.transform.TransformInvocation;
+import com.android.build.api.transform.TransformOutputProvider;
 import com.android.build.gradle.internal.pipeline.TransformManager;
 
-import org.gradle.api.Project;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicReference;
@@ -91,30 +105,26 @@ final class UnionTransform extends Transform {
         return null;
     }
 
-    private Void eachJarInput(JarInput jarInput, File jarOutput) throws IOException {
+    private Void eachJarInput(JarInput jarInput, Path jarOutput) throws IOException {
         if (!UnionContext.getExtension().isIncremental()) {
             return eachZipFile(new ZipFile(jarInput.getFile()), jarOutput);
         }
         switch (jarInput.getStatus()) {
             case NOTCHANGED:
-                Files.copy(jarInput.getFile().toPath(), jarOutput.toPath());
+                Files.copy(jarInput.getFile().toPath(), jarOutput);
                 break;
             case ADDED:
             case CHANGED:
                 return eachZipFile(new ZipFile(jarInput.getFile()), jarOutput);
             case REMOVED:
-                if (jarOutput.exists()) {
-                    if (!jarOutput.delete()) {
-                        throw new IOException();
-                    }
-                }
+                Files.deleteIfExists(jarOutput);
                 break;
         }
         return null;
     }
 
-    private Void eachZipFile(ZipFile zipFileInput, File zipFileOutput) throws IOException {
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(zipFileOutput.toPath()))) {
+    private Void eachZipFile(ZipFile zipFileInput, Path zipFileOutput) throws IOException {
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(zipFileOutput))) {
             Collections.list(zipFileInput.entries()).stream()
                     .map(it -> fork(() -> eachZipEntryInput(it, zipFileInput)))
                     .collect(Collectors.toList()).stream()
@@ -184,59 +194,55 @@ final class UnionTransform extends Transform {
         }
     }
 
-    private Void eachDirectoryInput(DirectoryInput directoryInput, File directoryOutput) throws IOException {
-        Files.createDirectories(directoryOutput.toPath());
+    private Void eachDirectoryInput(DirectoryInput directoryInput, Path directoryOutput) throws IOException {
+        Files.createDirectories(directoryOutput);
         if (!UnionContext.getExtension().isIncremental()) {
-            eachFile(directoryInput.getFile(), directoryOutput);
+            eachFile(directoryInput.getFile().toPath(), directoryOutput);
         }
         directoryInput.getChangedFiles().entrySet().stream()
                 .map(it -> fork(() -> eachChangedFile(
-                        it.getKey(),
-                        fileOutput(it.getKey(), directoryInput.getFile(), directoryOutput),
+                        it.getKey().toPath(),
+                        fileOutput(it.getKey().toPath(), directoryInput.getFile().toPath(), directoryOutput),
                         it.getValue())))
                 .collect(Collectors.toList())
                 .forEach(UnionTransform::join);
         return null;
     }
 
-    private Void eachChangedFile(File changedFileInput, File changedFileOutput, Status status) throws IOException {
+    private Void eachChangedFile(Path changedFileInput, Path changedFileOutput, Status status) throws IOException {
         switch (status) {
             case NOTCHANGED:
                 if (mVisitor == mTransform) {
-                    Files.move(changedFileInput.toPath(), changedFileOutput.toPath());
+                    Files.move(changedFileInput, changedFileOutput);
                 }
                 break;
             case ADDED:
             case CHANGED:
                 eachFile(changedFileInput, changedFileOutput);
             case REMOVED:
-                if (changedFileOutput.exists()) {
-                    if (!changedFileOutput.delete()) {
-                        throw new IOException();
-                    }
-                }
+                Files.deleteIfExists(changedFileOutput);
                 break;
         }
         return null;
     }
 
-    private Void eachFile(File fileInput, File fileOutput) throws IOException {
-        if (!fileInput.isDirectory()) {
-            if (!fileInput.getName().endsWith(".class")) {
-                Files.copy(fileInput.toPath(), fileOutput.toPath());
+    private Void eachFile(Path fileInput, Path fileOutput) throws IOException {
+        if (!Files.isDirectory(fileInput)) {
+            if (!fileInput.getFileName().toString().endsWith(".class")) {
+                Files.copy(fileInput, fileOutput);
             } else {
                 try (
-                        InputStream inputStream = Files.newInputStream(fileInput.toPath());
-                        OutputStream outputStream = Files.newOutputStream(fileOutput.toPath())
+                        InputStream inputStream = Files.newInputStream(fileInput);
+                        OutputStream outputStream = Files.newOutputStream(fileOutput)
                 ) {
                     outputStream.write(mVisitor.apply(inputStream));
                 }
             }
         } else {
-            if (Files.isDirectory(fileInput.toPath())) {
-                Files.createDirectories(fileOutput.toPath());
+            if (!Files.isDirectory(fileOutput)) {
+                Files.createDirectories(fileOutput);
             }
-            Arrays.stream(Objects.requireNonNull(fileInput.listFiles()))
+            Files.list(fileInput)
                     .map(it -> fork(() -> eachFile(it, fileOutput(it, fileInput, fileOutput))))
                     .collect(Collectors.toList())
                     .forEach(UnionTransform::join);
@@ -244,26 +250,24 @@ final class UnionTransform extends Transform {
         return null;
     }
 
-    private static File jarOutput(JarInput jarInput, TransformOutputProvider transformOutputProvider) {
+    private static Path jarOutput(JarInput jarInput, TransformOutputProvider transformOutputProvider) {
         return transformOutputProvider.getContentLocation(
                 jarInput.getFile().getAbsolutePath(),
                 jarInput.getContentTypes(),
                 jarInput.getScopes(),
-                Format.JAR);
+                Format.JAR).toPath();
     }
 
-    private static File directoryOutput(DirectoryInput directoryInput, TransformOutputProvider transformOutputProvider) {
+    private static Path directoryOutput(DirectoryInput directoryInput, TransformOutputProvider transformOutputProvider) {
         return transformOutputProvider.getContentLocation(
                 directoryInput.getName(),
                 directoryInput.getContentTypes(),
                 directoryInput.getScopes(),
-                Format.DIRECTORY);
+                Format.DIRECTORY).toPath();
     }
 
-    private static File fileOutput(File fileInput, File pathInput, File pathOutput) {
-        return Paths.get(fileInput.getAbsolutePath()
-                .replace(pathInput.getAbsolutePath(),
-                        pathOutput.getAbsolutePath())).toFile();
+    private static Path fileOutput(Path fileInput, Path pathInput, Path pathOutput) {
+        return pathOutput.resolve(pathInput.relativize(fileInput));
     }
 
     private static <T> ForkJoinTask<T> fork(Callable<T> callable) {

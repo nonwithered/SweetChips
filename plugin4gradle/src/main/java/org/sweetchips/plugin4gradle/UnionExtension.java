@@ -3,8 +3,6 @@ package org.sweetchips.plugin4gradle;
 import org.objectweb.asm.Opcodes;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class UnionExtension {
 

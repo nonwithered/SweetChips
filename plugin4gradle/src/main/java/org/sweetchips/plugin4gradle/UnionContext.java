@@ -61,17 +61,17 @@ final class UnionContext {
     }
 
     public static void addPrepare(String name, Collection<Class<? extends ClassVisitor>> visitors) {
-        UnionContext context = name == null ? sUnionContext : sContexts.get(name);
-        if (context != null) {
-            context.mPrepare.addAll(visitors);
+        if (name == null) {
+            name = Util.NAME;
         }
+        getInstance(name).mPrepare.addAll(visitors);
     }
 
     public static void addTransform(String name, Collection<Class<? extends ClassVisitor>> visitors) {
-        UnionContext context = name == null ? sUnionContext : sContexts.get(name);
-        if (context != null) {
-            context.mTransform.addAll(visitors);
+        if (name == null) {
+            name = Util.NAME;
         }
+        getInstance(name).mTransform.addAll(visitors);
     }
 
     private final String mName;

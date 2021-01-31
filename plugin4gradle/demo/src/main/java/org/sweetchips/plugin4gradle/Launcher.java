@@ -31,6 +31,10 @@ import java.util.stream.Collectors;
 
 public class Launcher {
 
+    static {
+        UnionContext.setExtension(new UnionExtension());
+    }
+
     private static final Scanner sScanner = new Scanner(System.in);
 
     private static final UnionContext sContext = UnionContext.getInstance(null);
