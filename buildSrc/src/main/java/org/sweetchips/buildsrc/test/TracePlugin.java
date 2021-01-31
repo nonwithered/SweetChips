@@ -7,6 +7,5 @@ class TracePlugin extends BasePlugin {
 
     @Override
     protected void onApply(Project project) {
-
     }
 }

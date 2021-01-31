@@ -124,7 +124,8 @@ final class UnionTransform extends Transform {
     }
 
     private Void eachZipFile(ZipFile zipFileInput, Path zipFileOutput) throws IOException {
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(zipFileOutput))) {
+        try (OutputStream fileOutputStream = Files.newOutputStream(zipFileOutput);
+             ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
             Collections.list(zipFileInput.entries()).stream()
                     .map(it -> fork(() -> eachZipEntryInput(it, zipFileInput)))
                     .collect(Collectors.toList()).stream()

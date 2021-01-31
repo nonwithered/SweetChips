@@ -55,6 +55,6 @@ public abstract class BasePlugin implements Plugin<Project> {
     }
 
     private void transform() {
-        UnionContext.addTransform(null, onPrepare());
+        UnionContext.addTransform(null, onTransform());
     }
 }
