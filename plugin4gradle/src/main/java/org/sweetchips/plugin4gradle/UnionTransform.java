@@ -241,7 +241,7 @@ final class UnionTransform extends Transform {
 
     private Void eachFile(Path fileInput, Path fileOutput) throws IOException {
         if (!Files.isDirectory(fileInput)) {
-            if (!fileInput.getFileName().toString().endsWith(".class")) {
+            if (ignoreFile(fileInput)) {
                 Files.deleteIfExists(fileOutput);
                 Files.copy(fileInput, fileOutput);
             } else {
@@ -286,6 +286,14 @@ final class UnionTransform extends Transform {
 
     private static <T> ForkJoinTask<T> fork(Callable<T> callable) {
         return ForkJoinTask.adapt(callable).fork();
+    }
+
+    private static boolean ignoreFile(Path file) {
+        String fileName = file.getFileName().toString();
+        return !fileName.endsWith(".class")
+                || fileName.startsWith("R$")
+                || fileName.equals("R.class");
+
     }
 
     private static <T> T join(ForkJoinTask<T> forkJoinTask) {
