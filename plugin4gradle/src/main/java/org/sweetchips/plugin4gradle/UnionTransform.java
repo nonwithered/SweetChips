@@ -16,12 +16,17 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -30,14 +35,16 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -45,11 +52,7 @@ import java.util.zip.ZipOutputStream;
 
 final class UnionTransform extends Transform {
 
-    private final Function<InputStream, byte[]> mPrepare = this::prepare;
-
-    private final Function<InputStream, byte[]> mTransform = this::transform;
-
-    private volatile Function<InputStream, byte[]> mVisitor = null;
+    private volatile boolean mMut;
 
     private final UnionContext mContext;
 
@@ -82,9 +85,8 @@ final class UnionTransform extends Transform {
     @Override
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
         try {
-            mVisitor = mPrepare;
             eachTransformInvocation(transformInvocation);
-            mVisitor = mTransform;
+            mMut = true;
             eachTransformInvocation(transformInvocation);
         } catch (RuntimeException e) {
             throw new TransformException(e);
@@ -126,84 +128,82 @@ final class UnionTransform extends Transform {
                 eachZipFile(new ZipFile(jarInput.getFile()), jarOutput);
                 break;
             case REMOVED:
-                Files.deleteIfExists(jarOutput);
+                if (mMut) {
+                    Files.deleteIfExists(jarOutput);
+                }
                 break;
         }
         return null;
     }
 
-    private void eachZipFile(ZipFile zipFileInput, Path zipFileOutput) throws IOException {
-        try (OutputStream fileOutputStream = Files.newOutputStream(zipFileOutput);
-             ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
-            Collections.list(zipFileInput.entries()).stream()
-                    .map(it -> fork(() -> eachZipEntryInput(it, zipFileInput)))
-                    .collect(Collectors.toList()).stream()
-                    .map(UnionTransform::join)
-                    .collect(Collectors.toList())
-                    .forEach(it -> {
-                        try {
-                            zipOutputStream.putNextEntry(it.getKey());
-                            zipOutputStream.write(it.getValue());
-                            zipOutputStream.closeEntry();
-                        } catch (IOException e) {
-                            throw new IllegalStateException(e);
-                        }
-                    });
-            zipOutputStream.flush();
+    private void eachZipFile(ZipFile zipFileInput, Path zipFileOutput) {
+        Map<ZipEntry, byte[]> entrys = mMut ? new ConcurrentHashMap<>() : null;
+        Collections.list(zipFileInput.entries()).stream()
+                .map(it -> fork(() -> eachZipEntryInput(it, zipFileInput, entrys != null ? entrys::put : null)))
+                .collect(Collectors.toList())
+                .forEach(UnionTransform::join);
+        if (entrys != null) {
+            try (OutputStream fileOutputStream = Files.newOutputStream(zipFileOutput);
+                 ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+                entrys.forEach((k, v) -> {
+                    try {
+                        zipOutputStream.putNextEntry(k);
+                        zipOutputStream.write(v);
+                        zipOutputStream.closeEntry();
+                    } catch (IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                });
+                zipOutputStream.flush();
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
-    private Map.Entry<ZipEntry, byte[]> eachZipEntryInput(ZipEntry zipEntryInput, ZipFile zipFileInput) throws IOException {
-        byte[] value;
-        try (InputStream inputStream = zipFileInput.getInputStream(zipEntryInput)) {
-            if (!zipEntryInput.getName().endsWith(".class")) {
-                value = eachZipBytes(inputStream);
-            } else {
-                value = mVisitor.apply(inputStream);
+    private Void eachZipEntryInput(ZipEntry zipEntryInput, ZipFile zipFileInput, BiConsumer<ZipEntry, byte[]> consumer) {
+        if (consumer != null) {
+            byte[] value = ignoreFile(zipEntryInput.getName()) ? eachZipBytes(zipEntryInput, zipFileInput) : transform(zipEntryInput, zipFileInput);
+            ZipEntry key = new ZipEntry(zipEntryInput.getName());
+            CRC32 crc32 = new CRC32();
+            crc32.update(value, 0, value.length);
+            key.setCrc(crc32.getValue());
+            key.setMethod(ZipEntry.STORED);
+            key.setSize(value.length);
+            key.setCompressedSize(value.length);
+            FileTime fileTime = FileTime.fromMillis(0L);
+            key.setLastAccessTime(fileTime);
+            key.setLastModifiedTime(fileTime);
+            key.setCreationTime(fileTime);
+            consumer.accept(key, value);
+        } else {
+            if (!ignoreFile(zipEntryInput.getName())) {
+                prepare(zipEntryInput, zipFileInput);
             }
         }
-        ZipEntry key = new ZipEntry(zipEntryInput.getName());
-        CRC32 crc32 = new CRC32();
-        crc32.update(value, 0, value.length);
-        key.setCrc(crc32.getValue());
-        key.setMethod(ZipEntry.STORED);
-        key.setSize(value.length);
-        key.setCompressedSize(value.length);
-        FileTime fileTime = FileTime.fromMillis(0L);
-        key.setLastAccessTime(fileTime);
-        key.setLastModifiedTime(fileTime);
-        key.setCreationTime(fileTime);
-        return new Map.Entry<ZipEntry, byte[]>() {
-
-            @Override
-            public ZipEntry getKey() {
-                return key;
-            }
-
-            @Override
-            public byte[] getValue() {
-                return value;
-            }
-
-            @Override
-            public byte[] setValue(byte[] value) {
-                throw new UnsupportedOperationException();
-            }
-        };
+        return null;
     }
 
-    private static byte[] eachZipBytes(InputStream inputStream) throws IOException {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            int n;
-            byte[] b = new byte[1024];
-            while ((n = inputStream.read(b, 0, 1024)) >= 0) {
-                outputStream.write(b, 0, n);
+    private static byte[] eachZipBytes(ZipEntry entry, ZipFile in) {
+        ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+        try (InputStream input = in.getInputStream(entry);
+             ReadableByteChannel inChannel = Channels.newChannel(input);
+             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+             BufferedOutputStream output = new BufferedOutputStream(bytes);
+             WritableByteChannel outChannel = Channels.newChannel(output)) {
+            while (inChannel.read(buffer) != -1) {
+                buffer.flip();
+                outChannel.write(buffer);
+                buffer.clear();
             }
-            return outputStream.toByteArray();
+            output.flush();
+            return bytes.toByteArray();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 
-    private Void eachDirectoryInput(DirectoryInput directoryInput, Path pathOutput) throws IOException {
+    private Void eachDirectoryInput(DirectoryInput directoryInput, Path pathOutput) {
         Path pathInput = directoryInput.getFile().toPath();
         if (!isIncremental() || directoryInput.getChangedFiles().size() == 0) {
             eachFile(pathInput, pathOutput);
@@ -220,7 +220,7 @@ final class UnionTransform extends Transform {
         return null;
     }
 
-    private Void eachChangedFile(Path changedFileInput, Path changedFileOutput, Status status) throws IOException {
+    private Void eachChangedFile(Path changedFileInput, Path changedFileOutput, Status status) {
         switch (status) {
             case NOTCHANGED:
                 if (Files.exists(changedFileOutput) && !Files.isDirectory(changedFileOutput)) {
@@ -232,31 +232,34 @@ final class UnionTransform extends Transform {
                 break;
             case REMOVED:
                 if (!Files.isDirectory(changedFileOutput)) {
-                    Files.deleteIfExists(changedFileOutput);
+                    if (mMut) {
+                        deleteIfExists(changedFileOutput);
+                    }
                 }
                 break;
         }
         return null;
     }
 
-    private Void eachFile(Path fileInput, Path fileOutput) throws IOException {
+    private Void eachFile(Path fileInput, Path fileOutput) {
         if (!Files.isDirectory(fileInput)) {
-            if (ignoreFile(fileInput)) {
-                Files.deleteIfExists(fileOutput);
-                Files.copy(fileInput, fileOutput);
+            if (ignoreFile(fileInput.getFileName().toString())) {
+                if (mMut) {
+                    deleteIfExists(fileOutput);
+                    copy(fileInput, fileOutput);
+                }
             } else {
-                try (
-                        InputStream inputStream = Files.newInputStream(fileInput);
-                        OutputStream outputStream = Files.newOutputStream(fileOutput)
-                ) {
-                    outputStream.write(mVisitor.apply(inputStream));
+                if (mMut) {
+                    transform(fileInput, fileOutput);
+                } else {
+                    prepare(fileInput);
                 }
             }
         } else {
             if (!Files.exists(fileOutput)) {
-                Files.createDirectories(fileOutput);
+                createDirectories(fileOutput);
             }
-            Files.list(fileInput)
+            list(fileInput)
                     .map(it -> fork(() -> eachFile(it, fileOutput(it, fileInput, fileOutput))))
                     .collect(Collectors.toList())
                     .forEach(UnionTransform::join);
@@ -288,11 +291,10 @@ final class UnionTransform extends Transform {
         return ForkJoinTask.adapt(callable).fork();
     }
 
-    private static boolean ignoreFile(Path file) {
-        String fileName = file.getFileName().toString();
-        return !fileName.endsWith(".class")
-                || fileName.startsWith("R$")
-                || fileName.equals("R.class");
+    private static boolean ignoreFile(String name) {
+        return !name.endsWith(".class")
+                || name.startsWith("R$")
+                || name.equals("R.class");
 
     }
 
@@ -300,12 +302,53 @@ final class UnionTransform extends Transform {
         return forkJoinTask.join();
     }
 
-    private byte[] prepare(InputStream in) {
-        return transform(in, mContext::forEachPrepare);
+    private void prepare(Path in) {
+        try (InputStream input = Files.newInputStream(in)) {
+            prepare(input, mContext::forEachPrepare);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
-    private byte[] transform(InputStream in) {
-        return transform(in, mContext::forEachTransform);
+    private void prepare(ZipEntry entry, ZipFile in) {
+        try (InputStream input = in.getInputStream(entry)){
+            prepare(input, mContext::forEachPrepare);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void transform(Path in, Path out) {
+        byte[] bytes;
+        try (InputStream input = Files.newInputStream(in)) {
+            bytes = transform(input, mContext::forEachTransform);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        try (OutputStream output = Files.newOutputStream(out)) {
+            output.write(bytes);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private byte[] transform(ZipEntry entry, ZipFile in) {
+        try (InputStream input = in.getInputStream(entry)){
+            return transform(input, mContext::forEachTransform);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void prepare(InputStream in, Consumer<Consumer<Class<? extends ClassVisitor>>> consumer) {
+        try {
+            ClassReader cr = new ClassReader(in);
+            AtomicReference<ClassVisitor> ref = new AtomicReference<>(new ClassVisitor(UnionContext.getExtension().getAsmApi()) {});
+            consumer.accept((clazz) -> ref.set(newInstance(ref.get(), clazz)));
+            cr.accept(ref.get(), ClassReader.EXPAND_FRAMES);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private byte[] transform(InputStream in, Consumer<Consumer<Class<? extends ClassVisitor>>> consumer) {
@@ -328,6 +371,38 @@ final class UnionTransform extends Transform {
             return constructor.newInstance(UnionContext.getExtension().getAsmApi(), cv);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
+        }
+    }
+
+    private static void deleteIfExists(Path path) {
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static void createDirectories(Path path) {
+        try {
+            Files.createDirectories(path);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static void copy(Path src, Path dest) {
+        try {
+            Files.copy(src, dest);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Stream<Path> list(Path path) {
+        try {
+            return Files.list(path);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 }

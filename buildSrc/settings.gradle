@@ -1,10 +1,10 @@
 import java.nio.file.Paths
 
 include ':utility'
-project(':utility').projectDir = Paths.get("${rootProject.projectDir}", '..', 'utility').toFile()
+project(':utility').projectDir = rootProject.projectDir.toPath().resolve('..').resolve('utility').toFile()
 include ':visitors'
-project(':visitors').projectDir = Paths.get("${rootProject.projectDir}", '..', 'visitors').toFile()
+project(':visitors').projectDir = rootProject.projectDir.toPath().resolve('..').resolve('visitors').toFile()
 include ':plugin4gradle'
-project(':plugin4gradle').projectDir = Paths.get("${rootProject.projectDir}", '..', 'plugin4gradle').toFile()
+project(':plugin4gradle').projectDir = rootProject.projectDir.toPath().resolve('..').resolve('plugin4gradle').toFile()
 
 gradle.ext.buildUri = uri('../build')

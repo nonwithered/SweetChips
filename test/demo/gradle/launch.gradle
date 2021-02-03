@@ -4,15 +4,13 @@ import java.util.stream.Collectors
 
 def sep = org.gradle.internal.os.OperatingSystem.current().isWindows() ? ';' : ':'
 
-def javaSrc = Paths.get(
-        "$projectDir",
-        'src',
-        'main',
-        'java',
-        'org',
-        'sweetchips',
-        'test'
-)
+def javaSrc = projectDir.toPath()
+        .resolve('src')
+        .resolve('main')
+        .resolve('java')
+        .resolve('org')
+        .resolve('sweetchips')
+        .resolve('test')
 
 def proList = [
         ':utility',
@@ -30,37 +28,28 @@ def jarList = [
         'visitors-demo',
 ]
 
-def repPath = Paths.get(
-        "${rootProject.projectDir}",
-        'build',
-        'org',
-        'sweetchips'
-)
+def repPath = rootProject.projectDir.toPath()
+        .resolve('build')
+        .resolve('org')
+        .resolve('sweetchips')
 
-def depPath = Paths.get(
-        "$projectDir",
-        'libs'
-)
+def depPath = projectDir.toPath()
+        .resolve('libs')
 
 def depFind = {
-    it -> repPath.resolve(Paths.get(
-            "$it",
-            '1.0.0',
-            "$it-1.0.0.jar"
-    ))
+    it -> repPath
+            .resolve("$it")
+            .resolve('1.0.0')
+            .resolve("$it-1.0.0.jar")
 }
 
-def libPath = Paths.get(
-        "$projectDir",
-        'build',
-        'libs'
-)
+def libPath = projectDir.toPath()
+        .resolve('build')
+        .resolve('libs')
 
-def clsPath = Paths.get(
-        "$projectDir",
-        'build',
-        'classes'
-)
+def clsPath = projectDir.toPath()
+        .resolve('build')
+        .resolve('classes')
 
 task testPrepare(type: Exec, dependsOn: clean) {
     proList.each {
@@ -84,7 +73,7 @@ task testPrepare(type: Exec, dependsOn: clean) {
         standardOutput = System.out
         errorOutput = System.err
         try {
-            standardInput = Files.newInputStream(Paths.get("$projectDir", 'in.txt'))
+            standardInput = Files.newInputStream(projectDir.toPath().resolve('in.txt'))
         } catch (IOException e) {
             throw new IllegalStateException(e)
         }

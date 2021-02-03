@@ -1,5 +1,4 @@
 import java.nio.file.Files
-import java.nio.file.Paths
 
 rootProject.name = 'SweetChips'
 
@@ -14,13 +13,12 @@ include ':test:demo'
 gradle.ext.buildUri = uri('./build')
 
 gradle.ext.applyPlugin4Gradle = {
-    Files.exists(Paths.get(
-            "${rootProject.projectDir}",
-            'build',
-            'org',
-            'sweetchips',
-            'plugin4gradle',
-            '1.0.0',
-            'plugin4gradle-1.0.0.jar'
-    ))
+    Files.exists(rootProject.projectDir.toPath()
+            .resolve('build')
+            .resolve('org')
+            .resolve('sweetchips')
+            .resolve('plugin4gradle')
+            .resolve('1.0.0')
+            .resolve('plugin4gradle-1.0.0.jar')
+    )
 }
