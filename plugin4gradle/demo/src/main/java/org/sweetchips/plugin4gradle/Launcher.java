@@ -70,7 +70,7 @@ public class Launcher {
                 addClassVisitor(name);
             }
         }
-        UnionContext.addPrepare(null, sVisitors);
+        UnionContext.addLastPrepare(null, sVisitors);
         sVisitors.clear();
     }
 
@@ -79,7 +79,7 @@ public class Launcher {
             String name = nextLine();
             addClassVisitor(name);
         }
-        UnionContext.addTransform(null, sVisitors);
+        UnionContext.addLastTransform(null, sVisitors);
         sUnionTransform = new UnionTransform(sContext);
     }
 
@@ -101,12 +101,12 @@ public class Launcher {
         try {
             clazz = Class.forName(name);
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException(e);
+            throw new RuntimeException(e);
         }
         if (ClassVisitor.class.isAssignableFrom(clazz)) {
             sVisitors.add((Class<? extends ClassVisitor>) clazz);
         } else {
-            throw new IllegalArgumentException(name);
+            throw new RuntimeException(name);
         }
     }
 
@@ -260,7 +260,7 @@ public class Launcher {
         OutputProvider(Path path) {
             this.path = path;
             if (!Files.isDirectory(path) && !path.toFile().mkdirs()) {
-                throw new IllegalArgumentException(path.toString() + !Files.isDirectory(path));
+                throw new RuntimeException(path.toString() + !Files.isDirectory(path));
             }
         }
 
@@ -277,7 +277,7 @@ public class Launcher {
                 case JAR:
                     return Paths.get(path.toString(), Paths.get(name).getFileName().toString()).toFile();
                 default:
-                    throw new IllegalStateException();
+                    throw new RuntimeException();
             }
         }
     }

@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -146,27 +144,13 @@ final class UnionTransform extends Transform {
     }
 
     private void eachJarFile(ZipFile zipFileInput, Path zipFileOutput) {
-        Map<ZipEntry, byte[]> entrys = mut() ? Collections.synchronizedMap(new TreeMap<>(mZipEntryComparator)) : null;
+        Map<ZipEntry, byte[]> entries = mut() ? Collections.synchronizedMap(new TreeMap<>(mZipEntryComparator)) : null;
         Collections.list(zipFileInput.entries()).stream()
-                .map(Util.fork((ZipEntry it) -> eachZipEntryInput(it, zipFileInput, entrys != null ? entrys::put : null)))
+                .map(Util.fork((ZipEntry it) -> eachZipEntryInput(it, zipFileInput, entries != null ? entries::put : null)))
                 .collect(Collectors.toList())
                 .forEach(ForkJoinTask::join);
-        if (entrys != null) {
-            try (OutputStream fileOutputStream = Files.newOutputStream(zipFileOutput);
-                 ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
-                entrys.forEach((k, v) -> {
-                    try {
-                        zipOutputStream.putNextEntry(k);
-                        zipOutputStream.write(v);
-                        zipOutputStream.closeEntry();
-                    } catch (IOException e) {
-                        throw new IllegalStateException(e);
-                    }
-                });
-                zipOutputStream.flush();
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
+        if (entries != null) {
+            writeZip(zipFileOutput, entries.entrySet());
         }
     }
 
@@ -202,7 +186,7 @@ final class UnionTransform extends Transform {
             output.flush();
             return bytes.toByteArray();
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -276,7 +260,7 @@ final class UnionTransform extends Transform {
         try {
             return new ZipFile(jarInput.getFile());
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -304,7 +288,7 @@ final class UnionTransform extends Transform {
         try (InputStream input = Files.newInputStream(in)) {
             prepare(input, mContext::forEachPrepare);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -312,7 +296,7 @@ final class UnionTransform extends Transform {
         try (InputStream input = in.getInputStream(entry)){
             prepare(input, mContext::forEachPrepare);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -320,10 +304,10 @@ final class UnionTransform extends Transform {
         try {
             ClassReader cr = new ClassReader(in);
             AtomicReference<ClassVisitor> ref = new AtomicReference<>(new BaseClassVisitor(UnionContext.getExtension().getAsmApi(), null));
-            consumer.accept((clazz) -> ref.set(newInstance(ref.get(), clazz)));
+            consumer.accept((clazz) -> ref.set(Util.newInstance(ref.get(), clazz)));
             cr.accept(ref.get(), ClassReader.EXPAND_FRAMES);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -335,7 +319,7 @@ final class UnionTransform extends Transform {
         try (InputStream input = Files.newInputStream(in)) {
             bytes = transform(input, mContext::forEachTransform);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
         if (Util.CLASS_UNUSED.get()) {
             return;
@@ -351,7 +335,7 @@ final class UnionTransform extends Transform {
         try (InputStream input = in.getInputStream(entry)){
             bytes = transform(input, mContext::forEachTransform);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
         if (Util.CLASS_UNUSED.get()) {
             return null;
@@ -364,30 +348,22 @@ final class UnionTransform extends Transform {
             ClassReader cr = new ClassReader(in);
             ClassWriter cw = new ClassWriter(0);
             AtomicReference<ClassVisitor> ref = new AtomicReference<>(cw);
-            consumer.accept((clazz) -> ref.set(newInstance(ref.get(), clazz)));
+            consumer.accept((clazz) -> ref.set(Util.newInstance(ref.get(), clazz)));
             cr.accept(ref.get(), ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
         } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private ClassVisitor newInstance(ClassVisitor cv, Class<? extends ClassVisitor> clazz) {
-        try {
-            Constructor<? extends ClassVisitor> constructor = clazz.getConstructor(int.class, ClassVisitor.class);
-            constructor.setAccessible(true);
-            return constructor.newInstance(UnionContext.getExtension().getAsmApi(), cv);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new IllegalArgumentException(e);
+            throw new RuntimeException(e);
         }
     }
 
     private void writeFile(Path path, byte[] bytes) {
-        try (OutputStream output = Files.newOutputStream(path)) {
-            output.write(bytes);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        Util.managedBlock(() -> {
+            try (OutputStream output = Files.newOutputStream(path)) {
+                output.write(bytes);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private BiConsumer<Path, byte[]> writeFile(Path base) {
@@ -411,5 +387,25 @@ final class UnionTransform extends Transform {
 
     private BiConsumer<Path, byte[]> writeZip(Path base, BiConsumer<ZipEntry, byte[]> consumer) {
         return (Path path, byte[] bytes) -> writeZip(base.resolve(path).toString(), bytes, consumer);
+    }
+
+    private void writeZip(Path zipFileOutput, Iterable<Map.Entry<ZipEntry, byte[]>> entries) {
+        Util.managedBlock(() -> {
+            try (OutputStream fileOutputStream = Files.newOutputStream(zipFileOutput);
+                 ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+                entries.forEach(it -> {
+                    try {
+                        zipOutputStream.putNextEntry(it.getKey());
+                        zipOutputStream.write(it.getValue());
+                        zipOutputStream.closeEntry();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                zipOutputStream.flush();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

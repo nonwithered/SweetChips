@@ -3,9 +3,10 @@ package org.sweetchips.plugin4gradle;
 import org.gradle.api.Project;
 import org.objectweb.asm.ClassVisitor;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -55,25 +56,39 @@ final class UnionContext {
         return sExtension;
     }
 
-    public static void addPrepare(String name, Collection<Class<? extends ClassVisitor>> visitors) {
+    public static void addFirstPrepare(String name, Collection<Class<? extends ClassVisitor>> visitors) {
         if (name == null) {
             name = Util.NAME;
         }
-        getInstance(name).mPrepare.addAll(visitors);
+        visitors.forEach(getInstance(name).mPrepare::offerFirst);
     }
 
-    public static void addTransform(String name, Collection<Class<? extends ClassVisitor>> visitors) {
+    public static void addLastPrepare(String name, Collection<Class<? extends ClassVisitor>> visitors) {
         if (name == null) {
             name = Util.NAME;
         }
-        getInstance(name).mTransform.addAll(visitors);
+        visitors.forEach(getInstance(name).mPrepare::offerLast);
+    }
+
+    public static void addFirstTransform(String name, Collection<Class<? extends ClassVisitor>> visitors) {
+        if (name == null) {
+            name = Util.NAME;
+        }
+        visitors.forEach(getInstance(name).mTransform::offerFirst);
+    }
+
+    public static void addLastTransform(String name, Collection<Class<? extends ClassVisitor>> visitors) {
+        if (name == null) {
+            name = Util.NAME;
+        }
+        visitors.forEach(getInstance(name).mTransform::offerLast);
     }
 
     private final String mName;
 
-    private final Collection<Class<? extends ClassVisitor>> mPrepare = new ArrayList<>();
+    private final Deque<Class<? extends ClassVisitor>> mPrepare = new LinkedList<>();
 
-    private final Collection<Class<? extends ClassVisitor>> mTransform = new ArrayList<>();
+    private final Deque<Class<? extends ClassVisitor>> mTransform = new LinkedList<>();
 
     private UnionContext(String name) {
         mName = name;

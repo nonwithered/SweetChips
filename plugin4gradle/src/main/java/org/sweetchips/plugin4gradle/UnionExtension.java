@@ -1,8 +1,10 @@
 package org.sweetchips.plugin4gradle;
 
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class UnionExtension {
 
@@ -15,21 +17,37 @@ public class UnionExtension {
         return mIsIncremental;
     }
 
-    public void setIncremental(boolean isIncremental) {
-        mIsIncremental = isIncremental;
-    }
-
     private int mAsmApi = Opcodes.ASM5;
 
     int getAsmApi() {
         return mAsmApi;
     }
 
-    public void setAsmApi(int asmApi) {
+    public void asmApi(int asmApi) {
         mAsmApi = asmApi;
     }
 
-    public void addTransform(String... name) {
+    public void incremental(boolean isIncremental) {
+        mIsIncremental = isIncremental;
+    }
+
+    public void addTask(String... name) {
         Arrays.stream(name).forEach(UnionContext.getPlugin()::addTransform);
+    }
+
+    public void addPrepare(String... name) {
+        UnionContext.addLastPrepare(null,
+                Arrays.stream(name)
+                        .map(Util::forName)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    public void addTransform(String... name) {
+        UnionContext.addLastTransform(null,
+                Arrays.stream(name)
+                        .map(Util::forName)
+                        .collect(Collectors.toList())
+        );
     }
 }

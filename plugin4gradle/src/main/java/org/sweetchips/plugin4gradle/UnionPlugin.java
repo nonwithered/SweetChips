@@ -25,7 +25,7 @@ public final class UnionPlugin implements Plugin<Project> {
         if (project.getPlugins().findPlugin("com.android.application") == null
                 && project.getPlugins().findPlugin("com.android.library") == null) {
             throw new ProjectConfigurationException("android plugin should be enabled first",
-                    new IllegalStateException("android plugin should be enabled first"));
+                    new RuntimeException("android plugin should be enabled first"));
         }
         android = findAndroid(project);
     }

@@ -34,7 +34,7 @@ public class Main {
                 member = clazz.getDeclaredMethod(methodName, argsTypes);
             }
         } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException(e);
+            throw new RuntimeException(e);
         }
         return (member.getModifiers() & flags) == flags;
     }

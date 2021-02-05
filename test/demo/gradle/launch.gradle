@@ -69,14 +69,19 @@ task testPrepare(type: Exec, dependsOn: clean) {
             'org.sweetchips.plugin4gradle.Launcher'
     ] + args
     commandLine cmd
+    def input
     doFirst {
         standardOutput = System.out
         errorOutput = System.err
         try {
-            standardInput = Files.newInputStream(projectDir.toPath().resolve('in.txt'))
+            input = Files.newInputStream(projectDir.toPath().resolve('in.txt'))
+            standardInput = input
         } catch (IOException e) {
-            throw new IllegalStateException(e)
+            throw new RuntimeException(e)
         }
+    }
+    doLast {
+        input.close()
     }
 }
 

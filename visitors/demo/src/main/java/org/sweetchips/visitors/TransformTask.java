@@ -71,7 +71,7 @@ public class TransformTask extends RecursiveAction {
                 }
             }
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -108,7 +108,7 @@ public class TransformTask extends RecursiveAction {
             constructor.setAccessible(true);
             return constructor.newInstance(api, cv);
         } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-            throw new IllegalArgumentException(e);
+            throw new RuntimeException(e);
         }
     }
 }

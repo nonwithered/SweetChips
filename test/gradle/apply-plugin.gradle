@@ -1,10 +1,10 @@
 if (rootProject.ext.applyPlugin4Gradle) {
     apply plugin: 'SweetChips'
     SweetChips {
-        incremental = true
-        addTransform 'trace'
+        incremental true
+        if (rootProject.ext.applyVisitors) {
+            addPrepare 'org.sweetchips.visitors.HidePrepareClassVisitor', 'org.sweetchips.visitors.UncheckcastPrepareClassVisitor'
+            addTransform 'org.sweetchips.visitors.HideTransformClassVisitor', 'org.sweetchips.visitors.UncheckcastTransformClassVisitor'
+        }
     }
-
-    apply plugin: 'test-main'
-    apply plugin: 'test-trace'
 }
