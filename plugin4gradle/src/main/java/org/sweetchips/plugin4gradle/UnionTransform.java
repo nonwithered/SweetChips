@@ -14,6 +14,9 @@ import com.android.build.gradle.internal.pipeline.TransformManager;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.sweetchips.plugin4gradle.util.AsyncUtil;
+import org.sweetchips.plugin4gradle.util.ClassesUtil;
+import org.sweetchips.plugin4gradle.util.FilesUtil;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,7 +37,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,15 +55,24 @@ import java.util.zip.ZipOutputStream;
 
 final class UnionTransform extends Transform {
 
+    private int mAsmApi;
+
+    private TransformInvocation mInvocation;
+
+    private void init(TransformInvocation transformInvocation) {
+        mInvocation = transformInvocation;
+        mAsmApi = UnionContext.getExtension().getAsmApi();
+    }
+
     private volatile boolean mMut;
 
     private final UnionContext mContext;
 
     private final ExecutorService mExecutor = Executors.newWorkStealingPool();
 
-    private TransformInvocation mInvocation;
-
     private final Comparator<ZipEntry> mZipEntryComparator = (x, y) -> x.getName().compareTo(y.getName());
+
+    private final SortedSet<Path> mOutDirs = Collections.synchronizedSortedSet(new TreeSet<>());
 
     public UnionTransform(UnionContext context) {
         mContext = context;
@@ -85,43 +99,70 @@ final class UnionTransform extends Transform {
     }
 
     @Override
-    public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
-        mInvocation = transformInvocation;
+    public void transform(TransformInvocation transformInvocation) throws IOException, TransformException, InterruptedException {
+        init(transformInvocation);
         try {
             forInvocation();
             mMut = true;
             forInvocation();
-        } catch (RuntimeException e) {
-            throw new TransformException(e);
+            createClasses();
         } finally {
             mExecutor.shutdownNow();
         }
+    }
+
+    private void createClasses() {
+        if (mOutDirs.size() <= 0) {
+            return;
+        }
+        Path dir = mOutDirs.first();
+        mContext.forEachCreateClass((name, cn) -> {
+            ClassWriter cw = new ClassWriter(mAsmApi);
+            cn.accept(cw);
+            writeFile(dir.resolve(forName(name)), cw.toByteArray());
+        });
+    }
+
+    private static Path forName(String name) {
+        Path path = Paths.get(".", name.split("/"));
+        path = path.resolveSibling(path.getFileName() + ".class");
+        return path;
     }
     
     private boolean mut() {
         return mMut;
     }
 
-    private void forInvocation() throws TransformException, InterruptedException {
+    private void forInvocation() throws IOException, TransformException, InterruptedException {
         try {
             mExecutor.submit(() ->
                     mInvocation.getInputs().stream()
-                            .map(Util.fork(this::eachInput))
+                            .map(AsyncUtil.fork(this::eachInput))
                             .collect(Collectors.toList())
                             .forEach(ForkJoinTask::join))
                     .get();
-        } catch (ExecutionException e) {
-            throw new TransformException(e.getCause());
+        } catch (ExecutionException except) {
+            Throwable cause = except;
+            do {
+                cause = cause.getCause();
+            } while (cause instanceof RuntimeException);
+            try {
+                throw cause;
+            } catch (IOException | TransformException | InterruptedException e) {
+                throw e;
+            } catch (Throwable e) {
+                throw new TransformException(e);
+            }
         }
     }
 
     private Void eachInput(TransformInput transformInput) {
         Arrays.asList(
                 transformInput.getJarInputs().stream()
-                        .map(Util.fork(this::eachJarInput))
+                        .map(AsyncUtil.fork(this::eachJarInput))
                         .collect(Collectors.toList()),
                 transformInput.getDirectoryInputs().stream()
-                        .map(Util.fork(this::eachDirectoryInput))
+                        .map(AsyncUtil.fork(this::eachDirectoryInput))
                         .collect(Collectors.toList()))
                 .forEach(it -> it.forEach(ForkJoinTask::join));
         return null;
@@ -136,7 +177,7 @@ final class UnionTransform extends Transform {
                 break;
             case REMOVED:
                 if (mut()) {
-                    Util.deleteIfExists(jarOutput(jarInput));
+                    FilesUtil.deleteIfExists(jarOutput(jarInput));
                 }
                 break;
         }
@@ -146,7 +187,7 @@ final class UnionTransform extends Transform {
     private void eachJarFile(ZipFile zipFileInput, Path zipFileOutput) {
         Map<ZipEntry, byte[]> entries = mut() ? Collections.synchronizedMap(new TreeMap<>(mZipEntryComparator)) : null;
         Collections.list(zipFileInput.entries()).stream()
-                .map(Util.fork((ZipEntry it) -> eachZipEntryInput(it, zipFileInput, entries != null ? entries::put : null)))
+                .map(AsyncUtil.fork((ZipEntry it) -> eachZipEntryInput(it, zipFileInput, entries != null ? entries::put : null)))
                 .collect(Collectors.toList())
                 .forEach(ForkJoinTask::join);
         if (entries != null) {
@@ -198,7 +239,7 @@ final class UnionTransform extends Transform {
             return null;
         }
         directoryInput.getChangedFiles().entrySet().stream()
-                .map(Util.fork((Map.Entry<File, Status> it) -> eachChangedFile(
+                .map(AsyncUtil.fork((Map.Entry<File, Status> it) -> eachChangedFile(
                         it.getKey().toPath(),
                         fileOutput(it.getKey().toPath(), pathInput, pathOutput),
                         it.getValue())))
@@ -221,7 +262,7 @@ final class UnionTransform extends Transform {
             case REMOVED:
                 if (!Files.isDirectory(changedFileOutput)) {
                     if (mut()) {
-                        Util.deleteIfExists(changedFileOutput);
+                        FilesUtil.deleteIfExists(changedFileOutput);
                     }
                 }
                 break;
@@ -234,7 +275,7 @@ final class UnionTransform extends Transform {
             if (Util.ignoreFile(fileInput.getFileName().toString())) {
                 if (!Files.exists(fileOutput)) {
                     if (mut()) {
-                        Util.copy(fileInput, fileOutput);
+                        FilesUtil.copy(fileInput, fileOutput);
                     }
                 }
             } else {
@@ -246,10 +287,10 @@ final class UnionTransform extends Transform {
             }
         } else {
             if (!Files.exists(fileOutput)) {
-                Util.createDirectories(fileOutput);
+                FilesUtil.createDirectories(fileOutput);
             }
-            Util.list(fileInput)
-                    .map(Util.fork((Path it) -> eachFile(it, fileOutput(it, fileInput, fileOutput))))
+            FilesUtil.list(fileInput)
+                    .map(AsyncUtil.fork((Path it) -> eachFile(it, fileOutput(it, fileInput, fileOutput))))
                     .collect(Collectors.toList())
                     .forEach(ForkJoinTask::join);
         }
@@ -273,11 +314,13 @@ final class UnionTransform extends Transform {
     }
 
     private Path directoryOutput(DirectoryInput directoryInput) {
-        return mInvocation.getOutputProvider().getContentLocation(
+        Path path = mInvocation.getOutputProvider().getContentLocation(
                 directoryInput.getName(),
                 directoryInput.getContentTypes(),
                 directoryInput.getScopes(),
                 Format.DIRECTORY).toPath();
+        mOutDirs.add(path);
+        return path;
     }
 
     private Path fileOutput(Path fileInput, Path pathInput, Path pathOutput) {
@@ -303,8 +346,8 @@ final class UnionTransform extends Transform {
     private void prepare(InputStream in, Consumer<Consumer<Class<? extends ClassVisitor>>> consumer) {
         try {
             ClassReader cr = new ClassReader(in);
-            AtomicReference<ClassVisitor> ref = new AtomicReference<>(new BaseClassVisitor(UnionContext.getExtension().getAsmApi(), null));
-            consumer.accept((clazz) -> ref.set(Util.newInstance(ref.get(), clazz)));
+            AtomicReference<ClassVisitor> ref = new AtomicReference<>(new BaseClassVisitor(mAsmApi, null));
+            consumer.accept((clazz) -> ref.set(ClassesUtil.newInstance(mAsmApi, ref.get(), clazz)));
             cr.accept(ref.get(), ClassReader.EXPAND_FRAMES);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -314,7 +357,6 @@ final class UnionTransform extends Transform {
     private void transform(Path in, Path out) {
         byte[] bytes;
         Util.CLASS_CREATE.set(writeFile(out));
-        Util.CLASS_FILE_PATH.set(out);
         Util.CLASS_UNUSED.set(false);
         try (InputStream input = Files.newInputStream(in)) {
             bytes = transform(input, mContext::forEachTransform);
@@ -330,7 +372,6 @@ final class UnionTransform extends Transform {
     private byte[] transform(ZipEntry entry, ZipFile in, BiConsumer<ZipEntry, byte[]> consumer) {
         byte[] bytes;
         Util.CLASS_CREATE.set(writeZip(Paths.get(entry.getName()), consumer));
-        Util.CLASS_FILE_PATH.set(Paths.get(entry.getName()));
         Util.CLASS_UNUSED.set(false);
         try (InputStream input = in.getInputStream(entry)){
             bytes = transform(input, mContext::forEachTransform);
@@ -348,7 +389,7 @@ final class UnionTransform extends Transform {
             ClassReader cr = new ClassReader(in);
             ClassWriter cw = new ClassWriter(0);
             AtomicReference<ClassVisitor> ref = new AtomicReference<>(cw);
-            consumer.accept((clazz) -> ref.set(Util.newInstance(ref.get(), clazz)));
+            consumer.accept((clazz) -> ref.set(ClassesUtil.newInstance(mAsmApi, ref.get(), clazz)));
             cr.accept(ref.get(), ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
         } catch (IOException e) {
@@ -357,7 +398,10 @@ final class UnionTransform extends Transform {
     }
 
     private void writeFile(Path path, byte[] bytes) {
-        Util.managedBlock(() -> {
+        AsyncUtil.managedBlock(() -> {
+            if (!Files.exists(path.getParent())) {
+                FilesUtil.createDirectories(path.getParent());
+            }
             try (OutputStream output = Files.newOutputStream(path)) {
                 output.write(bytes);
             } catch (IOException e) {
@@ -390,7 +434,7 @@ final class UnionTransform extends Transform {
     }
 
     private void writeZip(Path zipFileOutput, Iterable<Map.Entry<ZipEntry, byte[]>> entries) {
-        Util.managedBlock(() -> {
+        AsyncUtil.managedBlock(() -> {
             try (OutputStream fileOutputStream = Files.newOutputStream(zipFileOutput);
                  ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
                 entries.forEach(it -> {

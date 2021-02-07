@@ -3,8 +3,26 @@ if (rootProject.ext.applyPlugin4Gradle) {
     SweetChips {
         incremental true
         if (rootProject.ext.applyVisitors) {
-            addPrepare 'org.sweetchips.visitors.HidePrepareClassVisitor', 'org.sweetchips.visitors.UncheckcastPrepareClassVisitor'
-            addTransform 'org.sweetchips.visitors.HideTransformClassVisitor', 'org.sweetchips.visitors.UncheckcastTransformClassVisitor'
+            addPrepare doLast: [
+                    'org.sweetchips.visitors.HidePrepareClassVisitor',
+                    'org.sweetchips.visitors.UncheckcastPrepareClassVisitor',
+            ]
+            addTransform doLast: [
+                    'org.sweetchips.visitors.HideTransformClassVisitor',
+                    'org.sweetchips.visitors.UncheckcastTransformClassVisitor',
+            ]
+        }
+        addTask 'Trace'
+    }
+    if (rootProject.ext.applyTraceWeaver) {
+        apply plugin: 'TraceWeaver'
+        TraceWeaver {
+            attach 'Trace'
+            maxDepth 10
+            ignore 'org.sweetchips.test.TestLogger'
+            sectionName { classInfo, methodInfo ->
+                classInfo.name.replaceAll("/", ".") + "#" + methodInfo.name
+            }
         }
     }
 }

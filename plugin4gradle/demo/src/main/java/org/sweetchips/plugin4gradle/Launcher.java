@@ -13,6 +13,7 @@ import com.android.build.api.transform.TransformInvocation;
 import com.android.build.api.transform.TransformOutputProvider;
 
 import org.objectweb.asm.ClassVisitor;
+import org.sweetchips.plugin4gradle.util.ClassesUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +71,7 @@ public class Launcher {
                 addClassVisitor(name);
             }
         }
-        UnionContext.addLastPrepare(null, sVisitors);
+        sVisitors.forEach(it -> UnionContext.addLastTransform(null, it));
         sVisitors.clear();
     }
 
@@ -79,7 +80,7 @@ public class Launcher {
             String name = nextLine();
             addClassVisitor(name);
         }
-        UnionContext.addLastTransform(null, sVisitors);
+        sVisitors.forEach(it -> UnionContext.addLastTransform(null, it));
         sUnionTransform = new UnionTransform(sContext);
     }
 

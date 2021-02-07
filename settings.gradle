@@ -2,13 +2,14 @@ import java.nio.file.Files
 
 rootProject.name = 'SweetChips'
 
+include ':test'
+include ':test:demo'
 include ':utility'
 include ':visitors'
 include ':visitors:demo'
 include ':plugin4gradle'
 include ':plugin4gradle:demo'
-include ':test'
-include ':test:demo'
+include ':trace-weaver'
 
 gradle.ext.buildUri = uri('./build')
 
@@ -31,5 +32,16 @@ gradle.ext.applyVisitors = {
             .resolve('visitors')
             .resolve('1.0.0')
             .resolve('visitors-1.0.0.jar')
+    )
+}
+
+gradle.ext.applyTraceWeaver = {
+    Files.exists(rootProject.projectDir.toPath()
+            .resolve('build')
+            .resolve('org')
+            .resolve('sweetchips')
+            .resolve('trace-weaver')
+            .resolve('1.0.0')
+            .resolve('trace-weaver-1.0.0.jar')
     )
 }

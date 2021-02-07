@@ -15,6 +15,10 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
 
     private String mName;
 
+    public UncheckcastPrepareClassVisitor(int api) {
+        this(api, null);
+    }
+
     public UncheckcastPrepareClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }

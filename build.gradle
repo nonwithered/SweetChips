@@ -18,6 +18,9 @@ buildscript {
         if (gradle.applyVisitors()) {
             classpath 'org.sweetchips:visitors:1.0.0'
         }
+        if (gradle.applyTraceWeaver()) {
+            classpath 'org.sweetchips:trace-weaver:1.0.0'
+        }
     }
 }
 
@@ -42,4 +45,5 @@ ext {
     buildUri = uri('./build')
     applyPlugin4Gradle = gradle.applyPlugin4Gradle()
     applyVisitors = gradle.applyVisitors()
+    applyTraceWeaver = gradle.applyTraceWeaver()
 }

@@ -5,16 +5,17 @@ import org.objectweb.asm.Type;
 
 import java.util.function.Consumer;
 
-public class UncheckcastPrepareAnnotationVisitor extends AnnotationVisitor {
+final class UncheckcastPrepareAnnotationVisitor extends AnnotationVisitor {
 
     private static final String VALUE_STRING = "value";
 
     private final Consumer<Type> mConsumer;
 
-    public UncheckcastPrepareAnnotationVisitor(int api, AnnotationVisitor av, Consumer<Type> consumer) {
+    UncheckcastPrepareAnnotationVisitor(int api, AnnotationVisitor av, Consumer<Type> consumer) {
         super(api, av);
         mConsumer = consumer;
     }
+
     @Override
     public AnnotationVisitor visitArray(String name) {
         if (name.equals(VALUE_STRING)) {

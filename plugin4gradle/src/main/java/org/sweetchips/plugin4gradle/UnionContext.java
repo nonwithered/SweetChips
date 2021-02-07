@@ -2,51 +2,36 @@ package org.sweetchips.plugin4gradle;
 
 import org.gradle.api.Project;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.tree.ClassNode;
 
-import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 final class UnionContext {
 
     private static final Map<String, UnionContext> sContexts = new HashMap<>();
 
-    public static UnionContext getInstance(String name) {
-        if (name == null) {
-            name = Util.NAME;
+    public static UnionContext getInstance(String task) {
+        if (task == null) {
+            task = Util.NAME;
         }
-        UnionContext context = sContexts.get(name);
+        UnionContext context = sContexts.get(task);
         if (context == null) {
-            context = new UnionContext(name);
-            sContexts.put(name, context);
+            context = new UnionContext(task);
+            sContexts.put(task, context);
         }
         return context;
     }
 
+    private static UnionExtension sExtension;
+
     private static Project sProject;
 
-    static void setProject(Project project) {
-        sProject = project;
-    }
-
-    static Project getProject() {
-        return sProject;
-    }
-
     private static UnionPlugin sPlugin;
-
-    static void setPlugin(UnionPlugin plugin) {
-        sPlugin = plugin;
-    }
-
-    static UnionPlugin getPlugin() {
-        return sPlugin;
-    }
-
-    private static UnionExtension sExtension;
 
     static void setExtension(UnionExtension extension) {
         sExtension = extension;
@@ -56,32 +41,55 @@ final class UnionContext {
         return sExtension;
     }
 
-    public static void addFirstPrepare(String name, Collection<Class<? extends ClassVisitor>> visitors) {
-        if (name == null) {
-            name = Util.NAME;
-        }
-        visitors.forEach(getInstance(name).mPrepare::offerFirst);
+    static void setProject(Project project) {
+        sProject = project;
     }
 
-    public static void addLastPrepare(String name, Collection<Class<? extends ClassVisitor>> visitors) {
-        if (name == null) {
-            name = Util.NAME;
-        }
-        visitors.forEach(getInstance(name).mPrepare::offerLast);
+    static Project getProject() {
+        return sProject;
     }
 
-    public static void addFirstTransform(String name, Collection<Class<? extends ClassVisitor>> visitors) {
-        if (name == null) {
-            name = Util.NAME;
-        }
-        visitors.forEach(getInstance(name).mTransform::offerFirst);
+    static void setPlugin(UnionPlugin plugin) {
+        sPlugin = plugin;
     }
 
-    public static void addLastTransform(String name, Collection<Class<? extends ClassVisitor>> visitors) {
-        if (name == null) {
-            name = Util.NAME;
+    static UnionPlugin getPlugin() {
+        return sPlugin;
+    }
+
+    static void addFirstPrepare(String task, Class<? extends ClassVisitor> visitor) {
+        if (task == null) {
+            task = Util.NAME;
         }
-        visitors.forEach(getInstance(name).mTransform::offerLast);
+        getInstance(task).mPrepare.offerFirst(visitor);
+    }
+
+    static void addLastPrepare(String task, Class<? extends ClassVisitor> visitor) {
+        if (task == null) {
+            task = Util.NAME;
+        }
+        getInstance(task).mPrepare.offerLast(visitor);
+    }
+
+    static void addFirstTransform(String task, Class<? extends ClassVisitor> visitor) {
+        if (task == null) {
+            task = Util.NAME;
+        }
+        getInstance(task).mTransform.offerFirst(visitor);
+    }
+
+    static void addLastTransform(String task, Class<? extends ClassVisitor> visitor) {
+        if (task == null) {
+            task = Util.NAME;
+        }
+        getInstance(task).mTransform.offerLast(visitor);
+    }
+
+    static void createClass(String task, String name, ClassNode cn) {
+        if (task == null) {
+            task = Util.NAME;
+        }
+        getInstance(task).mClassNode.put(name, cn);
     }
 
     private final String mName;
@@ -89,6 +97,8 @@ final class UnionContext {
     private final Deque<Class<? extends ClassVisitor>> mPrepare = new LinkedList<>();
 
     private final Deque<Class<? extends ClassVisitor>> mTransform = new LinkedList<>();
+
+    private final Map<String, ClassNode> mClassNode = new HashMap<>();
 
     private UnionContext(String name) {
         mName = name;
@@ -104,5 +114,9 @@ final class UnionContext {
 
     void forEachTransform(Consumer<Class<? extends ClassVisitor>> consumer) {
         mTransform.forEach(consumer);
+    }
+
+    void forEachCreateClass(BiConsumer<String, ClassNode> consumer) {
+        mClassNode.forEach(consumer);
     }
 }

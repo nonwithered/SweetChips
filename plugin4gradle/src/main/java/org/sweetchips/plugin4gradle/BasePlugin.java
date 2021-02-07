@@ -6,10 +6,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.ProjectConfigurationException;
 import org.objectweb.asm.ClassVisitor;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import org.objectweb.asm.tree.ClassNode;
 
 public abstract class BasePlugin implements Plugin<Project> {
 
@@ -21,24 +18,28 @@ public abstract class BasePlugin implements Plugin<Project> {
 
     protected abstract void onApply(Project project);
 
-    @SafeVarargs
-    protected final void addFirstPrepare(String name, Class<? extends ClassVisitor>... cv) {
-        UnionContext.addFirstPrepare(name, Arrays.asList(cv));
+    protected final int getAsmApi() {
+        return UnionContext.getExtension().getAsmApi();
     }
 
-    @SafeVarargs
-    protected final void addLastPrepare(String name, Class<? extends ClassVisitor>... cv) {
-        UnionContext.addLastPrepare(name, Arrays.asList(cv));
+    protected final void createClass(String task, String name, ClassNode cn) {
+        UnionContext.createClass(task, name, cn);
     }
 
-    @SafeVarargs
-    protected final void addFirstTransform(String name, Class<? extends ClassVisitor>... cv) {
-        UnionContext.addFirstTransform(name, Arrays.asList(cv));
+    protected final void addFirstPrepare(String task, Class<? extends ClassVisitor> cv) {
+        UnionContext.addFirstPrepare(task, cv);
     }
 
-    @SafeVarargs
-    protected final void addLastTransform(String name, Class<? extends ClassVisitor>... cv) {
-        UnionContext.addLastTransform(name, Arrays.asList(cv));
+    protected final void addLastPrepare(String task, Class<? extends ClassVisitor> cv) {
+        UnionContext.addLastPrepare(task, cv);
+    }
+
+    protected final void addFirstTransform(String task, Class<? extends ClassVisitor> cv) {
+        UnionContext.addFirstTransform(task, cv);
+    }
+
+    protected final void addLastTransform(String task, Class<? extends ClassVisitor> cv) {
+        UnionContext.addLastTransform(task, cv);
     }
 
     private void init(Project project) {

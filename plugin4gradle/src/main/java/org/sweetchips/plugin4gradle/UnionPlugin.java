@@ -15,9 +15,9 @@ public final class UnionPlugin implements Plugin<Project> {
     public void apply(@NonNull Project project) {
         init(project);
         UnionExtension extension = project.getExtensions().create(Util.NAME, UnionExtension.class);
+        UnionContext.setExtension(extension);
         UnionContext.setPlugin(this);
         UnionContext.setProject(project);
-        UnionContext.setExtension(extension);
         addTransform(null);
     }
 

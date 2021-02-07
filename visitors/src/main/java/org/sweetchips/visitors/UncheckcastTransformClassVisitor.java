@@ -10,6 +10,10 @@ public class UncheckcastTransformClassVisitor extends ClassVisitor {
 
     private UncheckcastRecord mElementClazz;
 
+    public UncheckcastTransformClassVisitor(int api) {
+        this(api, null);
+    }
+
     public UncheckcastTransformClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }

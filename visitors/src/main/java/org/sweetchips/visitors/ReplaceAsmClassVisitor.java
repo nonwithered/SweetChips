@@ -17,6 +17,10 @@ class ReplaceAsmClassVisitor extends ClassVisitor {
         return string;
     }
 
+    public ReplaceAsmClassVisitor(int api) {
+        this(api, null);
+    }
+
     public ReplaceAsmClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }
