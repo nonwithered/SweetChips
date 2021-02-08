@@ -21,6 +21,8 @@ final class TraceWeaverContext {
                             + methodInfo.name
                             + methodInfo.desc;
 
+    private static TraceWrapperClassNode sTraceWrapperClassNode;
+
     static void setExtension(TraceWeaverExtension extension) {
         sExtension = extension;
     }
@@ -45,11 +47,19 @@ final class TraceWeaverContext {
         return sPlugin;
     }
 
-    static void sectionName(BiFunction<ClassInfo, MethodInfo, String> sectionName) {
+    static void setSectionName(BiFunction<ClassInfo, MethodInfo, String> sectionName) {
         sSectionName = sectionName;
     }
 
-    static String sectionName(ClassInfo classInfo, MethodInfo methodInfo) {
+    static String getSectionName(ClassInfo classInfo, MethodInfo methodInfo) {
         return sSectionName.apply(classInfo, methodInfo);
+    }
+
+    static void setClassNode(TraceWrapperClassNode classNode) {
+        sTraceWrapperClassNode = classNode;
+    }
+
+    static TraceWrapperClassNode getClassNode() {
+        return sTraceWrapperClassNode;
     }
 }

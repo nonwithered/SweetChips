@@ -13,6 +13,7 @@ public final class TraceWeaverPlugin extends BasePlugin {
         TraceWeaverContext.setExtension(extension);
         TraceWeaverContext.setPlugin(this);
         TraceWeaverContext.setProject(project);
+        TraceWeaverContext.setClassNode(new TraceWrapperClassNode(getAsmApi()));
     }
 
     void attach(String name) {
@@ -22,6 +23,6 @@ public final class TraceWeaverPlugin extends BasePlugin {
             mInit = true;
         }
         addLastTransform(name, TraceWeaverClassVisitor.class);
-        createClass(name, Util.TRACE_WRAPPER_CLASS_NAME, new TraceWrapperClassNode(getAsmApi()));
+        createClass(name, Util.TRACE_WRAPPER_CLASS_NAME, TraceWeaverContext.getClassNode());
     }
 }

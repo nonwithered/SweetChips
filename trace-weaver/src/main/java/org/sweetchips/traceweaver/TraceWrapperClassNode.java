@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
@@ -29,12 +30,16 @@ import javax.tools.ToolProvider;
 
 final class TraceWrapperClassNode extends ClassNode {
 
+    private final AtomicBoolean mInit = new AtomicBoolean();
+
     TraceWrapperClassNode(int api) {
         super(api);
-        init();
     }
 
-    private void init() {
+    final void init() {
+        if (mInit.get() || !mInit.compareAndSet(false, true)) {
+            return;
+        }
         try (InputStream input = getBytecode()) {
             ClassReader cr = new ClassReader(input);
             ClassVisitor cv = new TraceWrapperClassVisitor(api, this);
@@ -95,7 +100,12 @@ final class TraceWrapperClassNode extends ClassNode {
         private final OutputStream mOutput;
 
         private TraceWrapperJavaFileObject(InputStream input, OutputStream output) {
-            super(Paths.get("/").toUri(), Kind.SOURCE);
+            super(TraceWeaverContext.getProject()
+                    .getRootDir().toPath()
+                    .resolve("build")
+                    .resolve(Paths.get("/")
+                            .relativize(Paths.get(Util.TRACE_WRAPPER_SOURCE))).toUri(),
+                    Kind.SOURCE);
             mInput = input;
             mOutput = output;
         }

@@ -50,6 +50,6 @@ public class TraceWeaverExtension {
         if (sectionName == null) {
             throw new NullPointerException();
         }
-        TraceWeaverContext.sectionName(sectionName);
+        TraceWeaverContext.setSectionName(sectionName);
     }
 }

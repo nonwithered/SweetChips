@@ -26,6 +26,7 @@ public final class TraceWeaverClassVisitor extends BaseClassVisitor {
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        TraceWeaverContext.getClassNode().init();
         init(name);
         mClassInfo = new ClassInfo(version, access, name, signature, superName, interfaces);
         super.visit(version, access, name, signature, superName, interfaces);
@@ -37,7 +38,7 @@ public final class TraceWeaverClassVisitor extends BaseClassVisitor {
             return super.visitMethod(access, name, desc, signature, exceptions);
         }
         MethodInfo methodInfo = new MethodInfo(access, name, desc, signature, exceptions);
-        String sectionName = TraceWeaverContext.sectionName(mClassInfo, methodInfo);
+        String sectionName = TraceWeaverContext.getSectionName(mClassInfo, methodInfo);
         return new TraceWeaverMethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions), sectionName);
     }
 
