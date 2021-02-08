@@ -7,7 +7,7 @@ final class TraceWeaverMethodVisitor extends MethodVisitor {
 
     private final String mSectionName;
 
-    private final int mDepth = TraceWeaverContext.getExtension().getDepth();
+    private final int mDepth = TraceWeaverPlugin.getInstance().getExtension().getDepth();
 
     TraceWeaverMethodVisitor(int api, MethodVisitor mv, String sectionName) {
         super(api, mv);

@@ -48,9 +48,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (Throwable e) {
                 Log.println(Log.ASSERT, TAG, e.toString());
             } finally {
-                mHandler.post(() -> {
-                    Toast.makeText(MainActivity.this, "finally", Toast.LENGTH_SHORT).show();
-                });
+                mHandler.post(() -> Toast.makeText(MainActivity.this, "finally", Toast.LENGTH_SHORT).show());
             }
         }
 

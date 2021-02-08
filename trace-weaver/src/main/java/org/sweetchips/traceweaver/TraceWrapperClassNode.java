@@ -100,7 +100,7 @@ final class TraceWrapperClassNode extends ClassNode {
         private final OutputStream mOutput;
 
         private TraceWrapperJavaFileObject(InputStream input, OutputStream output) {
-            super(TraceWeaverContext.getProject()
+            super(TraceWeaverPlugin.getInstance().getProject()
                     .getRootDir().toPath()
                     .resolve("build")
                     .resolve(Paths.get("/")

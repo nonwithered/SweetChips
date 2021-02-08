@@ -10,6 +10,7 @@ include ':visitors:demo'
 include ':plugin4gradle'
 include ':plugin4gradle:demo'
 include ':trace-weaver'
+include ':const-sweeper'
 
 gradle.ext.buildUri = uri('./build')
 

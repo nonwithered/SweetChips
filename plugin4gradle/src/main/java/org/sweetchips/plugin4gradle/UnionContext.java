@@ -57,32 +57,28 @@ final class UnionContext {
         return sPlugin;
     }
 
-    static void addFirstPrepare(String task, Class<? extends ClassVisitor> visitor) {
+    static void addClassVisitor(AbstractPlugin.ActionType type, AbstractPlugin.ActionMode mode, String task, Class<? extends ClassVisitor> visitor) {
         if (task == null) {
             task = Util.NAME;
         }
-        getInstance(task).mPrepare.offerFirst(visitor);
-    }
-
-    static void addLastPrepare(String task, Class<? extends ClassVisitor> visitor) {
-        if (task == null) {
-            task = Util.NAME;
+        UnionContext context = getInstance(task);
+        Deque<Class<? extends ClassVisitor>> deque = null;
+        switch (type) {
+            case PREPARE:
+                deque = context.mPrepare;
+                break;
+            case TRANSFORM:
+                deque = context.mTransform;
+                break;
         }
-        getInstance(task).mPrepare.offerLast(visitor);
-    }
-
-    static void addFirstTransform(String task, Class<? extends ClassVisitor> visitor) {
-        if (task == null) {
-            task = Util.NAME;
+        switch (mode) {
+            case FIRST:
+                deque.offerFirst(visitor);
+                break;
+            case LAST:
+                deque.offerLast(visitor);
+                break;
         }
-        getInstance(task).mTransform.offerFirst(visitor);
-    }
-
-    static void addLastTransform(String task, Class<? extends ClassVisitor> visitor) {
-        if (task == null) {
-            task = Util.NAME;
-        }
-        getInstance(task).mTransform.offerLast(visitor);
     }
 
     static void createClass(String task, String name, ClassNode cn) {

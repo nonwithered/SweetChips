@@ -25,4 +25,10 @@ public interface ClassesUtil {
             throw new RuntimeException(e);
         }
     }
+
+    static void checkAssert(boolean b) {
+        if (!b) {
+            throw new AssertionError();
+        }
+    }
 }
