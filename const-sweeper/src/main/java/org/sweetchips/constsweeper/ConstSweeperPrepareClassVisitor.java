@@ -72,6 +72,9 @@ public final class ConstSweeperPrepareClassVisitor extends BaseClassVisitor {
         if (!Util.unusedField(access, name, desc, signature, value)) {
             mUnused = false;
         }
+        if (ConstSweeperPlugin.getInstance().getExtension().isIgnored(mName, name)) {
+            mUnused = false;
+        }
         return super.visitField(access, name, desc, signature, value);
     }
 
