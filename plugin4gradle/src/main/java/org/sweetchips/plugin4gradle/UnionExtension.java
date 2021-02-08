@@ -37,10 +37,10 @@ public class UnionExtension {
         map.forEach((k, v) -> {
             switch (k) {
                 case Util.DO_FIRST:
-                    v.forEach(it -> UnionContext.addFirstPrepare(null, ClassesUtil.forName(it)));
+                    v.forEach(it -> UnionContext.addClassVisitor(AbstractPlugin.ActionType.PREPARE, AbstractPlugin.ActionMode.FIRST, null, ClassesUtil.forName(it)));
                     break;
                 case Util.DO_LAST:
-                    v.forEach(it -> UnionContext.addLastPrepare(null, ClassesUtil.forName(it)));
+                    v.forEach(it -> UnionContext.addClassVisitor(AbstractPlugin.ActionType.PREPARE, AbstractPlugin.ActionMode.LAST, null, ClassesUtil.forName(it)));
                     break;
                 default:
                     throw new IllegalArgumentException(k);
@@ -52,10 +52,10 @@ public class UnionExtension {
         map.forEach((k, v) -> {
             switch (k) {
                 case Util.DO_FIRST:
-                    v.forEach(it -> UnionContext.addFirstTransform(null, ClassesUtil.forName(it)));
+                    v.forEach(it -> UnionContext.addClassVisitor(AbstractPlugin.ActionType.TRANSFORM, AbstractPlugin.ActionMode.FIRST, null, ClassesUtil.forName(it)));
                     break;
                 case Util.DO_LAST:
-                    v.forEach(it -> UnionContext.addLastTransform(null, ClassesUtil.forName(it)));
+                    v.forEach(it -> UnionContext.addClassVisitor(AbstractPlugin.ActionType.TRANSFORM, AbstractPlugin.ActionMode.LAST, null, ClassesUtil.forName(it)));
                     break;
                 default:
                     throw new IllegalArgumentException(k);

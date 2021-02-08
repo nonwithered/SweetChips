@@ -71,7 +71,7 @@ public class Launcher {
                 addClassVisitor(name);
             }
         }
-        sVisitors.forEach(it -> UnionContext.addLastTransform(null, it));
+        sVisitors.forEach(it -> UnionContext.addClassVisitor(AbstractPlugin.ActionType.TRANSFORM, AbstractPlugin.ActionMode.LAST, null, it));
         sVisitors.clear();
     }
 
@@ -80,7 +80,7 @@ public class Launcher {
             String name = nextLine();
             addClassVisitor(name);
         }
-        sVisitors.forEach(it -> UnionContext.addLastTransform(null, it));
+        sVisitors.forEach(it -> UnionContext.addClassVisitor(AbstractPlugin.ActionType.TRANSFORM, AbstractPlugin.ActionMode.LAST, null, it));
         sUnionTransform = new UnionTransform(sContext);
     }
 
