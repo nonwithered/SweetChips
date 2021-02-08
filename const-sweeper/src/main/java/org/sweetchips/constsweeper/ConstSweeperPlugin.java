@@ -23,5 +23,7 @@ public final class ConstSweeperPlugin extends AbstractPlugin<ConstSweeperExtensi
     @Override
     protected final void onAttach(String task) {
         sPlugin = this;
+        addAction(ActionType.PREPARE, ActionMode.LAST, task, ConstSweeperPrepareClassVisitor.class);
+        addAction(ActionType.TRANSFORM, ActionMode.LAST, task, ConstSweeperTransformClassVisitor.class);
     }
 }

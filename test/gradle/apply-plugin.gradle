@@ -25,4 +25,12 @@ if (rootProject.ext.applyPlugin4Gradle) {
             }
         }
     }
+    if (rootProject.ext.applyConstSweeper) {
+        apply plugin: 'ConstSweeper'
+        ConstSweeper {
+            attach null
+            ignore 'java.*', 'android.*', 'androidx.*',
+                    'org.sweetchips.test.Constant', 'org.sweetchips.test.Main#sConstant'
+        }
+    }
 }

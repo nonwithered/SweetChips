@@ -22,9 +22,9 @@ public final class TraceWeaverPlugin extends AbstractPlugin<TraceWeaverExtension
     }
 
     @Override
-    protected final void onAttach(String name) {
+    protected final void onAttach(String task) {
         sPlugin = this;
-        addAction(ActionType.TRANSFORM, ActionMode.LAST, name, TraceWeaverClassVisitor.class);
-        createClass(name, Util.TRACE_WRAPPER_CLASS_NAME, getExtension().getClassNode());
+        addAction(ActionType.TRANSFORM, ActionMode.LAST, task, TraceWeaverTransformClassVisitor.class);
+        createClass(task, Util.TRACE_WRAPPER_CLASS_NAME, getExtension().getClassNode());
     }
 }

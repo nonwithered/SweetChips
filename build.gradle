@@ -21,6 +21,9 @@ buildscript {
         if (gradle.applyTraceWeaver()) {
             classpath 'org.sweetchips:trace-weaver:1.0.0'
         }
+        if (gradle.applyConstSweeper()) {
+            classpath 'org.sweetchips:const-sweeper:1.0.0'
+        }
     }
 }
 
@@ -46,4 +49,5 @@ ext {
     applyPlugin4Gradle = gradle.applyPlugin4Gradle()
     applyVisitors = gradle.applyVisitors()
     applyTraceWeaver = gradle.applyTraceWeaver()
+    applyConstSweeper = gradle.applyConstSweeper()
 }

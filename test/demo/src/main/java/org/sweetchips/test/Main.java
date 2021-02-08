@@ -1,10 +1,13 @@
 package org.sweetchips.test;
 
 import java.lang.reflect.Member;
+import java.util.Arrays;
 
 import org.sweetchips.annotation.Uncheckcast;
 
 public class Main {
+
+    private static final double sConstant = 123.456;
 
     private static final String TAG = "Test";
 
@@ -18,10 +21,18 @@ public class Main {
         try {
             String s = (String) test;
         } catch (ClassCastException e) {
-            TestLogger.log(TAG, e.toString());
+            TestLogger.log(TAG, e);
         }
         TestLogger.log(TAG, checkFlags(0x00001000, Test.class, "test", String.class));
         TestLogger.log(TAG, checkFlags(0x00001000, Test.class, "<init>"));
+        TestLogger.log(TAG, Main.sConstant + " - " +
+                Constant.INT + " - " +
+                Constant.STR + " - " +
+                Temp.NUM + " - " +
+                Temp.STR);
+        logFields("org.sweetchips.test.Constant");
+        logFields("org.sweetchips.test.Temp");
+        logFields("org.sweetchips.test.Main");
     }
 
     private boolean checkFlags(int flags, Class<?> clazz, String methodName, Class<?>... argsTypes) {
@@ -37,5 +48,13 @@ public class Main {
             throw new RuntimeException(e);
         }
         return (member.getModifiers() & flags) == flags;
+    }
+
+    private void logFields(String clazz) {
+        try {
+            TestLogger.log(TAG, clazz + ": " + Arrays.toString(Class.forName(clazz).getDeclaredFields()));
+        } catch (Throwable e) {
+            TestLogger.log(TAG, e);
+        }
     }
 }

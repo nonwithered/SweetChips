@@ -42,12 +42,17 @@ public class TraceWeaverExtension extends AbstractExtension {
     }
 
     boolean isIgnored(String clazz, String method) {
-        String name = clazz.replaceAll("/", ".");
-        if (method == null) {
-            return mIgnore.contains(name);
-        } else {
-            return mIgnore.contains(name + "#" + method);
+        String[] split = clazz.split("/");
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < split.length - 1; i++) {
+            builder.append(split[i]);
+            builder.append(".");
+            if (mIgnore.contains(builder + "*")) {
+                return true;
+            }
         }
+        builder.append(split[split.length - 1]);
+        return mIgnore.contains(builder.toString()) || method != null && mIgnore.contains(builder + "#" + method);
     }
 
     public void maxDepth(int max) {

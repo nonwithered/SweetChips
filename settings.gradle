@@ -46,3 +46,14 @@ gradle.ext.applyTraceWeaver = {
             .resolve('trace-weaver-1.0.0.jar')
     )
 }
+
+gradle.ext.applyConstSweeper = {
+    Files.exists(rootProject.projectDir.toPath()
+            .resolve('build')
+            .resolve('org')
+            .resolve('sweetchips')
+            .resolve('const-sweeper')
+            .resolve('1.0.0')
+            .resolve('const-sweeper-1.0.0.jar')
+    )
+}

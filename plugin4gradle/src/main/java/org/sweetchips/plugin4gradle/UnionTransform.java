@@ -99,7 +99,7 @@ final class UnionTransform extends Transform {
     }
 
     @Override
-    public void transform(TransformInvocation transformInvocation) throws IOException, TransformException, InterruptedException {
+    public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
         init(transformInvocation);
         try {
             forInvocation();
@@ -133,7 +133,7 @@ final class UnionTransform extends Transform {
         return mMut;
     }
 
-    private void forInvocation() throws IOException, TransformException, InterruptedException {
+    private void forInvocation() throws TransformException, InterruptedException {
         try {
             mExecutor.submit(() ->
                     mInvocation.getInputs().stream()
@@ -142,17 +142,7 @@ final class UnionTransform extends Transform {
                             .forEach(ForkJoinTask::join))
                     .get();
         } catch (ExecutionException except) {
-            Throwable cause = except;
-            do {
-                cause = cause.getCause();
-            } while (cause instanceof RuntimeException);
-            try {
-                throw cause;
-            } catch (IOException | TransformException | InterruptedException e) {
-                throw e;
-            } catch (Throwable e) {
-                throw new TransformException(e);
-            }
+            throw new TransformException(except);
         }
     }
 

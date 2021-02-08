@@ -6,17 +6,17 @@ import org.sweetchips.plugin4gradle.BaseClassVisitor;
 import org.sweetchips.traceweaver.ext.ClassInfo;
 import org.sweetchips.traceweaver.ext.MethodInfo;
 
-public final class TraceWeaverClassVisitor extends BaseClassVisitor {
+public final class TraceWeaverTransformClassVisitor extends BaseClassVisitor {
 
     private boolean mIsIgnored;
 
     private ClassInfo mClassInfo;
 
-    public TraceWeaverClassVisitor(int api) {
+    public TraceWeaverTransformClassVisitor(int api) {
         this(api, null);
     }
 
-    public TraceWeaverClassVisitor(int api, ClassVisitor cv) {
+    public TraceWeaverTransformClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }
 
@@ -44,9 +44,9 @@ public final class TraceWeaverClassVisitor extends BaseClassVisitor {
 
     @Override
     public void visitEnd() {
-        super.visitEnd();
         if (mClassInfo.name.equals(Util.TRACE_WRAPPER_CLASS_NAME)) {
             setUnused();
         }
+        super.visitEnd();
     }
 }
