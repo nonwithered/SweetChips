@@ -3,11 +3,12 @@ package org.sweetchips.visitors;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.sweetchips.plugin4gradle.BaseClassVisitor;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class UncheckcastPrepareClassVisitor extends ClassVisitor {
+public class UncheckcastPrepareClassVisitor extends BaseClassVisitor {
 
     private final Map<UncheckcastRecord, UncheckcastRecord> mTarget = new HashMap<>();
 

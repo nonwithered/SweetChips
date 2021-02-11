@@ -41,39 +41,49 @@ public final class ConstSweeperPrepareClassVisitor extends BaseClassVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        if (visible) {
-            mUnused = false;
+        if (mUnused) {
+            if (visible) {
+                mUnused = false;
+            }
         }
         return super.visitAnnotation(desc, visible);
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        if (visible) {
-            mUnused = false;
+        if (mUnused) {
+            if (visible) {
+                mUnused = false;
+            }
         }
         return super.visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     @Override
     public void visitInnerClass(String name, String outerName, String innerName, int access) {
-        mUnused = false;
+        if (mUnused) {
+            mUnused = false;
+        }
         super.visitInnerClass(name, outerName, innerName, access);
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        mUnused = false;
+        if (mUnused) {
+            mUnused = false;
+        }
         return super.visitMethod(access, name, desc, signature, exceptions);
     }
 
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        if (!Util.unusedField(access, name, desc, signature, value)) {
-            mUnused = false;
-        }
-        if (ConstSweeperPlugin.getInstance().getExtension().isIgnored(mName, name)) {
-            mUnused = false;
+        if (mUnused) {
+            if (!Util.unusedField(access, name, desc, signature, value)) {
+                mUnused = false;
+            }
+            if (ConstSweeperPlugin.getInstance().getExtension().isIgnored(mName, name)) {
+                mUnused = false;
+            }
         }
         return super.visitField(access, name, desc, signature, value);
     }

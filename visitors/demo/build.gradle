@@ -1,8 +1,10 @@
 apply plugin: 'java-library'
 
 dependencies {
-    implementation project(':visitors')
     implementation 'org.ow2.asm:asm:5.1'
+
+    implementation project(':visitors')
+    implementation project(':plugin4gradle')
 }
 
 jar {

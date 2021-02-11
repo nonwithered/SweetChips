@@ -5,10 +5,11 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.sweetchips.plugin4gradle.BaseClassVisitor;
 
 import java.util.Collection;
 
-public class HideTransformClassVisitor extends ClassVisitor {
+public class HideTransformClassVisitor extends BaseClassVisitor {
 
     private Collection<HideRecord> mTarget;
 

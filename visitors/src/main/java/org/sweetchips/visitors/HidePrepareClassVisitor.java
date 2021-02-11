@@ -4,11 +4,12 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.sweetchips.plugin4gradle.BaseClassVisitor;
 
 import java.util.Collection;
 import java.util.HashSet;
 
-public class HidePrepareClassVisitor extends ClassVisitor {
+public class HidePrepareClassVisitor extends BaseClassVisitor {
 
     private final Collection<HideRecord> mTarget = new HashSet<>();
 

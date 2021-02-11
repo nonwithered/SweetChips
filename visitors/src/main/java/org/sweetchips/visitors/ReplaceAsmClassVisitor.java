@@ -1,8 +1,9 @@
 package org.sweetchips.visitors;
 
 import org.objectweb.asm.*;
+import org.sweetchips.plugin4gradle.BaseClassVisitor;
 
-class ReplaceAsmClassVisitor extends ClassVisitor {
+class ReplaceAsmClassVisitor extends BaseClassVisitor {
 
     private static final String BEFORE = "org/objectweb/asm/";
 

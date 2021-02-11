@@ -4,6 +4,7 @@ dependencies {
     implementation 'org.ow2.asm:asm:5.1'
 
     implementation project(':utility')
+    implementation project(':plugin4gradle')
 }
 
 apply plugin: 'maven-publish'
