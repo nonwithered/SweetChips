@@ -57,3 +57,6 @@ gradle.ext.applyConstSweeper = {
             .resolve('const-sweeper-1.0.0.jar')
     )
 }
+
+gradle.ext.VERSION_GRADLE = '3.1.4'
+gradle.ext.VERSION_ASM = '5.1'

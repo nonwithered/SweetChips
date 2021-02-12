@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.1'
+        classpath "com.android.tools.build:gradle:$gradle.ext.VERSION_GRADLE"
 
         if (gradle.applyPlugin4Gradle()) {
             classpath 'org.sweetchips:plugin4gradle:1.0.0'
@@ -46,8 +46,4 @@ task clean(type: Delete) {
 ext {
 
     buildUri = uri('./build')
-    applyPlugin4Gradle = gradle.applyPlugin4Gradle()
-    applyVisitors = gradle.applyVisitors()
-    applyTraceWeaver = gradle.applyTraceWeaver()
-    applyConstSweeper = gradle.applyConstSweeper()
 }

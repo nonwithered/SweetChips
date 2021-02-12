@@ -1,8 +1,8 @@
-if (rootProject.ext.applyPlugin4Gradle) {
+if (gradle.ext.applyPlugin4Gradle) {
     apply plugin: 'SweetChips'
     SweetChips {
         incremental true
-        if (rootProject.ext.applyVisitors) {
+        if (gradle.ext.applyVisitors) {
             addPrepare doLast: [
 //                    'org.sweetchips.visitors.HidePrepareClassVisitor',
                     'org.sweetchips.visitors.UncheckcastPrepareClassVisitor',
@@ -15,7 +15,7 @@ if (rootProject.ext.applyPlugin4Gradle) {
         }
         addTask 'Trace'
     }
-    if (rootProject.ext.applyTraceWeaver) {
+    if (gradle.ext.applyTraceWeaver) {
         apply plugin: 'TraceWeaver'
         TraceWeaver {
             attach 'Trace'
@@ -26,7 +26,7 @@ if (rootProject.ext.applyPlugin4Gradle) {
             }
         }
     }
-    if (rootProject.ext.applyConstSweeper) {
+    if (gradle.ext.applyConstSweeper) {
         apply plugin: 'ConstSweeper'
         ConstSweeper {
             attach null
