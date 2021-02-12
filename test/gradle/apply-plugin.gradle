@@ -4,11 +4,12 @@ if (rootProject.ext.applyPlugin4Gradle) {
         incremental true
         if (rootProject.ext.applyVisitors) {
             addPrepare doLast: [
-                    'org.sweetchips.visitors.HidePrepareClassVisitor',
+//                    'org.sweetchips.visitors.HidePrepareClassVisitor',
                     'org.sweetchips.visitors.UncheckcastPrepareClassVisitor',
             ]
             addTransform doLast: [
-                    'org.sweetchips.visitors.HideTransformClassVisitor',
+                    'org.sweetchips.visitors.HideTransformClassNode',
+//                    'org.sweetchips.visitors.HideTransformClassVisitor',
                     'org.sweetchips.visitors.UncheckcastTransformClassVisitor',
             ]
         }

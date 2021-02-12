@@ -1,5 +1,8 @@
 package org.sweetchips.test;
 
+import org.sweetchips.annotation.Hide;
+
+@Hide
 public final class TestLogger {
 
     private static final String TAG = "Log";

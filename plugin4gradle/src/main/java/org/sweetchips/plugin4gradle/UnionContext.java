@@ -104,8 +104,16 @@ final class UnionContext {
         return mName;
     }
 
+    boolean isEmptyPrepare() {
+        return mPrepare.isEmpty();
+    }
+
     void forEachPrepare(Consumer<Class<? extends ClassVisitor>> consumer) {
         mPrepare.forEach(consumer);
+    }
+
+    boolean isEmptyTransform() {
+        return mTransform.isEmpty();
     }
 
     void forEachTransform(Consumer<Class<? extends ClassVisitor>> consumer) {

@@ -4,7 +4,7 @@ import org.objectweb.asm.ClassVisitor;
 
 import java.nio.file.Path;
 
-public class BaseClassVisitor extends ClassVisitor {
+public abstract class BaseClassVisitor extends ClassVisitor {
 
     protected final void setUnused() {
         Util.CLASS_UNUSED.set(true);

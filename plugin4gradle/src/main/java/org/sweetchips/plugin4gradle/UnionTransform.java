@@ -102,7 +102,9 @@ final class UnionTransform extends Transform {
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
         init(transformInvocation);
         try {
-            forInvocation();
+            if (!mContext.isEmptyPrepare()) {
+                forInvocation();
+            }
             mMut = true;
             forInvocation();
             createClasses();
@@ -270,7 +272,11 @@ final class UnionTransform extends Transform {
                 }
             } else {
                 if (mut()) {
-                    transform(fileInput, fileOutput);
+                    if (!mContext.isEmptyTransform()) {
+                        transform(fileInput, fileOutput);
+                    } else {
+                        FilesUtil.copy(fileInput, fileOutput);
+                    }
                 } else {
                     prepare(fileInput);
                 }
@@ -336,7 +342,7 @@ final class UnionTransform extends Transform {
     private void prepare(InputStream in, Consumer<Consumer<Class<? extends ClassVisitor>>> consumer) {
         try {
             ClassReader cr = new ClassReader(in);
-            AtomicReference<ClassVisitor> ref = new AtomicReference<>(new BaseClassVisitor(mAsmApi, null));
+            AtomicReference<ClassVisitor> ref = new AtomicReference<>(null);
             consumer.accept((clazz) -> ref.set(ClassesUtil.newInstance(mAsmApi, ref.get(), clazz)));
             cr.accept(ref.get(), ClassReader.EXPAND_FRAMES);
         } catch (IOException e) {
