@@ -35,8 +35,8 @@ def repPath = rootProject.projectDir.toPath()
 def depPath = projectDir.toPath()
         .resolve('libs')
 
-def depFind = {
-    it -> repPath
+def depFind = { it ->
+    repPath
             .resolve("$it")
             .resolve('1.0.0')
             .resolve("$it-1.0.0.jar")
@@ -72,12 +72,13 @@ task testPrepare(type: Exec, dependsOn: clean) {
     doFirst {
         standardOutput = System.out
         errorOutput = System.err
-        try {
-            input = Files.newInputStream(projectDir.toPath().resolve('in.txt'))
-            standardInput = input
-        } catch (IOException e) {
-            throw new RuntimeException(e)
-        }
+        input = new ByteArrayInputStream('''
+build/libs
+-
+-
+org.sweetchips.visitors.ReplaceAsmClassVisitor
+'''.bytes)
+        standardInput = input
     }
     doLast {
         input.close()

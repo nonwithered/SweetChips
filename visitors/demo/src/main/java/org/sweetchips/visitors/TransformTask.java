@@ -4,12 +4,11 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
+import org.sweetchips.plugin4gradle.util.ClassesUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -99,18 +98,8 @@ public class TransformTask extends RecursiveAction {
     @SafeVarargs
     private static ClassVisitor newInstance(ClassVisitor visitor, Class<? extends ClassVisitor>... clazzes) {
         AtomicReference<ClassVisitor> ref = new AtomicReference<>(visitor);
-        Arrays.asList(clazzes).forEach((clazz) -> ref.set(newInstance(ASM_API, ref.get(), clazz)));
+        Arrays.asList(clazzes).forEach((clazz) -> ref.set(ClassesUtil.newInstance(ASM_API, ref.get(), clazz)));
         return ref.get();
-    }
-
-    private static ClassVisitor newInstance(int api, ClassVisitor cv, Class<? extends ClassVisitor> clazz) {
-        try {
-            Constructor<? extends ClassVisitor> constructor = clazz.getConstructor(int.class, ClassVisitor.class);
-            constructor.setAccessible(true);
-            return constructor.newInstance(api, cv);
-        } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
 

@@ -16,6 +16,8 @@ public class TraceWeaverExtension extends AbstractExtension {
 
     private Collection<String> mIgnore = new HashSet<>();
 
+    private Collection<String> mIgnoreExcept = new HashSet<>();
+
     private TraceWrapperClassNode mClassNode;
 
     private BiFunction<ClassInfo, MethodInfo, String> mSectionName =
@@ -41,18 +43,8 @@ public class TraceWeaverExtension extends AbstractExtension {
         return mDepth;
     }
 
-    boolean isIgnored(String clazz, String method) {
-        String[] split = clazz.split("/");
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < split.length - 1; i++) {
-            builder.append(split[i]);
-            builder.append(".");
-            if (mIgnore.contains(builder + "*")) {
-                return true;
-            }
-        }
-        builder.append(split[split.length - 1]);
-        return mIgnore.contains(builder.toString()) || method != null && mIgnore.contains(builder + "#" + method);
+    boolean isIgnored(String clazz, String field) {
+        return containsScope(mIgnore, clazz, field) && !containsScope(mIgnoreExcept, clazz, field);
     }
 
     public void maxDepth(int max) {
@@ -63,7 +55,11 @@ public class TraceWeaverExtension extends AbstractExtension {
     }
 
     public void ignore(String... name) {
-        mIgnore.addAll(Arrays.asList(name));
+        addScope(mIgnore, name);
+    }
+
+    public void ignoreExcept(String... name) {
+        addScope(mIgnoreExcept, name);
     }
 
     public void sectionName(BiFunction<ClassInfo, MethodInfo, String> sectionName) {
@@ -71,6 +67,27 @@ public class TraceWeaverExtension extends AbstractExtension {
             throw new NullPointerException();
         }
         mSectionName = sectionName;
+    }
+
+    private boolean containsScope(Collection<String> scope, String clazz, String field) {
+        if (scope.size() <= 0) {
+            return false;
+        }
+        String[] split = clazz.split("/");
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < split.length - 1; i++) {
+            builder.append(split[i]);
+            builder.append(".");
+            if (scope.contains(builder + "*")) {
+                return true;
+            }
+        }
+        builder.append(split[split.length - 1]);
+        return scope.contains(builder.toString()) || field != null && scope.contains(builder + "#" + field);
+    }
+
+    private void addScope(Collection<String> scope, String[] names) {
+        scope.addAll(Arrays.asList(names));
     }
 
     public TraceWeaverExtension(AbstractPlugin<? extends AbstractExtension> plugin) {

@@ -17,6 +17,8 @@ public class ConstSweeperExtension extends AbstractExtension {
 
     private Collection<String> mIgnore = new HashSet<>();
 
+    private Collection<String> mIgnoreExcept = new HashSet<>();
+
     private Map<String, List<String>> mInterfaces = new ConcurrentHashMap<>();
 
     boolean unusedInterface(String name) {
@@ -46,21 +48,36 @@ public class ConstSweeperExtension extends AbstractExtension {
     }
 
     boolean isIgnored(String clazz, String field) {
+        return containsScope(mIgnore, clazz, field) && !containsScope(mIgnoreExcept, clazz, field);
+    }
+
+    public void ignore(String... name) {
+        addScope(mIgnore, name);
+    }
+
+    public void ignoreExcept(String... name) {
+        addScope(mIgnoreExcept, name);
+    }
+
+    private boolean containsScope(Collection<String> scope, String clazz, String field) {
+        if (scope.size() <= 0) {
+            return false;
+        }
         String[] split = clazz.split("/");
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < split.length - 1; i++) {
             builder.append(split[i]);
             builder.append(".");
-            if (mIgnore.contains(builder + "*")) {
+            if (scope.contains(builder + "*")) {
                 return true;
             }
         }
         builder.append(split[split.length - 1]);
-        return mIgnore.contains(builder.toString()) || field != null && mIgnore.contains(builder + "#" + field);
+        return scope.contains(builder.toString()) || field != null && scope.contains(builder + "#" + field);
     }
 
-    public void ignore(String... name) {
-        mIgnore.addAll(Arrays.asList(name));
+    private void addScope(Collection<String> scope, String[] names) {
+        scope.addAll(Arrays.asList(names));
     }
 
     public ConstSweeperExtension(AbstractPlugin<? extends AbstractExtension> plugin) {
