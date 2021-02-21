@@ -4,13 +4,13 @@ rootProject.name = 'SweetChips'
 
 include ':test'
 include ':test:demo'
+include ':plugin4gradle'
+include ':plugin4gradle:demo'
 include ':utility'
 include ':visitors'
 include ':visitors:demo'
-include ':plugin4gradle'
-include ':plugin4gradle:demo'
-include ':trace-weaver'
 include ':const-sweeper'
+include ':trace-weaver'
 
 gradle.ext.buildUri = uri('./build')
 

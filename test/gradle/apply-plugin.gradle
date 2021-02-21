@@ -1,37 +1,35 @@
-if (gradle.ext.applyPlugin4Gradle) {
+if (gradle.ext.applyPlugin4Gradle()) {
     apply plugin: 'SweetChips'
     SweetChips {
         incremental true
-        if (gradle.ext.applyVisitors) {
+        if (gradle.ext.applyVisitors()) {
             addPrepare doLast: [
-//                    'org.sweetchips.visitors.HidePrepareClassVisitor',
                     'org.sweetchips.visitors.UncheckcastPrepareClassVisitor',
             ]
             addTransform doLast: [
                     'org.sweetchips.visitors.HideTransformClassNode',
-//                    'org.sweetchips.visitors.HideTransformClassVisitor',
                     'org.sweetchips.visitors.UncheckcastTransformClassVisitor',
             ]
         }
         addTask 'Trace'
     }
-    if (gradle.ext.applyTraceWeaver) {
+    if (gradle.ext.applyTraceWeaver()) {
         apply plugin: 'TraceWeaver'
         TraceWeaver {
             attach 'Trace'
             maxDepth 10
-            ignore 'org.sweetchips.test.TestLogger'
+            ignore 'org.sweetchips.test.LogDelegate'
             sectionName { classInfo, methodInfo ->
                 classInfo.name.replaceAll("/", ".") + "#" + methodInfo.name
             }
         }
     }
-    if (gradle.ext.applyConstSweeper) {
+    if (gradle.ext.applyConstSweeper()) {
         apply plugin: 'ConstSweeper'
         ConstSweeper {
             attach null
             ignore 'java.*', 'android.*', 'androidx.*',
-                    'org.sweetchips.test.Constant', 'org.sweetchips.test.Main#sConstant'
+                    'org.sweetchips.test.TestConst', 'org.sweetchips.test.TestConst$CheckIgnorePart#sIgnore'
         }
     }
 }

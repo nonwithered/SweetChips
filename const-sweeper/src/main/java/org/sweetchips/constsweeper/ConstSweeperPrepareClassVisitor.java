@@ -60,14 +60,6 @@ public final class ConstSweeperPrepareClassVisitor extends BaseClassVisitor {
     }
 
     @Override
-    public void visitInnerClass(String name, String outerName, String innerName, int access) {
-        if (mUnused) {
-            mUnused = false;
-        }
-        super.visitInnerClass(name, outerName, innerName, access);
-    }
-
-    @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         if (mUnused) {
             mUnused = false;

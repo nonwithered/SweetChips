@@ -18,10 +18,10 @@ public interface ClassesUtil {
 
     static ClassVisitor newInstance(int api, ClassVisitor cv, Class<? extends ClassVisitor> clazz) {
         try {
-            Constructor<? extends ClassVisitor> constructor = clazz.getConstructor(int.class, ClassVisitor.class);
+            Constructor<? extends ClassVisitor> constructor = clazz.getDeclaredConstructor(int.class, ClassVisitor.class);
             constructor.setAccessible(true);
             return constructor.newInstance(api, cv);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }

@@ -12,18 +12,18 @@ def javaSrc = projectDir.toPath()
         .resolve('test')
 
 def proList = [
-        ':utility',
-        ':visitors',
         ':plugin4gradle',
         ':plugin4gradle:demo',
+        ':utility',
+        ':visitors',
         ':visitors:demo',
 ]
 
 def jarList = [
-        'utility',
-        'visitors',
         'plugin4gradle',
         'plugin4gradle-demo',
+        'utility',
+        'visitors',
         'visitors-demo',
 ]
 

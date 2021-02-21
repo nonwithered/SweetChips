@@ -41,3 +41,4 @@ dependencies {
 }
 
 apply from: 'gradle/apply-plugin.gradle'
+apply from: 'gradle/test.gradle'
