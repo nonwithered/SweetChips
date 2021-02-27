@@ -100,7 +100,7 @@ task testCompile(type: Exec, dependsOn: testPrepare) {
     ] + src
     commandLine cmd
     doFirst {
-        if (!Files.isDirectory(clsPath)) {
+        if (!Files.exists(clsPath)) {
             Files.createDirectories(clsPath)
         }
     }

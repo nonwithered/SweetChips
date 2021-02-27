@@ -5,6 +5,10 @@ import org.sweetchips.plugin4gradle.AbstractPlugin;
 
 public final class TraceWeaverPlugin extends AbstractPlugin<TraceWeaverExtension> {
 
+    public TraceWeaverPlugin() {
+        super();
+    }
+
     private static TraceWeaverPlugin sPlugin;
 
     static TraceWeaverPlugin getInstance() {

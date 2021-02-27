@@ -15,7 +15,6 @@ import com.android.build.api.transform.TransformOutputProvider;
 import org.objectweb.asm.ClassVisitor;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -79,7 +78,7 @@ public class Launcher {
         sUnionTransform = new UnionTransform(sContext);
     }
 
-    private static void start() throws TransformException, InterruptedException, IOException {
+    private static void start() throws TransformException, InterruptedException {
         sUnionTransform.transform(sInvocation);
     }
 

@@ -5,6 +5,10 @@ import org.sweetchips.plugin4gradle.AbstractPlugin;
 
 public final class InlineTailorPlugin extends AbstractPlugin<InlineTailorExtension> {
 
+    public InlineTailorPlugin() {
+        super();
+    }
+
     private static InlineTailorPlugin sPlugin;
 
     static InlineTailorPlugin getInstance() {

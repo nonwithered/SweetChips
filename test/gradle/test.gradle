@@ -46,7 +46,7 @@ task testAtrace(type: Exec, dependsOn: testDepends) {
 task testAtracePull(type: Exec, dependsOn: testAtrace) {
     commandLine 'adb', 'pull', atraceSdcard, "${traceDir.toAbsolutePath()}"
     doFirst {
-        if (!Files.isDirectory(traceDir)) {
+        if (!Files.exists(traceDir)) {
             Files.createDirectories(traceDir)
         }
     }

@@ -6,92 +6,108 @@ import com.android.build.api.transform.TransformInvocation;
 
 import org.gradle.api.Project;
 import org.sweetchips.plugin4gradle.util.AsyncUtil;
+import org.sweetchips.plugin4gradle.util.ClassesUtil;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
-public abstract class Debugger {
+public final class Debugger {
 
-    public static synchronized Debugger getInstance() {
-        if (!isDebug()) {
-            throw new IllegalStateException();
-        }
-        return sDebugger;
+    private static boolean mDebug;
+
+    static boolean isDebug() {
+        return mDebug;
     }
 
-    public static synchronized void setInstance(Class<? extends Debugger> clazz) {
+    public static void init(Project project, Path dir) {
         if (isDebug()) {
             throw new IllegalStateException();
         }
-        try {
-            sDebugger = clazz.getDeclaredConstructor().newInstance();
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        if (project == null || dir == null) {
+            throw new NullPointerException();
         }
-        init();
+        mDebug = true;
+        sProject = project;
+        sDir = dir;
+        new UnionPlugin().apply(sProject);
     }
 
-    protected Debugger() {
-    }
+    private static boolean mLaunch;
 
-    public final void launch() throws TransformException, InterruptedException, IOException {
-        mTransforms.add(new UnionTransform(new UnionContext(null)));
-        for (int i = 0; i < mTransforms.size(); i++) {
-            Path src = i == 0 ? getInput() : getTransformsPath(mTransforms.get(i - 1));
-            Path desc = i == mTransforms.size() - 1 ? getOutput() : getTransformsPath(mTransforms.get(i));
-            mTransforms.get(i).transform(getInvocation(src, desc));
+    public static void launch(Path path, Path next, BiFunction<Path, Path, TransformInvocation> factory) {
+        if (!isDebug() || mLaunch) {
+            throw new IllegalStateException();
         }
+        mLaunch = true;
+        sTransforms.add(new UnionTransform(new UnionContext(null)));
+        AsyncUtil.call(() -> transform(path, next, factory)).get();
     }
 
-    protected abstract Project getProject();
-
-    protected abstract Path getInput();
-
-    protected abstract Path getOutput();
-
-    protected abstract Path getIntermediatesPath();
-
-    protected abstract TransformInvocation getInvocation(Path input, Path output);
-
-    private static Debugger sDebugger;
-
-    static boolean isDebug() {
-        return sDebugger != null;
-    }
-
-    private static void init() {
-        UnionPlugin.setInstance(new UnionPlugin());
-        UnionPlugin.getInstance().setProject(getInstance().getProject());
-        UnionPlugin.getInstance().setExtension(new UnionExtension());
-    }
-
-    private final List<Transform> mTransforms = new ArrayList<>();
-
-    final void registerTransform(Transform transform) {
-        mTransforms.add(transform);
-    }
-
-    private Path getTransformsPath() {
-        Path transformsPath = getIntermediatesPath().resolve("transforms");
-        if (!Files.isDirectory(transformsPath)) {
-            AsyncUtil.run(() -> Files.createDirectories(transformsPath)).run();
+    private static Void transform(Path path, Path next, BiFunction<Path, Path, TransformInvocation> factory) throws TransformException, InterruptedException, IOException {
+        for (int i = 0; i < sTransforms.size(); i++) {
+            Path src = i == 0 ? path : getFile(sTransforms.get(i - 1));
+            Path desc = i == sTransforms.size() - 1 ? next : getFile(sTransforms.get(i));
+            sTransforms.get(i).transform(factory.apply(src, desc));
         }
-        return transformsPath;
+        return null;
     }
 
-    private Path getTransformsPath(Transform transform) {
+    public static void applyPlugin(Class<? extends AbstractPlugin> clazz) {
+        if (!isDebug() || mLaunch) {
+            throw new IllegalStateException();
+        }
+        ClassesUtil.newInstance(ClassesUtil.getDeclaredConstructor(clazz)).apply(sProject);
+    }
+
+    private static final List<Transform> sTransforms = new ArrayList<>();
+
+    static void registerTransform(Transform transform) {
+        sTransforms.add(transform);
+    }
+
+    private static Project sProject;
+
+    private static Project defaultProject() {
+        return (Project) Proxy.newProxyInstance(
+                Debugger.class.getClassLoader(),
+                new Class<?>[]{Project.class},
+                (proxy, method, args) -> {
+                    throw new UnsupportedOperationException();
+                });
+    }
+
+    private static Path sDir;
+
+    private static Path defaultDir() {
+        return Paths.get("build", "intermediates", "transforms");
+    }
+
+    private static Path getDir() {
+        if (!Files.exists(sDir)) {
+            AsyncUtil.run(() -> Files.createDirectories(sDir)).run();
+        }
+        return sDir;
+    }
+
+    private static Path getFile(Transform transform) {
         String name = transform.getName();
         if (name == null) {
             throw new NullPointerException();
         }
-        Path transformsPath = getTransformsPath().resolve(name);
-        if (!Files.isDirectory(transformsPath)) {
+        Path transformsPath = getDir().resolve(name);
+        if (!Files.exists(transformsPath)) {
             AsyncUtil.run(() -> Files.createDirectories(transformsPath)).run();
         }
         return transformsPath;
+    }
+
+    private Debugger() {
+        throw new UnsupportedOperationException();
     }
 }

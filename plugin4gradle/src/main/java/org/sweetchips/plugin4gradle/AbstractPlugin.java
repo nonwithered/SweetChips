@@ -14,6 +14,9 @@ import java.lang.reflect.Type;
 
 public abstract class AbstractPlugin<Ext extends AbstractExtension> implements Plugin<Project> {
 
+    protected AbstractPlugin() {
+    }
+
     protected enum ActionMode {
         FIRST, LAST
     }
@@ -61,7 +64,7 @@ public abstract class AbstractPlugin<Ext extends AbstractExtension> implements P
     }
 
     private void init(Project project) {
-        if (UnionPlugin.getInstance().getExtension() == null) {
+        if (UnionPlugin.getInstance() == null) {
             throw new ProjectConfigurationException(getName(),
                     new IllegalStateException(Util.NAME + " plugin should be enabled first"));
         }

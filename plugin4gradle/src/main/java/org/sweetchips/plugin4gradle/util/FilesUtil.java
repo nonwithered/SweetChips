@@ -21,4 +21,8 @@ public interface FilesUtil {
     static Stream<Path> list(Path path) {
         return AsyncUtil.call(() -> Files.list(path)).get();
     }
+
+    static String getFileName(Path path) {
+        return path.getFileName().toString();
+    }
 }

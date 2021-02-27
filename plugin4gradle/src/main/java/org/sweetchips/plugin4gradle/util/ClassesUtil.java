@@ -3,26 +3,24 @@ package org.sweetchips.plugin4gradle.util;
 import org.objectweb.asm.ClassVisitor;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 public interface ClassesUtil {
 
     @SuppressWarnings("unchecked")
     static Class<? extends ClassVisitor> forName(String name) {
-        try {
-            return (Class<? extends ClassVisitor>) Class.forName(name);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        return AsyncUtil.call(() -> (Class<? extends ClassVisitor>) Class.forName(name)).get();
     }
 
-    static ClassVisitor newInstance(int api, ClassVisitor cv, Class<? extends ClassVisitor> clazz) {
-        try {
-            Constructor<? extends ClassVisitor> constructor = clazz.getDeclaredConstructor(int.class, ClassVisitor.class);
-            return constructor.newInstance(api, cv);
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    static <T> Constructor<T> getDeclaredConstructor(Class<T> clazz, Class<?>... args) {
+        return AsyncUtil.call(() -> clazz.getDeclaredConstructor(args)).get();
+    }
+
+    static <T> T newInstance(Constructor<T> constructor, Object... args) {
+        return AsyncUtil.call(() ->  constructor.newInstance(args)).get();
+    }
+
+    static ClassVisitor newClassVisitor(int api, ClassVisitor cv, Class<? extends ClassVisitor> clazz) {
+        return newInstance(getDeclaredConstructor(clazz, int.class, ClassVisitor.class), api, cv);
     }
 
     static void checkAssert(boolean b) {

@@ -83,22 +83,22 @@ public class TransformTask extends RecursiveAction {
     }
 
     private static ClassVisitor prepareClassVisitor() {
-        return newInstance(null,
+        return newClassVisitor(null,
 //                HidePrepareClassVisitor.class,
                 UncheckcastPrepareClassVisitor.class);
     }
 
     private static ClassVisitor transformClassVisitor(ClassWriter cw) {
-        return newInstance(cw,
+        return newClassVisitor(cw,
                 HideTransformClassNode.class,
 //                HideTransformClassVisitor.class,
                 UncheckcastTransformClassVisitor.class);
     }
 
     @SafeVarargs
-    private static ClassVisitor newInstance(ClassVisitor visitor, Class<? extends ClassVisitor>... clazzes) {
+    private static ClassVisitor newClassVisitor(ClassVisitor visitor, Class<? extends ClassVisitor>... clazzes) {
         AtomicReference<ClassVisitor> ref = new AtomicReference<>(visitor);
-        Arrays.asList(clazzes).forEach((clazz) -> ref.set(ClassesUtil.newInstance(ASM_API, ref.get(), clazz)));
+        Arrays.asList(clazzes).forEach((clazz) -> ref.set(ClassesUtil.newClassVisitor(ASM_API, ref.get(), clazz)));
         return ref.get();
     }
 }

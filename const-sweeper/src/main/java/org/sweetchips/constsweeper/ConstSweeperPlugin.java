@@ -5,6 +5,10 @@ import org.sweetchips.plugin4gradle.AbstractPlugin;
 
 public final class ConstSweeperPlugin extends AbstractPlugin<ConstSweeperExtension> {
 
+    public ConstSweeperPlugin() {
+        super();
+    }
+
     private static ConstSweeperPlugin sPlugin;
 
     static ConstSweeperPlugin getInstance() {

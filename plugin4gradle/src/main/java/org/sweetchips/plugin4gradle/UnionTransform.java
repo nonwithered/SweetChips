@@ -127,7 +127,7 @@ final class UnionTransform extends Transform {
 
     private static Path forName(String name) {
         Path path = Paths.get(".", name.split("/"));
-        path = path.resolveSibling(path.getFileName() + ".class");
+        path = path.resolveSibling(FilesUtil.getFileName(path) + ".class");
         return path;
     }
     
@@ -163,6 +163,9 @@ final class UnionTransform extends Transform {
     private Void eachJarInput(JarInput jarInput) {
         switch (jarInput.getStatus()) {
             case NOTCHANGED:
+                if (mInvocation.isIncremental() || isIncremental()) {
+                    return null;
+                }
             case ADDED:
             case CHANGED:
                 eachJarFile(zipFileInput(jarInput), jarOutput(jarInput));
@@ -226,7 +229,7 @@ final class UnionTransform extends Transform {
     private Void eachDirectoryInput(DirectoryInput directoryInput) {
         Path pathOutput = directoryOutput(directoryInput);
         Path pathInput = directoryInput.getFile().toPath();
-        if (!isIncremental() || directoryInput.getChangedFiles().size() == 0) {
+        if (!mInvocation.isIncremental() || !isIncremental() || directoryInput.getChangedFiles().size() == 0) {
             eachFile(pathInput, pathOutput);
             return null;
         }
@@ -237,14 +240,13 @@ final class UnionTransform extends Transform {
                         it.getValue())))
                 .collect(Collectors.toList())
                 .forEach(ForkJoinTask::join);
-
         return null;
     }
 
     private Void eachChangedFile(Path changedFileInput, Path changedFileOutput, Status status) {
         switch (status) {
             case NOTCHANGED:
-                if (Files.exists(changedFileOutput) && !Files.isDirectory(changedFileOutput)) {
+                if (Files.isRegularFile(changedFileOutput)) {
                     break;
                 }
             case ADDED:
@@ -263,8 +265,8 @@ final class UnionTransform extends Transform {
     }
 
     private Void eachFile(Path fileInput, Path fileOutput) {
-        if (!Files.isDirectory(fileInput)) {
-            if (Util.ignoreFile(fileInput.getFileName().toString())) {
+        if (Files.isRegularFile(fileInput)) {
+            if (Util.ignoreFile(FilesUtil.getFileName(fileInput))) {
                 if (!Files.exists(fileOutput)) {
                     if (mut()) {
                         FilesUtil.copy(fileInput, fileOutput);
@@ -302,6 +304,7 @@ final class UnionTransform extends Transform {
     }
 
     private Path jarOutput(JarInput jarInput) {
+        UnionPlugin.getInstance().getProject().getLogger().error("jarInput: " + jarInput.getFile().getAbsolutePath());
         return mInvocation.getOutputProvider().getContentLocation(
                 jarInput.getFile().getAbsolutePath(),
                 jarInput.getContentTypes(),
@@ -310,6 +313,7 @@ final class UnionTransform extends Transform {
     }
 
     private Path directoryOutput(DirectoryInput directoryInput) {
+        UnionPlugin.getInstance().getProject().getLogger().error("directoryInput: " + directoryInput.getName());
         Path path = mInvocation.getOutputProvider().getContentLocation(
                 directoryInput.getName(),
                 directoryInput.getContentTypes(),
@@ -343,7 +347,7 @@ final class UnionTransform extends Transform {
         try {
             ClassReader cr = new ClassReader(in);
             AtomicReference<ClassVisitor> ref = new AtomicReference<>(null);
-            consumer.accept((clazz) -> ref.set(ClassesUtil.newInstance(mAsmApi, ref.get(), clazz)));
+            consumer.accept((clazz) -> ref.set(ClassesUtil.newClassVisitor(mAsmApi, ref.get(), clazz)));
             cr.accept(ref.get(), ClassReader.EXPAND_FRAMES);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -385,7 +389,7 @@ final class UnionTransform extends Transform {
             ClassReader cr = new ClassReader(in);
             ClassWriter cw = new ClassWriter(0);
             AtomicReference<ClassVisitor> ref = new AtomicReference<>(cw);
-            consumer.accept((clazz) -> ref.set(ClassesUtil.newInstance(mAsmApi, ref.get(), clazz)));
+            consumer.accept((clazz) -> ref.set(ClassesUtil.newClassVisitor(mAsmApi, ref.get(), clazz)));
             cr.accept(ref.get(), ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
         } catch (IOException e) {
