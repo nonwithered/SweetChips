@@ -15,7 +15,6 @@ abstract class AbstractTest {
     private static void test(Class<? extends AbstractTest> clazz) {
         try {
         Constructor<? extends AbstractTest> constructor = clazz.getDeclaredConstructor();
-        constructor.setAccessible(true);
         AbstractTest test = constructor.newInstance();
         test.onTest();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -31,7 +30,7 @@ abstract class AbstractTest {
 
     private final String mTag;
 
-    AbstractTest() {
+    protected AbstractTest() {
         mTag = getClassName();
     }
 

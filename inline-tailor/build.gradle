@@ -1,0 +1,26 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation gradleApi()
+    implementation "com.android.tools.build:gradle:$gradle.ext.VERSION_GRADLE"
+    implementation "org.ow2.asm:asm:$gradle.ext.VERSION_ASM"
+
+    implementation project(':plugin4gradle')
+}
+
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'org.sweetchips'
+            artifactId 'inline-tailor'
+            version '1.0.0'
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = gradle.ext.buildUri
+        }
+    }
+}

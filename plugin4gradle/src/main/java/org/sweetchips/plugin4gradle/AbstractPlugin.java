@@ -37,7 +37,7 @@ public abstract class AbstractPlugin<Ext extends AbstractExtension> implements P
     }
 
     public final int getAsmApi() {
-        return UnionContext.getExtension().getAsmApi();
+        return UnionPlugin.getInstance().getExtension().getAsmApi();
     }
 
     @Override
@@ -61,7 +61,7 @@ public abstract class AbstractPlugin<Ext extends AbstractExtension> implements P
     }
 
     private void init(Project project) {
-        if (UnionContext.getProject() == null) {
+        if (UnionPlugin.getInstance().getExtension() == null) {
             throw new ProjectConfigurationException(getName(),
                     new IllegalStateException(Util.NAME + " plugin should be enabled first"));
         }

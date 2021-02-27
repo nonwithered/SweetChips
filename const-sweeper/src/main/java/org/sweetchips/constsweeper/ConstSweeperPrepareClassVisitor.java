@@ -7,6 +7,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 import org.sweetchips.plugin4gradle.BaseClassVisitor;
+import org.sweetchips.plugin4gradle.util.ClassesUtil;
 
 public final class ConstSweeperPrepareClassVisitor extends BaseClassVisitor {
 
@@ -30,7 +31,7 @@ public final class ConstSweeperPrepareClassVisitor extends BaseClassVisitor {
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         mIgnored = ConstSweeperPlugin.getInstance().getExtension().isIgnored(name, null);
         mUnused = !mIgnored;
-        if (!Util.checkAccess(access, Opcodes.ACC_INTERFACE)) {
+        if (!ClassesUtil.checkAccess(access, Opcodes.ACC_INTERFACE)) {
             mUnused = false;
         } else {
             mName = name;

@@ -11,25 +11,34 @@ if (gradle.ext.applyPlugin4Gradle()) {
                     'org.sweetchips.visitors.UncheckcastTransformClassVisitor',
             ]
         }
-        addTask 'Trace'
+//        addTask 'Trace'
     }
-    if (gradle.ext.applyTraceWeaver()) {
-        apply plugin: 'TraceWeaver'
-        TraceWeaver {
-            attach 'Trace'
-            maxDepth 10
-            ignore 'org.sweetchips.test.LogDelegate'
-            sectionName { classInfo, methodInfo ->
-                classInfo.name.replaceAll("/", ".") + "#" + methodInfo.name
-            }
-        }
-    }
+//    if (gradle.ext.applyTraceWeaver()) {
+//        apply plugin: 'TraceWeaver'
+//        TraceWeaver {
+//            attach 'Trace'
+//            maxDepth 10
+//            ignore 'org.sweetchips.test.LogDelegate'
+//            sectionName { classInfo, methodInfo ->
+//                classInfo.name.replaceAll('/', '.') + '#' + methodInfo.name
+//            }
+//        }
+//    }
     if (gradle.ext.applyConstSweeper()) {
         apply plugin: 'ConstSweeper'
         ConstSweeper {
             attach null
             ignore 'java.*', 'android.*', 'androidx.*',
                     'org.sweetchips.test.TestConst', 'org.sweetchips.test.TestConst$CheckIgnorePart#sIgnore'
+        }
+    }
+    if (gradle.ext.applyInlineTailor()) {
+        apply plugin: 'InlineTailor'
+        InlineTailor {
+            attach null
+            ignore '*'
+            ignoreExcept 'org.sweetchips.*'
+//            ignore 'java.*', 'android.*', 'androidx.*'
         }
     }
 }

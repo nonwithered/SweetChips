@@ -11,6 +11,7 @@ include ':visitors'
 include ':visitors:demo'
 include ':const-sweeper'
 include ':trace-weaver'
+include ':inline-tailor'
 
 gradle.ext.buildUri = uri('./build')
 
@@ -55,6 +56,17 @@ gradle.ext.applyConstSweeper = {
             .resolve('const-sweeper')
             .resolve('1.0.0')
             .resolve('const-sweeper-1.0.0.jar')
+    )
+}
+
+gradle.ext.applyInlineTailor = {
+    Files.exists(rootProject.projectDir.toPath()
+            .resolve('build')
+            .resolve('org')
+            .resolve('sweetchips')
+            .resolve('inline-tailor')
+            .resolve('1.0.0')
+            .resolve('inline-tailor-1.0.0.jar')
     )
 }
 

@@ -30,7 +30,7 @@ public class UnionExtension {
     }
 
     public void addTask(String... name) {
-        Arrays.stream(name).forEach(UnionContext.getPlugin()::addTransform);
+        Arrays.stream(name).forEach(UnionPlugin.getInstance()::addTransform);
     }
 
     public void addPrepare(Map<String, List<String>> map) {

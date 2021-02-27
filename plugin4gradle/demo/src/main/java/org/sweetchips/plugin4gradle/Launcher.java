@@ -13,7 +13,6 @@ import com.android.build.api.transform.TransformInvocation;
 import com.android.build.api.transform.TransformOutputProvider;
 
 import org.objectweb.asm.ClassVisitor;
-import org.sweetchips.plugin4gradle.util.ClassesUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,10 +30,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Launcher {
-
-    static {
-        UnionContext.setExtension(new UnionExtension());
-    }
 
     private static final Scanner sScanner = new Scanner(System.in);
 

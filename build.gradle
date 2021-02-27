@@ -24,6 +24,9 @@ buildscript {
         if (gradle.applyConstSweeper()) {
             classpath 'org.sweetchips:const-sweeper:1.0.0'
         }
+        if (gradle.applyInlineTailor()) {
+            classpath 'org.sweetchips:inline-tailor:1.0.0'
+        }
     }
 }
 

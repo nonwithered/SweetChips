@@ -61,7 +61,7 @@ final class UnionTransform extends Transform {
 
     private void init(TransformInvocation transformInvocation) {
         mInvocation = transformInvocation;
-        mAsmApi = UnionContext.getExtension().getAsmApi();
+        mAsmApi = UnionPlugin.getInstance().getExtension().getAsmApi();
     }
 
     private volatile boolean mMut;
@@ -95,7 +95,7 @@ final class UnionTransform extends Transform {
 
     @Override
     public boolean isIncremental() {
-        return UnionContext.getExtension().isIncremental();
+        return UnionPlugin.getInstance().getExtension().isIncremental();
     }
 
     @Override

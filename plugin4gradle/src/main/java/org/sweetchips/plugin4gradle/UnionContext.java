@@ -1,6 +1,5 @@
 package org.sweetchips.plugin4gradle;
 
-import org.gradle.api.Project;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.tree.ClassNode;
 
@@ -25,36 +24,6 @@ final class UnionContext {
             sContexts.put(task, context);
         }
         return context;
-    }
-
-    private static UnionExtension sExtension;
-
-    private static Project sProject;
-
-    private static UnionPlugin sPlugin;
-
-    static void setExtension(UnionExtension extension) {
-        sExtension = extension;
-    }
-
-    static UnionExtension getExtension() {
-        return sExtension;
-    }
-
-    static void setProject(Project project) {
-        sProject = project;
-    }
-
-    static Project getProject() {
-        return sProject;
-    }
-
-    static void setPlugin(UnionPlugin plugin) {
-        sPlugin = plugin;
-    }
-
-    static UnionPlugin getPlugin() {
-        return sPlugin;
     }
 
     static void addClassVisitor(AbstractPlugin.ActionType type, AbstractPlugin.ActionMode mode, String task, Class<? extends ClassVisitor> visitor) {
@@ -96,7 +65,7 @@ final class UnionContext {
 
     private final Map<String, ClassNode> mClassNode = new HashMap<>();
 
-    private UnionContext(String name) {
+    UnionContext(String name) {
         mName = name;
     }
 
