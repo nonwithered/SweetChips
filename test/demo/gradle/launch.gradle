@@ -17,6 +17,7 @@ def proList = [
         ':utility',
         ':visitors',
         ':visitors:demo',
+        ':const-sweeper',
 ]
 
 def jarList = [
@@ -25,6 +26,7 @@ def jarList = [
         'utility',
         'visitors',
         'visitors-demo',
+        'const-sweeper',
 ]
 
 def repPath = rootProject.projectDir.toPath()
@@ -46,56 +48,89 @@ def libPath = projectDir.toPath()
         .resolve('build')
         .resolve('libs')
 
+def libFind = { it ->
+    libPath.resolve("$it-1.0.0.jar")
+}
+
 def clsPath = projectDir.toPath()
         .resolve('build')
         .resolve('classes')
+        .resolve('java')
+        .resolve('main')
 
-task testPrepare(type: Exec, dependsOn: clean) {
+def inputPath = projectDir.toPath()
+        .resolve('build')
+        .resolve('input')
+
+def outputPath = projectDir.toPath()
+        .resolve('build')
+        .resolve('output')
+
+def tempPath = projectDir.toPath()
+        .resolve('build')
+        .resolve('intermediates')
+        .resolve('transforms')
+
+def scriptPath = projectDir.toPath()
+        .resolve('src')
+        .resolve('main')
+        .resolve('groovy')
+
+def rawClasspath = {
+    def cp = jarList.stream().map {
+        "$sep${depFind(it).toAbsolutePath()}"
+    }.collect(Collectors.joining())
+    Files.list(depPath).forEach {
+        cp += "$sep${it.toAbsolutePath()}"
+    }
+    cp
+}
+
+def allClasspath = {
+    def cp = jarList.stream().map {
+        "$sep${libFind(it).toAbsolutePath()}"
+    }.collect(Collectors.joining())
+    Files.list(depPath).filter {
+        !"${it.fileName}".startsWith('asm')
+    }.forEach {
+        cp += "$sep${it.toAbsolutePath()}"
+    }
+    cp
+}
+
+task testInit(type: Copy, dependsOn: clean) {
     proList.each {
         dependsOn "$it:publish"
     }
-    def cp = Files.list(depPath).map {
-        "$sep${it.toAbsolutePath()}"
-    }.collect(Collectors.joining())
-    def args = jarList.stream().map {
-        def jar = depFind(it).toAbsolutePath()
-        cp += "$sep$jar"
-        "$jar"
-    }.collect(Collectors.toList())
-    def cmd = [
-            'java',
-            '-cp', "$cp",
-            'org.sweetchips.plugin4gradle.Launcher'
-    ] + args
-    commandLine cmd
-    def input
-    doFirst {
-        standardOutput = System.out
-        errorOutput = System.err
-        input = new ByteArrayInputStream('''
-build/libs
--
--
-org.sweetchips.visitors.ReplaceAsmClassVisitor
-'''.bytes)
-        standardInput = input
+    jarList.forEach {
+        from "${depFind(it).toAbsolutePath()}"
     }
-    doLast {
-        input.close()
+    into "$libPath"
+    doFirst {
+        if (!Files.exists(libPath)) {
+            Files.createDirectories(libPath)
+        }
     }
 }
 
-task testCompile(type: Exec, dependsOn: testPrepare) {
+task testReplace(type: Exec, dependsOn: testInit) {
+    commandLine 'java',
+            '-cp', "${rawClasspath()}",
+            'org.sweetchips.visitors.Launcher',
+            "$libPath"
+    doFirst {
+        standardOutput = System.out
+        errorOutput = System.err
+    }
+}
+
+task testCompile(type: Exec, dependsOn: testReplace) {
     def src = Files.list(javaSrc).map {
         "${it.toAbsolutePath()}"
     }.collect(Collectors.toList())
-    def cp = jarList.stream().map {
-        def jar = depFind(it)
-        "$sep${jar.toAbsolutePath()}"
-    }.collect(Collectors.joining())
     def cmd = [
             'javac',
-            '-cp', "$cp",
+            '-cp', "${allClasspath()}",
             '-d', "${clsPath.toAbsolutePath()}",
     ] + src
     commandLine cmd
@@ -110,26 +145,123 @@ task testCompile(type: Exec, dependsOn: testPrepare) {
     }
 }
 
-task testTransform(type: Exec, dependsOn: testCompile) {
-    def cp = jarList.stream().map {
-        "$sep${libPath.resolve("$it-1.0.0.jar").toAbsolutePath()}"
-    }.collect(Collectors.joining())
-    commandLine 'java',
-            '-cp', "$cp",
-            'org.sweetchips.visitors.Launcher',
-            'build'
+task testPrepare(type: Copy, dependsOn: testCompile) {
+    from "$clsPath"
+    into "${inputPath.resolve('test').resolve('0')}"
+    doFirst {
+        if (!Files.exists(inputPath.resolve('test').resolve('0'))) {
+            Files.createDirectories(inputPath.resolve('test').resolve('0'))
+        }
+    }
+}
+
+task testTransform(type: Exec, dependsOn: testPrepare) {
+    def args = jarList.stream().map {
+        "${libFind(it).toAbsolutePath()}"
+    }.collect((Collectors.toList()))
+    def cmd = [
+            'java',
+            '-cp', "${allClasspath()}",
+            'org.sweetchips.plugin4gradle.Launcher',
+            "$inputPath",
+            "$outputPath",
+            "$tempPath",
+            "$scriptPath",
+            '_',
+            "${new StringJoiner('_', '', '').add('test')}"
+    ] + args
+    commandLine cmd
     doFirst {
         standardOutput = System.out
         errorOutput = System.err
     }
+    doFirst {
+        if (!Files.exists(outputPath)) {
+            Files.createDirectories(outputPath)
+        }
+        if (!Files.exists(tempPath)) {
+            Files.createDirectories(tempPath)
+        }
+    }
 }
 
-task testLaunch(type: Exec, dependsOn: testTransform) {
+task testDemo(type: Exec, dependsOn: testTransform) {
     commandLine 'java',
-            '-cp', "${clsPath.toAbsolutePath()}",
+            '-cp', "${outputPath.resolve('test').resolve('0').toAbsolutePath()}",
             'org.sweetchips.test.Main'
     doFirst {
         standardOutput = System.out
         errorOutput = System.err
     }
 }
+
+//task testPrepare(type: Exec, dependsOn: clean) {
+//    def cp = Files.list(depPath).map {
+//        "$sep${it.toAbsolutePath()}"
+//    }.collect(Collectors.joining())
+//    def args = jarList.stream().map {
+//        def jar = depFind(it).toAbsolutePath()
+//        cp += "$sep$jar"
+//        "$jar"
+//    }.collect(Collectors.toList())
+//    def cmd = [
+//            'java',
+//            '-cp', "$cp",
+//            'org.sweetchips.plugin4gradle.Launcher'
+//    ] + args
+//    commandLine cmd
+//    def input
+//    doFirst {
+//        standardOutput = System.out
+//        errorOutput = System.err
+//        input = new ByteArrayInputStream('''
+//build/libs
+//-
+//-
+//org.sweetchips.visitors.ReplaceAsmClassVisitor
+//'''.bytes)
+//        standardInput = input
+//    }
+//    doLast {
+//        input.close()
+//    }
+//}
+//
+//task testCompile(type: Exec, dependsOn: testPrepare) {
+//    def src = Files.list(javaSrc).map {
+//        "${it.toAbsolutePath()}"
+//    }.collect(Collectors.toList())
+//    def cp = jarList.stream().map {
+//        def jar = depFind(it)
+//        "$sep${jar.toAbsolutePath()}"
+//    }.collect(Collectors.joining())
+//    def cmd = [
+//            'javac',
+//            '-cp', "$cp",
+//            '-d', "${clsPath.toAbsolutePath()}",
+//    ] + src
+//    commandLine cmd
+//    doFirst {
+//        if (!Files.exists(clsPath)) {
+//            Files.createDirectories(clsPath)
+//        }
+//    }
+//    doFirst {
+//        standardOutput = System.out
+//        errorOutput = System.err
+//    }
+//}
+//
+//task testTransform(type: Exec, dependsOn: testCompile) {
+//    def cp = jarList.stream().map {
+//        "$sep${libPath.resolve("$it-1.0.0.jar").toAbsolutePath()}"
+//    }.collect(Collectors.joining())
+//    commandLine 'java',
+//            '-cp', "$cp",
+//            'org.sweetchips.visitors.Launcher',
+//            'build'
+//    doFirst {
+//        standardOutput = System.out
+//        errorOutput = System.err
+//    }
+//}
