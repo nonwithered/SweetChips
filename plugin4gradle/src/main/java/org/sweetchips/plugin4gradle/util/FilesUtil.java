@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 public interface FilesUtil {
 
     static void deleteIfExists(Path path) {
-        AsyncUtil.managedBlock(AsyncUtil.run(() -> Files.deleteIfExists(path)));
+        AsyncUtil.run(() -> Files.deleteIfExists(path)).run();
     }
 
     static void createDirectories(Path path) {
@@ -15,7 +15,7 @@ public interface FilesUtil {
     }
 
     static void copy(Path src, Path dest) {
-        AsyncUtil.managedBlock(AsyncUtil.run(() -> Files.copy(src, dest)));
+        AsyncUtil.run(() -> Files.copy(src, dest)).run();
     }
 
     static Stream<Path> list(Path path) {
@@ -24,5 +24,15 @@ public interface FilesUtil {
 
     static String getFileName(Path path) {
         return path.getFileName().toString();
+    }
+
+    static void deleteOnExit(Path path) {
+        path.toFile().deleteOnExit();
+    }
+
+    static void deleteOnExitIfExists(Path path) {
+        if (Files.exists(path)) {
+            path.toFile().deleteOnExit();
+        }
     }
 }

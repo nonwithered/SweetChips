@@ -1,29 +1,34 @@
 package org.sweetchips.visitors;
 
 import org.objectweb.asm.*;
-import org.sweetchips.plugin4gradle.BaseClassVisitor;
 
-class ReplaceAsmClassVisitor extends BaseClassVisitor {
+public class ReplaceNameClassVisitor extends ClassVisitor {
 
-    private static final String BEFORE = "org/objectweb/asm/";
+    private final boolean mContains;
 
-    private static final String AFTER = "jdk/internal/org/objectweb/asm/";
+    private final String mBefore;
 
-    private static String replace(String string) {
+    private final String mAfter;
+
+    public ReplaceNameClassVisitor(int api, ClassVisitor cv, String before, String after) {
+        super(api, cv);
+        if (before == null || after == null) {
+            throw new NullPointerException();
+        }
+        mContains = after.contains(before);
+        mBefore = before;
+        mAfter = after;
+    }
+
+    private String replace(String string) {
         if (string == null) {
             return null;
         }
-        string = string.replaceAll(AFTER, BEFORE);
-        string = string.replaceAll(BEFORE, AFTER);
+        if (mContains) {
+            string = string.replaceAll(mAfter, mBefore);
+        }
+        string = string.replaceAll(mBefore, mAfter);
         return string;
-    }
-
-    public ReplaceAsmClassVisitor(int api) {
-        this(api, null);
-    }
-
-    public ReplaceAsmClassVisitor(int api, ClassVisitor cv) {
-        super(api, cv);
     }
 
     @Override

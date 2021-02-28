@@ -7,8 +7,8 @@ import java.lang.reflect.Constructor;
 public interface ClassesUtil {
 
     @SuppressWarnings("unchecked")
-    static Class<? extends ClassVisitor> forName(String name) {
-        return AsyncUtil.call(() -> (Class<? extends ClassVisitor>) Class.forName(name)).get();
+    static <T> Class<T> forName(String name) {
+        return AsyncUtil.call(() -> (Class<T>) Class.forName(name)).get();
     }
 
     static <T> Constructor<T> getDeclaredConstructor(Class<T> clazz, Class<?>... args) {

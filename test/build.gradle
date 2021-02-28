@@ -40,5 +40,5 @@ dependencies {
     implementation project(':utility')
 }
 
-apply from: 'gradle/apply-plugin.gradle'
+apply from: 'gradle/plugin.gradle'
 apply from: 'gradle/test.gradle'

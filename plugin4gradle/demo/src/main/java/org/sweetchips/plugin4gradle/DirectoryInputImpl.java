@@ -1,8 +1,7 @@
 package org.sweetchips.plugin4gradle;
 
-import com.android.build.api.transform.DirectoryInput;
-import com.android.build.api.transform.Status;
-
+import org.sweetchips.plugin4gradle.hook.DirectoryInput;
+import org.sweetchips.plugin4gradle.hook.Status;
 import org.sweetchips.plugin4gradle.util.FilesUtil;
 
 import java.io.File;
@@ -54,23 +53,11 @@ final class DirectoryInputImpl implements DirectoryInput {
 
     @Override
     public String getName() {
-        return FilesUtil.getFileName(mPath);
+        return mPath.toAbsolutePath().toString();
     }
 
     @Override
     public File getFile() {
         return mPath.toFile();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Set<ContentType> getContentTypes() {
-        return (Set<ContentType>) Collections.EMPTY_SET;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Set<? super Scope> getScopes() {
-        return (Set<? super Scope>) Collections.EMPTY_SET;
     }
 }

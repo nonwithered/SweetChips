@@ -22,7 +22,7 @@ gradle.ext.applyPlugin4Gradle = {
             .resolve('sweetchips')
             .resolve('plugin4gradle')
             .resolve('1.0.0')
-            .resolve('plugin4gradle-1.0.0.jar')
+            .resolve('plugin4gradle-1.0.0.pom')
     )
 }
 
@@ -33,7 +33,7 @@ gradle.ext.applyVisitors = {
             .resolve('sweetchips')
             .resolve('visitors')
             .resolve('1.0.0')
-            .resolve('visitors-1.0.0.jar')
+            .resolve('visitors-1.0.0.pom')
     )
 }
 
@@ -44,7 +44,7 @@ gradle.ext.applyTraceWeaver = {
             .resolve('sweetchips')
             .resolve('trace-weaver')
             .resolve('1.0.0')
-            .resolve('trace-weaver-1.0.0.jar')
+            .resolve('trace-weaver-1.0.0.pom')
     )
 }
 
@@ -55,7 +55,7 @@ gradle.ext.applyConstSweeper = {
             .resolve('sweetchips')
             .resolve('const-sweeper')
             .resolve('1.0.0')
-            .resolve('const-sweeper-1.0.0.jar')
+            .resolve('const-sweeper-1.0.0.pom')
     )
 }
 
@@ -66,7 +66,7 @@ gradle.ext.applyInlineTailor = {
             .resolve('sweetchips')
             .resolve('inline-tailor')
             .resolve('1.0.0')
-            .resolve('inline-tailor-1.0.0.jar')
+            .resolve('inline-tailor-1.0.0.pom')
     )
 }
 

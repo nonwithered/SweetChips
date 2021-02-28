@@ -1,9 +1,8 @@
 package org.sweetchips.plugin4gradle;
 
-import com.android.build.api.transform.DirectoryInput;
-import com.android.build.api.transform.JarInput;
-import com.android.build.api.transform.TransformInput;
-
+import org.sweetchips.plugin4gradle.hook.DirectoryInput;
+import org.sweetchips.plugin4gradle.hook.JarInput;
+import org.sweetchips.plugin4gradle.hook.TransformInput;
 import org.sweetchips.plugin4gradle.util.FilesUtil;
 
 import java.nio.file.Files;

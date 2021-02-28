@@ -7,6 +7,12 @@ interface Util {
 
     String NAME = "SweetChips";
 
+    String APPLICATION = "com.android.application";
+
+    String LIBRARY = "com.android.library";
+
+    String ANDROID = "android";
+
     ThreadLocal<Boolean> CLASS_UNUSED = new ThreadLocal<>();
 
     ThreadLocal<BiConsumer<Path, byte[]>> CLASS_CREATE = new ThreadLocal<>();

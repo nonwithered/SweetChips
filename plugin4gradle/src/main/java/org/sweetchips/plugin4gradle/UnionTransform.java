@@ -163,7 +163,7 @@ final class UnionTransform extends Transform {
     private Void eachJarInput(JarInput jarInput) {
         switch (jarInput.getStatus()) {
             case NOTCHANGED:
-                if (mInvocation.isIncremental() || isIncremental()) {
+                if (mInvocation.isIncremental() && isIncremental()) {
                     return null;
                 }
             case ADDED:
@@ -304,7 +304,6 @@ final class UnionTransform extends Transform {
     }
 
     private Path jarOutput(JarInput jarInput) {
-        UnionPlugin.getInstance().getProject().getLogger().error("jarInput: " + jarInput.getFile().getAbsolutePath());
         return mInvocation.getOutputProvider().getContentLocation(
                 jarInput.getFile().getAbsolutePath(),
                 jarInput.getContentTypes(),
@@ -313,7 +312,6 @@ final class UnionTransform extends Transform {
     }
 
     private Path directoryOutput(DirectoryInput directoryInput) {
-        UnionPlugin.getInstance().getProject().getLogger().error("directoryInput: " + directoryInput.getName());
         Path path = mInvocation.getOutputProvider().getContentLocation(
                 directoryInput.getName(),
                 directoryInput.getContentTypes(),

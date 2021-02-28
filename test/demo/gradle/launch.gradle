@@ -98,6 +98,13 @@ def allClasspath = {
     cp
 }
 
+def libClasspath = {
+    def cp = jarList.stream().map {
+        "$sep${libFind(it).toAbsolutePath()}"
+    }.collect(Collectors.joining())
+    cp
+}
+
 task testInit(type: Copy, dependsOn: clean) {
     proList.each {
         dependsOn "$it:publish"
@@ -161,7 +168,7 @@ task testTransform(type: Exec, dependsOn: testPrepare) {
     }.collect((Collectors.toList()))
     def cmd = [
             'java',
-            '-cp', "${allClasspath()}",
+            '-cp', "${libClasspath()}",
             'org.sweetchips.plugin4gradle.Launcher',
             "$inputPath",
             "$outputPath",
@@ -194,74 +201,3 @@ task testDemo(type: Exec, dependsOn: testTransform) {
         errorOutput = System.err
     }
 }
-
-//task testPrepare(type: Exec, dependsOn: clean) {
-//    def cp = Files.list(depPath).map {
-//        "$sep${it.toAbsolutePath()}"
-//    }.collect(Collectors.joining())
-//    def args = jarList.stream().map {
-//        def jar = depFind(it).toAbsolutePath()
-//        cp += "$sep$jar"
-//        "$jar"
-//    }.collect(Collectors.toList())
-//    def cmd = [
-//            'java',
-//            '-cp', "$cp",
-//            'org.sweetchips.plugin4gradle.Launcher'
-//    ] + args
-//    commandLine cmd
-//    def input
-//    doFirst {
-//        standardOutput = System.out
-//        errorOutput = System.err
-//        input = new ByteArrayInputStream('''
-//build/libs
-//-
-//-
-//org.sweetchips.visitors.ReplaceAsmClassVisitor
-//'''.bytes)
-//        standardInput = input
-//    }
-//    doLast {
-//        input.close()
-//    }
-//}
-//
-//task testCompile(type: Exec, dependsOn: testPrepare) {
-//    def src = Files.list(javaSrc).map {
-//        "${it.toAbsolutePath()}"
-//    }.collect(Collectors.toList())
-//    def cp = jarList.stream().map {
-//        def jar = depFind(it)
-//        "$sep${jar.toAbsolutePath()}"
-//    }.collect(Collectors.joining())
-//    def cmd = [
-//            'javac',
-//            '-cp', "$cp",
-//            '-d', "${clsPath.toAbsolutePath()}",
-//    ] + src
-//    commandLine cmd
-//    doFirst {
-//        if (!Files.exists(clsPath)) {
-//            Files.createDirectories(clsPath)
-//        }
-//    }
-//    doFirst {
-//        standardOutput = System.out
-//        errorOutput = System.err
-//    }
-//}
-//
-//task testTransform(type: Exec, dependsOn: testCompile) {
-//    def cp = jarList.stream().map {
-//        "$sep${libPath.resolve("$it-1.0.0.jar").toAbsolutePath()}"
-//    }.collect(Collectors.joining())
-//    commandLine 'java',
-//            '-cp', "$cp",
-//            'org.sweetchips.visitors.Launcher',
-//            'build'
-//    doFirst {
-//        standardOutput = System.out
-//        errorOutput = System.err
-//    }
-//}

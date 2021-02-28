@@ -1,11 +1,11 @@
 apply plugin: 'java-library'
 
 dependencies {
-    implementation gradleApi()
-    implementation "com.android.tools.build:gradle:$gradle.ext.VERSION_GRADLE"
     implementation "org.ow2.asm:asm:$gradle.ext.VERSION_ASM"
 
     implementation project(':plugin4gradle')
+    implementation project(':visitors')
+    implementation project(':const-sweeper')
 }
 
 jar {

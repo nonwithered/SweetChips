@@ -42,23 +42,16 @@ public final class UnionPlugin implements Plugin<Project> {
     }
 
     void addTransform(String name) {
-        if (Debugger.isDebug()) {
-            Debugger.registerTransform(newTransform(name));
-            return;
-        }
         android.registerTransform(newTransform(name));
     }
 
     private void initAndroid() {
-        if (Debugger.isDebug()) {
-            return;
-        }
-        if (getProject().getPlugins().findPlugin("com.android.application") == null
-                && getProject().getPlugins().findPlugin("com.android.library") == null) {
+        if (getProject().getPlugins().findPlugin(Util.APPLICATION) == null
+                && getProject().getPlugins().findPlugin(Util.LIBRARY) == null) {
             throw new ProjectConfigurationException("android plugin should be enabled first",
                     new RuntimeException("android plugin should be enabled first"));
         }
-        android = (BaseExtension) getProject().getExtensions().getByName("android");
+        android = (BaseExtension) getProject().getExtensions().getByName(Util.ANDROID);
     }
 
     private static UnionTransform newTransform(String name) {
@@ -66,9 +59,6 @@ public final class UnionPlugin implements Plugin<Project> {
     }
 
     private UnionExtension newExtension() {
-        if (Debugger.isDebug()) {
-            return new UnionExtension();
-        }
         return getProject().getExtensions().create(Util.NAME, UnionExtension.class);
     }
 }
