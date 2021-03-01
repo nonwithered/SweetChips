@@ -28,6 +28,9 @@ public class ConstSweeperExtension extends AbstractExtension {
     }
 
     String[] inheritedInterface(String[] interfaces) {
+        if (interfaces == null) {
+            return new String[0];
+        }
         List<String> list = new ArrayList<>();
         Queue<String> queue = new LinkedList<>(Arrays.asList(interfaces));
         String name;

@@ -53,7 +53,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-final class UnionTransform extends Transform {
+public final class UnionTransform extends Transform {
 
     private int mAsmApi;
 

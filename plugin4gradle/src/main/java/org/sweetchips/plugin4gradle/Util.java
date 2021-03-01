@@ -3,7 +3,7 @@ package org.sweetchips.plugin4gradle;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 
-interface Util {
+public interface Util {
 
     String NAME = "SweetChips";
 

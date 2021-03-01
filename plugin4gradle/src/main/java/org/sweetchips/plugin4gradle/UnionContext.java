@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-final class UnionContext {
+public final class UnionContext {
 
     private static final Map<String, UnionContext> sContexts = new HashMap<>();
 
@@ -65,7 +65,7 @@ final class UnionContext {
 
     private final Map<String, ClassNode> mClassNode = new HashMap<>();
 
-    UnionContext(String name) {
+    public UnionContext(String name) {
         mName = name;
     }
 

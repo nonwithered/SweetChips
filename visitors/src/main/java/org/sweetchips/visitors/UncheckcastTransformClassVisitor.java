@@ -1,11 +1,10 @@
 package org.sweetchips.visitors;
 
 import org.objectweb.asm.*;
-import org.sweetchips.plugin4gradle.BaseClassVisitor;
 
 import java.util.Map;
 
-public class UncheckcastTransformClassVisitor extends BaseClassVisitor {
+public class UncheckcastTransformClassVisitor extends ClassVisitor {
 
     private Map<UncheckcastRecord, UncheckcastRecord> mTarget;
 

@@ -3,28 +3,25 @@ package org.sweetchips.visitors;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.sweetchips.plugin4gradle.BaseClassNode;
 
 import java.util.Iterator;
 import java.util.List;
 
-public class HideTransformClassNode extends BaseClassNode {
+public class HideTransformClassNode extends ClassNode {
 
     public HideTransformClassNode(int api) {
-        this(api, null);
-    }
-
-    public HideTransformClassNode(int api, ClassVisitor cv) {
-        super(api, cv);
+        super(api);
     }
 
     @Override
-    protected void onAccept() {
+    public void accept(ClassVisitor cv) {
         acceptClass();
         acceptField();
         acceptMethod();
+        super.accept(cv);
     }
 
     private void acceptClass() {

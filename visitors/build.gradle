@@ -5,8 +5,7 @@ dependencies {
     implementation "com.android.tools.build:gradle:$gradle.ext.VERSION_GRADLE"
     implementation "org.ow2.asm:asm:$gradle.ext.VERSION_ASM"
 
-    implementation project(':utility')
-    implementation project(':plugin4gradle')
+    implementation project(':shared')
 }
 
 apply plugin: 'maven-publish'
