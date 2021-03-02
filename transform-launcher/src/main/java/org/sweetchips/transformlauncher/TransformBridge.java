@@ -3,14 +3,14 @@ package org.sweetchips.transformlauncher;
 import org.sweetchips.plugin4gradle.UnionContext;
 import org.sweetchips.plugin4gradle.UnionTransform;
 import org.sweetchips.plugin4gradle.Util;
-import org.sweetchips.transformlauncher.hook.BaseExtension;
-import org.sweetchips.transformlauncher.hook.ExtensionContainer;
-import org.sweetchips.transformlauncher.hook.Plugin;
-import org.sweetchips.transformlauncher.hook.PluginContainer;
-import org.sweetchips.transformlauncher.hook.Project;
-import org.sweetchips.transformlauncher.hook.Transform;
-import org.sweetchips.transformlauncher.hook.TransformException;
-import org.sweetchips.transformlauncher.hook.TransformInvocation;
+import org.sweetchips.transformlauncher.bridge.BaseExtension;
+import org.sweetchips.transformlauncher.bridge.ExtensionContainer;
+import org.sweetchips.transformlauncher.bridge.Plugin;
+import org.sweetchips.transformlauncher.bridge.PluginContainer;
+import org.sweetchips.transformlauncher.bridge.Project;
+import org.sweetchips.transformlauncher.bridge.Transform;
+import org.sweetchips.transformlauncher.bridge.TransformException;
+import org.sweetchips.transformlauncher.bridge.TransformInvocation;
 import org.sweetchips.plugin4gradle.util.AsyncUtil;
 import org.sweetchips.plugin4gradle.util.ClassesUtil;
 
@@ -52,7 +52,7 @@ public final class TransformBridge {
         }
         sLaunch = true;
         sTransforms.add((Transform) (Object) new UnionTransform(new UnionContext(null)));
-        AsyncUtil.run(() -> transform(in, out, tmp, factory)).run();
+        AsyncUtil.run(() -> transform(in, out, tmp, factory));
     }
 
     public static void apply(String clazz) {
@@ -88,13 +88,12 @@ public final class TransformBridge {
 
     private static final List<Transform> sTransforms = new ArrayList<>();
 
-    private static Void transform(Path in, Path out, Path tmp, BiFunction<Path, Path, TransformInvocation> factory) throws TransformException, InterruptedException, IOException {
+    private static void transform(Path in, Path out, Path tmp, BiFunction<Path, Path, TransformInvocation> factory) throws TransformException, InterruptedException, IOException {
         for (int i = 0; i < sTransforms.size(); i++) {
             Path src = i == 0 ? in : getTmpDir(tmp, sTransforms.get(i - 1));
             Path desc = i == sTransforms.size() - 1 ? out : getTmpDir(tmp, sTransforms.get(i));
             sTransforms.get(i).transform(factory.apply(src, desc));
         }
-        return null;
     }
 
     private static final class ProjectImpl implements Project {
@@ -180,7 +179,7 @@ public final class TransformBridge {
         }
         Path transformsPath = tmp.resolve(name);
         if (!Files.exists(transformsPath)) {
-            AsyncUtil.run(() -> Files.createDirectories(transformsPath)).run();
+            AsyncUtil.run(() -> Files.createDirectories(transformsPath));
         }
         return transformsPath;
     }

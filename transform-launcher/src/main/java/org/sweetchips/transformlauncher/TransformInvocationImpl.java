@@ -1,8 +1,8 @@
 package org.sweetchips.transformlauncher;
 
-import org.sweetchips.transformlauncher.hook.TransformInput;
-import org.sweetchips.transformlauncher.hook.TransformInvocation;
-import org.sweetchips.transformlauncher.hook.TransformOutputProvider;
+import org.sweetchips.transformlauncher.bridge.TransformInput;
+import org.sweetchips.transformlauncher.bridge.TransformInvocation;
+import org.sweetchips.transformlauncher.bridge.TransformOutputProvider;
 
 import java.nio.file.Path;
 import java.util.Collection;

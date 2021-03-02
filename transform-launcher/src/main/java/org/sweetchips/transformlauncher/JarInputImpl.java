@@ -1,7 +1,7 @@
 package org.sweetchips.transformlauncher;
 
-import org.sweetchips.transformlauncher.hook.JarInput;
-import org.sweetchips.transformlauncher.hook.Status;
+import org.sweetchips.transformlauncher.bridge.JarInput;
+import org.sweetchips.transformlauncher.bridge.Status;
 import org.sweetchips.plugin4gradle.util.FilesUtil;
 
 import java.io.File;

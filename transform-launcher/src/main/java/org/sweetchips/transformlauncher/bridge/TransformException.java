@@ -1,4 +1,4 @@
-package org.sweetchips.transformlauncher.hook;
+package org.sweetchips.transformlauncher.bridge;
 
 public class TransformException extends Exception {
 

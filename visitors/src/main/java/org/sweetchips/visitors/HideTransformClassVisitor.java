@@ -6,11 +6,11 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import java.util.Collection;
+import java.util.Set;
 
 public class HideTransformClassVisitor extends ClassVisitor {
 
-    private Collection<HideRecord> mTarget;
+    private Set<HideRecord> mTarget;
 
     public HideTransformClassVisitor(int api) {
         this(api, null);

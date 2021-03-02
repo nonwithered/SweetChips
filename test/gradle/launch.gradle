@@ -127,11 +127,11 @@ task testReplace(type: Exec, dependsOn: testInit) {
             "$libPath"
     def input = new ByteArrayInputStream('''
 org/objectweb/asm/=jdk/internal/org/objectweb/asm/
-org/gradle/api/plugins/=org/sweetchips/transformlauncher/hook/
-org/gradle/api/=org/sweetchips/transformlauncher/hook/
-com/android/build/gradle/internal/pipeline/=org/sweetchips/transformlauncher/hook/
-com/android/build/gradle/=org/sweetchips/transformlauncher/hook/
-com/android/build/api/transform/=org/sweetchips/transformlauncher/hook/
+org/gradle/api/plugins/=org/sweetchips/transformlauncher/bridge/
+org/gradle/api/=org/sweetchips/transformlauncher/bridge/
+com/android/build/gradle/internal/pipeline/=org/sweetchips/transformlauncher/bridge/
+com/android/build/gradle/=org/sweetchips/transformlauncher/bridge/
+com/android/build/api/transform/=org/sweetchips/transformlauncher/bridge/
 '''.bytes)
     doFirst {
         standardOutput = System.out

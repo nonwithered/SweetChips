@@ -1,8 +1,8 @@
 package org.sweetchips.transformlauncher;
 
-import org.sweetchips.transformlauncher.hook.DirectoryInput;
-import org.sweetchips.transformlauncher.hook.JarInput;
-import org.sweetchips.transformlauncher.hook.TransformInput;
+import org.sweetchips.transformlauncher.bridge.DirectoryInput;
+import org.sweetchips.transformlauncher.bridge.JarInput;
+import org.sweetchips.transformlauncher.bridge.TransformInput;
 import org.sweetchips.plugin4gradle.util.FilesUtil;
 
 import java.nio.file.Files;

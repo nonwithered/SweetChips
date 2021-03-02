@@ -2,17 +2,17 @@ package org.sweetchips.visitors;
 
 import org.sweetchips.shared.Hide;
 
-import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 class HideRecord {
 
     static final String NAME = "L" + Hide .class.getName().replace(".", "/") + ";";
 
-    private static final Map<String, Collection<HideRecord>> sTargets = new ConcurrentHashMap<>();
+    private static final Map<String, Set<HideRecord>> sTargets = new ConcurrentHashMap<>();
 
-    static Map<String, Collection<HideRecord>> targets() {
+    static Map<String, Set<HideRecord>> targets() {
         return sTargets;
     }
 

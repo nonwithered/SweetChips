@@ -1,10 +1,14 @@
 package org.sweetchips.plugin4gradle.util;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public interface AsyncUtil {
 
@@ -34,10 +38,6 @@ public interface AsyncUtil {
         }
     }
 
-    static <T, R> Function<? super T, ForkJoinTask<? extends R>> fork(Function<? super T, ? extends R> function) {
-        return it -> ForkJoinTask.adapt(() -> function.apply(it)).fork();
-    }
-
     static void managedBlock(Runnable runnable) {
         try {
             ForkJoinPool.managedBlock(new RunBlocker(runnable));
@@ -46,17 +46,49 @@ public interface AsyncUtil {
         }
     }
 
-    static <T> Supplier<T> call(Callable<T> callable) {
-        return () -> {
-            try {
-                return callable.call();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        };
+    static void runBlock(ExecutorService executor, Runnable runnable) {
+        try {
+            executor.submit(runnable).get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    static Runnable run(Callable<?> callable) {
-        return call(callable)::get;
+    static <T> T callBlock(ExecutorService executor, Callable<T> callable) {
+        try {
+            return executor.submit(callable).get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    interface RunnableThrow {
+        void run() throws Exception;
+    }
+
+    static <T> Function<? super T, ForkJoinTask<?>> fork(Consumer<T> consumer) {
+        return it -> ForkJoinTask.adapt(() -> consumer.accept(it)).fork();
+    }
+
+    static <T> void forkJoin(Stream<T> stream, Consumer<T> consumer) {
+        stream.map(fork(consumer))
+                .collect(Collectors.toList())
+                .forEach(ForkJoinTask::join);
+    }
+
+    static <T> T call(Callable<T> callable) {
+        try {
+            return callable.call();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static void run(RunnableThrow runnable) {
+        try {
+            runnable.run();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

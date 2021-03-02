@@ -1,4 +1,4 @@
-package org.sweetchips.transformlauncher.hook;
+package org.sweetchips.transformlauncher.bridge;
 
 import java.io.File;
 import java.util.Set;

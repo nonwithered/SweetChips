@@ -5,12 +5,12 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 public class HidePrepareClassVisitor extends ClassVisitor {
 
-    private final Collection<HideRecord> mTarget = new HashSet<>();
+    private final Set<HideRecord> mTarget = new HashSet<>();
 
     private HideRecord mElements = null;
 

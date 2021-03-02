@@ -6,20 +6,20 @@ import java.util.stream.Stream;
 
 public interface FilesUtil {
 
-    static void deleteIfExists(Path path) {
-        AsyncUtil.run(() -> Files.deleteIfExists(path)).run();
+    static boolean deleteIfExists(Path path) {
+        return AsyncUtil.call(() -> Files.deleteIfExists(path));
     }
 
-    static void createDirectories(Path path) {
-        AsyncUtil.run(() -> Files.createDirectories(path)).run();
+    static Path createDirectories(Path path) {
+        return AsyncUtil.call(() -> Files.createDirectories(path));
     }
 
-    static void copy(Path src, Path dest) {
-        AsyncUtil.run(() -> Files.copy(src, dest)).run();
+    static Path copy(Path src, Path dest) {
+        return AsyncUtil.call(() -> Files.copy(src, dest));
     }
 
     static Stream<Path> list(Path path) {
-        return AsyncUtil.call(() -> Files.list(path)).get();
+        return AsyncUtil.call(() -> Files.list(path));
     }
 
     static String getFileName(Path path) {

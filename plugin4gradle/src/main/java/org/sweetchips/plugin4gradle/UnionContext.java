@@ -3,9 +3,12 @@ package org.sweetchips.plugin4gradle;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.tree.ClassNode;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -50,11 +53,32 @@ public final class UnionContext {
         }
     }
 
-    static void createClass(String task, String name, ClassNode cn) {
+    static void defineNewClass(String task, String name, ClassNode cn) {
         if (task == null) {
             task = Util.NAME;
         }
-        getInstance(task).mClassNode.put(name, cn);
+        getInstance(task).mClassNodes.put(name, cn);
+    }
+
+    static void defineNewClassCallback(String task, BiConsumer<String, ClassNode> callback) {
+        if (task == null) {
+            task = Util.NAME;
+        }
+        getInstance(task).mCallbacks.add(callback);
+    }
+
+    static void addInitialize(String task, Runnable callback) {
+        if (task == null) {
+            task = Util.NAME;
+        }
+        getInstance(task).mInitialize.add(callback);
+    }
+
+    static void addRelease(String task, Runnable callback) {
+        if (task == null) {
+            task = Util.NAME;
+        }
+        getInstance(task).mRelease.add(callback);
     }
 
     private final String mName;
@@ -63,7 +87,13 @@ public final class UnionContext {
 
     private final Deque<Class<? extends ClassVisitor>> mTransform = new LinkedList<>();
 
-    private final Map<String, ClassNode> mClassNode = new HashMap<>();
+    private final Map<String, ClassNode> mClassNodes = new LinkedHashMap<>();
+
+    private final List<BiConsumer<String, ClassNode>> mCallbacks = new ArrayList<>();
+
+    private final List<Runnable> mInitialize = new ArrayList<>();
+
+    private final List<Runnable> mRelease = new ArrayList<>();
 
     public UnionContext(String name) {
         mName = name;
@@ -85,11 +115,27 @@ public final class UnionContext {
         return mTransform.isEmpty();
     }
 
+    void classNodesDumpTo(Map<String, ClassNode> map) {
+        mClassNodes.forEach(map::put);
+        mClassNodes.clear();
+    }
+
+    void callbacksDumpTo(List<BiConsumer<String, ClassNode>> list) {
+        list.addAll(mCallbacks);
+        mCallbacks.clear();
+    }
+
     void forEachTransform(Consumer<Class<? extends ClassVisitor>> consumer) {
         mTransform.forEach(consumer);
     }
 
-    void forEachCreateClass(BiConsumer<String, ClassNode> consumer) {
-        mClassNode.forEach(consumer);
+    void initializeDumpTo(List<Runnable> list) {
+        list.addAll(mInitialize);
+        mInitialize.clear();
+    }
+
+    void releaseDumpTo(List<Runnable> list) {
+        list.addAll(mRelease);
+        mRelease.clear();
     }
 }

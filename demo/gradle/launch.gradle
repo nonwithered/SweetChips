@@ -26,8 +26,18 @@ def systracePython = sdkDir
         .resolve('systrace')
         .resolve('systrace.py')
 
+def apkFile = projectDir.toPath()
+        .resolve('build')
+        .resolve('outputs')
+        .resolve('apk')
+        .resolve('debug')
+        .resolve('demo-debug.apk')
+
+
 task testDepends() {
-    dependsOn ':demo:installDebug'
+    if (!Files.exists(apkFile)) {
+        dependsOn ':demo:installDebug'
+    }
 }
 
 task testAtrace(type: Exec, dependsOn: testDepends) {

@@ -3,9 +3,9 @@ package org.sweetchips.visitors;
 import org.objectweb.asm.Type;
 import org.sweetchips.shared.Uncheckcast;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 class UncheckcastRecord {
@@ -21,7 +21,7 @@ class UncheckcastRecord {
     private final String mName;
     private final String mDesc;
 
-    private final Collection<Type> mTypes = new HashSet<>();
+    private final Set<Type> mTypes = new HashSet<>();
 
     void addType(Type type) {
         mTypes.add(type);

@@ -1,8 +1,8 @@
 package org.sweetchips.transformlauncher;
 
-import org.sweetchips.transformlauncher.hook.Format;
-import org.sweetchips.transformlauncher.hook.QualifiedContent;
-import org.sweetchips.transformlauncher.hook.TransformOutputProvider;
+import org.sweetchips.transformlauncher.bridge.Format;
+import org.sweetchips.transformlauncher.bridge.QualifiedContent;
+import org.sweetchips.transformlauncher.bridge.TransformOutputProvider;
 import org.sweetchips.plugin4gradle.util.FilesUtil;
 
 import java.io.File;

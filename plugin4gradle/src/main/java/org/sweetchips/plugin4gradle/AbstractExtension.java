@@ -1,9 +1,9 @@
 package org.sweetchips.plugin4gradle;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 public abstract class AbstractExtension {
 
@@ -30,7 +30,7 @@ public abstract class AbstractExtension {
 
     protected final static class MemberScope {
 
-        private final Collection<String> mScope;
+        private final Set<String> mScope;
 
         MemberScope() {
             mScope = new HashSet<>();

@@ -26,7 +26,6 @@ public final class TraceWeaverTransformClassVisitor extends BaseClassVisitor {
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        TraceWeaverPlugin.getInstance().getExtension().getClassNode().init();
         init(name);
         mClassInfo = new ClassInfo(version, access, name, signature, superName, interfaces);
         super.visit(version, access, name, signature, superName, interfaces);

@@ -33,6 +33,12 @@ final class TraceWrapperClassNode extends ClassNode {
         super(api);
     }
 
+    @Override
+    public void accept(ClassVisitor cv) {
+        init();
+        super.accept(cv);
+    }
+
     final void init() {
         if (mInit.get() || !mInit.compareAndSet(false, true)) {
             return;
@@ -81,12 +87,12 @@ final class TraceWrapperClassNode extends ClassNode {
         }
 
         @Override
-        public JavaFileObject getJavaFileForInput(Location location, String className, JavaFileObject.Kind kind) throws IOException {
+        public JavaFileObject getJavaFileForInput(Location location, String className, JavaFileObject.Kind kind) {
             return mFileObject;
         }
 
         @Override
-        public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
+        public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) {
             return mFileObject;
         }
     }
@@ -126,7 +132,7 @@ final class TraceWrapperClassNode extends ClassNode {
         }
 
         @Override
-        public OutputStream openOutputStream() throws IOException {
+        public OutputStream openOutputStream() {
             return mOutput;
         }
     }
