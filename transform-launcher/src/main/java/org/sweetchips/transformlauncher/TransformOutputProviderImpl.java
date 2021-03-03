@@ -1,13 +1,12 @@
 package org.sweetchips.transformlauncher;
 
+import org.sweetchips.plugin4gradle.util.AsyncUtil;
+import org.sweetchips.plugin4gradle.util.FilesUtil;
 import org.sweetchips.transformlauncher.bridge.Format;
 import org.sweetchips.transformlauncher.bridge.QualifiedContent;
 import org.sweetchips.transformlauncher.bridge.TransformOutputProvider;
-import org.sweetchips.plugin4gradle.util.FilesUtil;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
@@ -29,16 +28,12 @@ final class TransformOutputProviderImpl implements TransformOutputProvider {
                                    Set<? super QualifiedContent.Scope> scopes,
                                    Format format) {
         Path in = Paths.get(name);
-        try {
-            if (!Files.isSameFile(in.getParent().getParent(), mPath)) {
-                throw new IOException();
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
+        if (!in.getParent().getParent().toAbsolutePath().toString().equals(mPath.toAbsolutePath().toString())) {
+            throw new IllegalArgumentException(name);
         }
         Path out = mNext.resolve(mPath.relativize(in));
-        if (format == Format.DIRECTORY && !Files.exists(out)) {
-            FilesUtil.createDirectories(out);
+        if (format == Format.DIRECTORY && !FilesUtil.exists(out)) {
+            AsyncUtil.run(() -> FilesUtil.createDirectories(out));
         }
         return out.toFile();
     }

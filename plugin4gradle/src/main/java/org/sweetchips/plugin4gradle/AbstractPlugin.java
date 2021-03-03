@@ -11,7 +11,8 @@ import org.sweetchips.plugin4gradle.util.ClassesUtil;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class AbstractPlugin<Ext extends AbstractExtension> implements Plugin<Project> {
 
@@ -56,11 +57,11 @@ public abstract class AbstractPlugin<Ext extends AbstractExtension> implements P
 
     protected abstract void onAttach(String task);
 
-    protected final void defineNewClass(String task, String name, ClassNode cn) {
+    protected final void defineNewClass(String task, String name, Supplier<ClassNode> cn) {
         UnionContext.defineNewClass(task, name, cn);
     }
 
-    protected final void defineNewClassCallback(String task, BiConsumer<String, ClassNode> callback) {
+    protected final void defineNewClassCallback(String task, Consumer<ClassNode> callback) {
         UnionContext.defineNewClassCallback(task, callback);
     }
 

@@ -22,13 +22,12 @@ public final class TraceWeaverPlugin extends AbstractPlugin<TraceWeaverExtension
 
     @Override
     protected final void onApply(Project project) {
-        getExtension().setClassNode(new TraceWrapperClassNode(getAsmApi()));
     }
 
     @Override
     protected final void onAttach(String task) {
         sPlugin = this;
         addAction(ActionType.TRANSFORM, ActionMode.LAST, task, TraceWeaverTransformClassVisitor.class);
-        defineNewClass(task, Util.TRACE_WRAPPER_CLASS_NAME, getExtension().getClassNode());
+        defineNewClass(task, Util.TRACE_WRAPPER_CLASS_NAME, () -> new TraceWrapperClassNode(getAsmApi()));
     }
 }

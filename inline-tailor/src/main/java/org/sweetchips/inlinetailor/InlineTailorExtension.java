@@ -9,18 +9,18 @@ public class InlineTailorExtension extends AbstractExtension {
 
     private MemberScope mIgnore = newMemberScope();
 
-    private MemberScope mIgnoreExcept = newMemberScope();
+    private MemberScope mNotice = newMemberScope();
 
     boolean isIgnored(String clazz, String member) {
-        return mIgnore.contains(clazz, member) && !mIgnoreExcept.contains(clazz, member);
+        return mIgnore.contains(clazz, member) && !mNotice.contains(clazz, member);
     }
 
     public void ignore(String... name) {
         Arrays.asList(name).forEach(mIgnore::add);
     }
 
-    public void ignoreExcept(String... name) {
-        Arrays.asList(name).forEach(mIgnoreExcept::add);
+    public void notice(String... name) {
+        Arrays.asList(name).forEach(mNotice::add);
     }
 
     public InlineTailorExtension(AbstractPlugin<? extends AbstractExtension> plugin) {

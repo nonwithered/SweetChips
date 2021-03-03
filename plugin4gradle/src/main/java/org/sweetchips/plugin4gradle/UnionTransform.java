@@ -28,7 +28,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
@@ -47,6 +46,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -72,9 +72,11 @@ public final class UnionTransform extends Transform {
 
     private final UnionContext mContext;
 
-    private final Map<String, ClassNode> mClassNodes = new LinkedHashMap<>();
+    private final Map<String, Supplier<ClassNode>> mClassNodes = new LinkedHashMap<>();
 
-    private final List<BiConsumer<String, ClassNode>> mCallbacks = new ArrayList<>();
+    private final List<ClassNode> mClasses = new ArrayList<>();
+
+    private final List<Consumer<ClassNode>> mCallbacks = new ArrayList<>();
 
     private final List<Runnable> mInitialize = new ArrayList<>();
 
@@ -163,17 +165,21 @@ public final class UnionTransform extends Transform {
         mContext.classNodesDumpTo(mClassNodes);
         AsyncUtil.forkJoin(mClassNodes.entrySet().stream(), it -> {
             ClassWriter cw = new ClassWriter(mAsmApi);
-            it.getValue().accept(cw);
+            ClassNode cn = it.getValue().get();
+            cn.accept(cw);
+            mClasses.add(cn);
             writeFile(dir.resolve(forName(it.getKey())), cw.toByteArray());
         });
+        mClassNodes.clear();
     }
 
     private void defineNewClassCallback() {
         mContext.callbacksDumpTo(mCallbacks);
-        AsyncUtil.forkJoin(mClassNodes.entrySet().stream(), cn ->
-                mCallbacks.forEach(it -> it.accept(cn.getKey(), cn.getValue()))
+        AsyncUtil.forkJoin(mClasses.stream(), cn ->
+                mCallbacks.forEach(it -> it.accept(cn))
         );
-        mClassNodes.clear();
+        mClasses.clear();
+        mCallbacks.clear();
     }
 
     private static Path forName(String name) {
@@ -210,7 +216,7 @@ public final class UnionTransform extends Transform {
                 break;
             case REMOVED:
                 if (mState.check(State.TRANSFORM)) {
-                    FilesUtil.deleteIfExists(jarOutput(jarInput));
+                    AsyncUtil.run(() -> FilesUtil.deleteIfExists(jarOutput(jarInput)));
                 }
                 break;
         }
@@ -289,7 +295,7 @@ public final class UnionTransform extends Transform {
     private void eachChangedFile(Path changedFileInput, Path changedFileOutput, Status status) {
         switch (status) {
             case NOTCHANGED:
-                if (Files.isRegularFile(changedFileOutput)) {
+                if (FilesUtil.isRegularFile(changedFileOutput)) {
                     break;
                 }
             case ADDED:
@@ -297,9 +303,9 @@ public final class UnionTransform extends Transform {
                 eachFile(changedFileInput, changedFileOutput);
                 break;
             case REMOVED:
-                if (!Files.isDirectory(changedFileOutput)) {
+                if (!FilesUtil.isDirectory(changedFileOutput)) {
                     if (mState.check(State.TRANSFORM)) {
-                        FilesUtil.deleteIfExists(changedFileOutput);
+                        AsyncUtil.run(() -> FilesUtil.deleteIfExists(changedFileOutput));
                     }
                 }
                 break;
@@ -307,9 +313,9 @@ public final class UnionTransform extends Transform {
     }
 
     private void eachFile(Path fileInput, Path fileOutput) {
-        if (Files.isRegularFile(fileInput)) {
+        if (FilesUtil.isRegularFile(fileInput)) {
             if (Util.ignoreFile(FilesUtil.getFileName(fileInput))) {
-                if (!Files.exists(fileOutput)) {
+                if (!FilesUtil.exists(fileOutput)) {
                     if (mState.check(State.TRANSFORM)) {
                         FilesUtil.copy(fileInput, fileOutput);
                     }
@@ -326,10 +332,10 @@ public final class UnionTransform extends Transform {
                 }
             }
         } else {
-            if (!Files.exists(fileOutput)) {
-                FilesUtil.createDirectories(fileOutput);
+            if (!FilesUtil.exists(fileOutput)) {
+                AsyncUtil.run(() -> FilesUtil.createDirectories(fileOutput));
             }
-            AsyncUtil.forkJoin(FilesUtil.list(fileInput), it ->
+            AsyncUtil.forkJoin(AsyncUtil.call(() -> FilesUtil.list(fileInput)), it ->
                     eachFile(it, fileOutput(it, fileInput, fileOutput))
             );
         }
@@ -364,7 +370,7 @@ public final class UnionTransform extends Transform {
     }
 
     private void prepare(Path in) {
-        try (InputStream input = Files.newInputStream(in)) {
+        try (InputStream input = FilesUtil.newInputStream(in)) {
             prepare(input, mContext::forEachPrepare);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -394,7 +400,7 @@ public final class UnionTransform extends Transform {
         byte[] bytes;
         Util.CLASS_CREATE.set(writeFile(out));
         Util.CLASS_UNUSED.set(false);
-        try (InputStream input = Files.newInputStream(in)) {
+        try (InputStream input = FilesUtil.newInputStream(in)) {
             bytes = transform(input, mContext::forEachTransform);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -435,10 +441,10 @@ public final class UnionTransform extends Transform {
 
     private void writeFile(Path path, byte[] bytes) {
         AsyncUtil.managedBlock(() -> {
-            if (!Files.exists(path.getParent())) {
-                FilesUtil.createDirectories(path.getParent());
+            if (!FilesUtil.exists(path.getParent())) {
+                AsyncUtil.run(() -> FilesUtil.createDirectories(path.getParent()));
             }
-            try (OutputStream output = Files.newOutputStream(path)) {
+            try (OutputStream output = FilesUtil.newOutputStream(path)) {
                 output.write(bytes);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -471,7 +477,7 @@ public final class UnionTransform extends Transform {
 
     private void writeZip(Path zipFileOutput, Iterable<Map.Entry<ZipEntry, byte[]>> entries) {
         AsyncUtil.managedBlock(() -> {
-            try (OutputStream fileOutputStream = Files.newOutputStream(zipFileOutput);
+            try (OutputStream fileOutputStream = FilesUtil.newOutputStream(zipFileOutput);
                  ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
                 entries.forEach(it -> {
                     try {

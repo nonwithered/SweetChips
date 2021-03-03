@@ -10,8 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public final class UnionContext {
 
@@ -53,14 +53,14 @@ public final class UnionContext {
         }
     }
 
-    static void defineNewClass(String task, String name, ClassNode cn) {
+    static void defineNewClass(String task, String name, Supplier<ClassNode> cn) {
         if (task == null) {
             task = Util.NAME;
         }
         getInstance(task).mClassNodes.put(name, cn);
     }
 
-    static void defineNewClassCallback(String task, BiConsumer<String, ClassNode> callback) {
+    static void defineNewClassCallback(String task, Consumer<ClassNode> callback) {
         if (task == null) {
             task = Util.NAME;
         }
@@ -87,9 +87,9 @@ public final class UnionContext {
 
     private final Deque<Class<? extends ClassVisitor>> mTransform = new LinkedList<>();
 
-    private final Map<String, ClassNode> mClassNodes = new LinkedHashMap<>();
+    private final Map<String, Supplier<ClassNode>> mClassNodes = new LinkedHashMap<>();
 
-    private final List<BiConsumer<String, ClassNode>> mCallbacks = new ArrayList<>();
+    private final List<Consumer<ClassNode>> mCallbacks = new ArrayList<>();
 
     private final List<Runnable> mInitialize = new ArrayList<>();
 
@@ -115,12 +115,12 @@ public final class UnionContext {
         return mTransform.isEmpty();
     }
 
-    void classNodesDumpTo(Map<String, ClassNode> map) {
+    void classNodesDumpTo(Map<String, Supplier<ClassNode>> map) {
         mClassNodes.forEach(map::put);
         mClassNodes.clear();
     }
 
-    void callbacksDumpTo(List<BiConsumer<String, ClassNode>> list) {
+    void callbacksDumpTo(List<Consumer<ClassNode>> list) {
         list.addAll(mCallbacks);
         mCallbacks.clear();
     }

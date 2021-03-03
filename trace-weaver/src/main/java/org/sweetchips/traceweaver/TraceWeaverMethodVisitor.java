@@ -7,38 +7,54 @@ final class TraceWeaverMethodVisitor extends MethodVisitor {
 
     private final String mSectionName;
 
-    private final int mDepth = TraceWeaverPlugin.getInstance().getExtension().getDepth();
-
     TraceWeaverMethodVisitor(int api, MethodVisitor mv, String sectionName) {
         super(api, mv);
-        mSectionName = sectionName;
+        mSectionName = sectionName(sectionName);
     }
 
     @Override
     public void visitCode() {
         super.visitCode();
-        beginSection();
+        if (mSectionName != null) {
+            beginSection();
+        }
     }
 
     @Override
     public void visitInsn(int opcode) {
-        switch (opcode) {
-            case Opcodes.IRETURN:
-            case Opcodes.LRETURN:
-            case Opcodes.FRETURN:
-            case Opcodes.DRETURN:
-            case Opcodes.ARETURN:
-            case Opcodes.RETURN:
-            case Opcodes.ATHROW:
-                endSection();
-            default:
+        if (mSectionName != null) {
+            switch (opcode) {
+                case Opcodes.IRETURN:
+                case Opcodes.LRETURN:
+                case Opcodes.FRETURN:
+                case Opcodes.DRETURN:
+                case Opcodes.ARETURN:
+                case Opcodes.RETURN:
+                case Opcodes.ATHROW:
+                    endSection();
+                default:
+            }
         }
         super.visitInsn(opcode);
     }
 
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
-        super.visitMaxs(maxStack + 2, maxLocals);
+        if (mSectionName != null) {
+            maxStack += 2;
+        }
+        super.visitMaxs(maxStack, maxLocals);
+    }
+
+    private static String sectionName(String sectionName) {
+        if (sectionName != null) {
+            int maxLength = TraceWeaverPlugin.getInstance().getExtension().getLength();
+            int length = sectionName.length();
+            if (length > maxLength) {
+                sectionName = sectionName.substring(length - maxLength);
+            }
+        }
+        return sectionName;
     }
 
     private void beginSection() {
@@ -53,7 +69,8 @@ final class TraceWeaverMethodVisitor extends MethodVisitor {
     }
 
     private void visitDepth() {
-        switch (mDepth) {
+        int maxDepth = TraceWeaverPlugin.getInstance().getExtension().getDepth();
+        switch (maxDepth) {
             case 0:
                 visitInsn(Opcodes.ICONST_0);
                 break;
@@ -73,7 +90,7 @@ final class TraceWeaverMethodVisitor extends MethodVisitor {
                 visitInsn(Opcodes.ICONST_5);
                 break;
             default:
-                visitIntInsn(Opcodes.BIPUSH, mDepth);
+                visitIntInsn(Opcodes.BIPUSH, maxDepth);
         }
     }
 }

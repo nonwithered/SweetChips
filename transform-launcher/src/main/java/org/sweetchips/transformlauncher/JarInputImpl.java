@@ -1,11 +1,10 @@
 package org.sweetchips.transformlauncher;
 
+import org.sweetchips.plugin4gradle.util.FilesUtil;
 import org.sweetchips.transformlauncher.bridge.JarInput;
 import org.sweetchips.transformlauncher.bridge.Status;
-import org.sweetchips.plugin4gradle.util.FilesUtil;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 final class JarInputImpl implements JarInput {
@@ -16,13 +15,13 @@ final class JarInputImpl implements JarInput {
 
     JarInputImpl(Path path, Path next) {
         this.mPath = path;
-        if (Files.exists(path)) {
-            if (Files.exists(next)) {
+        if (FilesUtil.exists(path)) {
+            if (FilesUtil.exists(next)) {
                 mStatus = Status.CHANGED;
             } else {
                 mStatus = Status.ADDED;
             }
-        } else if (Files.exists(next)) {
+        } else if (FilesUtil.exists(next)) {
             mStatus = Status.REMOVED;
         } else {
             mStatus = Status.NOTCHANGED;

@@ -3,6 +3,7 @@ package org.sweetchips.test;
 import org.sweetchips.shared.Hide;
 
 import java.lang.reflect.Member;
+import java.util.Arrays;
 
 @Hide
 final class TestHide extends AbstractTest {
@@ -39,7 +40,7 @@ final class TestHide extends AbstractTest {
         try {
             if (name == null) {
                 if (types != null) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException(Arrays.toString(types));
                 }
                 return check(flags, clazz.getModifiers());
             }

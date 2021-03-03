@@ -12,11 +12,11 @@ public class TraceWeaverExtension extends AbstractExtension {
 
     private int mDepth = Integer.MAX_VALUE;
 
+    private int mLength = 127;
+
     private MemberScope mIgnore = newMemberScope();
 
-    private MemberScope mIgnoreExcept = newMemberScope();
-
-    private TraceWrapperClassNode mClassNode;
+    private MemberScope mNotice = newMemberScope();
 
     private BiFunction<ClassInfo, MethodInfo, String> mSectionName = (classInfo, methodInfo) ->
             classInfo.name.replaceAll("/", ".")
@@ -28,28 +28,24 @@ public class TraceWeaverExtension extends AbstractExtension {
         return mSectionName.apply(classInfo, methodInfo);
     }
 
-    void setClassNode(TraceWrapperClassNode classNode) {
-        mClassNode = classNode;
-    }
-
-    TraceWrapperClassNode getClassNode() {
-        return mClassNode;
-    }
-
     int getDepth() {
         return mDepth;
     }
 
+    int getLength() {
+        return mLength;
+    }
+
     boolean isIgnored(String clazz, String member) {
-        return mIgnore.contains(clazz, member) && !mIgnoreExcept.contains(clazz, member);
+        return mIgnore.contains(clazz, member) && !mNotice.contains(clazz, member);
     }
 
     public void ignore(String... name) {
         Arrays.asList(name).forEach(mIgnore::add);
     }
 
-    public void ignoreExcept(String... name) {
-        Arrays.asList(name).forEach(mIgnoreExcept::add);
+    public void notice(String... name) {
+        Arrays.asList(name).forEach(mNotice::add);
     }
 
     public void maxDepth(int max) {
@@ -57,6 +53,13 @@ public class TraceWeaverExtension extends AbstractExtension {
             throw new IllegalArgumentException(String.valueOf(max));
         }
         mDepth = max;
+    }
+
+    public void mexLength(int max) {
+        if (max < 0) {
+            throw new IllegalArgumentException(String.valueOf(max));
+        }
+        mLength = max;
     }
 
     public void sectionName(BiFunction<ClassInfo, MethodInfo, String> sectionName) {

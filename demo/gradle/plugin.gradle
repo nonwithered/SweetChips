@@ -19,7 +19,8 @@ if (gradle.ext.applyPlugin4Gradle()) {
         TraceWeaver {
             attach 'Trace'
             maxDepth 10
-            ignore 'org.sweetchips.test.LogDelegate'
+            ignore '*'
+            notice 'org.sweetchips.test.*'
             sectionName { classInfo, methodInfo ->
                 classInfo.name.replaceAll('/', '.') + '#' + methodInfo.name
             }
@@ -38,8 +39,7 @@ if (gradle.ext.applyPlugin4Gradle()) {
 //        InlineTailor {
 //            attach null
 //            ignore '*'
-//            ignoreExcept 'org.sweetchips.*'
-//            ignore 'java.*', 'android.*', 'androidx.*'
+//            notice 'org.sweetchips.*'
 //        }
 //    }
 }

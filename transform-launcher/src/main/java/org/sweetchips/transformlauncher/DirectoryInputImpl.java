@@ -1,11 +1,11 @@
 package org.sweetchips.transformlauncher;
 
+import org.sweetchips.plugin4gradle.util.AsyncUtil;
+import org.sweetchips.plugin4gradle.util.FilesUtil;
 import org.sweetchips.transformlauncher.bridge.DirectoryInput;
 import org.sweetchips.transformlauncher.bridge.Status;
-import org.sweetchips.plugin4gradle.util.FilesUtil;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,19 +23,19 @@ final class DirectoryInputImpl implements DirectoryInput {
     DirectoryInputImpl(Path path, Path next) {
         this.mPath = path;
         mChangedFiles = new HashMap<>();
-        Set<String> pathNames = !Files.exists(path) ? Collections.EMPTY_SET
-                : FilesUtil.list(path)
+        Set<String> pathNames = !FilesUtil.exists(path) ? Collections.EMPTY_SET
+                : AsyncUtil.call(() -> FilesUtil.list(path))
                 .map(FilesUtil::getFileName)
                 .collect(Collectors.toSet());
-        Set<String> nextNames = !Files.exists(next) ? Collections.EMPTY_SET
-                : FilesUtil.list(next)
+        Set<String> nextNames = !FilesUtil.exists(next) ? Collections.EMPTY_SET
+                : AsyncUtil.call(() -> FilesUtil.list(next))
                 .map(FilesUtil::getFileName)
                 .collect(Collectors.toSet());
         if (!pathNames.isEmpty()) {
-            FilesUtil.list(path)
+            AsyncUtil.call(() -> FilesUtil.list(path))
                     .filter(it -> nextNames.contains(FilesUtil.getFileName(it)))
                     .forEach(it -> mChangedFiles.put(it.toFile(), Status.CHANGED));
-            FilesUtil.list(path)
+            AsyncUtil.call(() -> FilesUtil.list(path))
                     .filter(it -> !nextNames.contains(FilesUtil.getFileName(it)))
                     .forEach(it -> mChangedFiles.put(it.toFile(), Status.ADDED));
         }

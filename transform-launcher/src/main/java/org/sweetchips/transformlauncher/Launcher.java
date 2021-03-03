@@ -7,7 +7,6 @@ import org.sweetchips.plugin4gradle.util.FilesUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -62,7 +61,7 @@ public class Launcher {
 
     private static void addProperty(Path path, Map<String, String> map) throws IOException {
         ZipFile zipFile = new ZipFile(path.toFile());
-        try (InputStream inputStream = Files.newInputStream(path);
+        try (InputStream inputStream = FilesUtil.newInputStream(path);
              ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {

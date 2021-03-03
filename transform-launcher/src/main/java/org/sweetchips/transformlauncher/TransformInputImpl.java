@@ -1,11 +1,11 @@
 package org.sweetchips.transformlauncher;
 
+import org.sweetchips.plugin4gradle.util.AsyncUtil;
+import org.sweetchips.plugin4gradle.util.FilesUtil;
 import org.sweetchips.transformlauncher.bridge.DirectoryInput;
 import org.sweetchips.transformlauncher.bridge.JarInput;
 import org.sweetchips.transformlauncher.bridge.TransformInput;
-import org.sweetchips.plugin4gradle.util.FilesUtil;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
@@ -18,27 +18,27 @@ final class TransformInputImpl implements TransformInput {
     private final Collection<DirectoryInput> mDirectoryInputs;
 
     TransformInputImpl(Path path, Path next) {
-        if (!Files.exists(next)) {
-            FilesUtil.createDirectories(next);
+        if (!FilesUtil.exists(next)) {
+            AsyncUtil.run(() -> FilesUtil.createDirectories(next));
         }
-        mJarInputs = FilesUtil.list(path)
-                .filter(it -> Files.isRegularFile(it) && FilesUtil.getFileName(it).endsWith(".jar"))
+        mJarInputs = AsyncUtil.call(() -> FilesUtil.list(path))
+                .filter(it -> FilesUtil.isRegularFile(it) && FilesUtil.getFileName(it).endsWith(".jar"))
                 .map(it -> new JarInputImpl(it, next.resolve(it.getFileName())))
                 .collect(Collectors.toList());
-        mDirectoryInputs = FilesUtil.list(path)
-                .filter(Files::isDirectory)
+        mDirectoryInputs = AsyncUtil.call(() -> FilesUtil.list(path))
+                .filter(FilesUtil::isDirectory)
                 .map(it -> new DirectoryInputImpl(it, next.resolve(it.getFileName())))
                 .collect(Collectors.toList());
-        Set<String> pathNames = FilesUtil.list(path)
+        Set<String> pathNames = AsyncUtil.call(() -> FilesUtil.list(path))
                 .map(FilesUtil::getFileName)
                 .collect(Collectors.toSet());
-        FilesUtil.list(next)
+        AsyncUtil.call(() -> FilesUtil.list(next))
                 .filter(it -> !pathNames.contains(FilesUtil.getFileName(it)))
-                .filter(it -> Files.isRegularFile(it) && FilesUtil.getFileName(it).endsWith(".jar"))
+                .filter(it -> FilesUtil.isRegularFile(it) && FilesUtil.getFileName(it).endsWith(".jar"))
                 .forEach(it -> mJarInputs.add(new JarInputImpl(path.resolve(it.getFileName()), it)));
-        FilesUtil.list(next)
+        AsyncUtil.call(() -> FilesUtil.list(next))
                 .filter(it -> !pathNames.contains(FilesUtil.getFileName(it)))
-                .filter(it -> Files.isDirectory(it))
+                .filter(FilesUtil::isDirectory)
                 .forEach(it -> mDirectoryInputs.add(new DirectoryInputImpl(path.resolve(it.getFileName()), it)));
     }
 
