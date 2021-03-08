@@ -72,3 +72,8 @@ gradle.ext.applyInlineTailor = {
 
 gradle.ext.VERSION_GRADLE = '3.1.4'
 gradle.ext.VERSION_ASM = '5.1'
+
+apply from: 'scripts/librarys.groovy'
+include ':utility'
+include ':foundation'
+include ':platform-jvm'

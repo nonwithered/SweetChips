@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:$gradle.ext.VERSION_GRADLE"
+        classpath "com.android.tools.build:gradle:$gradle.ext.versions.gradleApi"
 
         if (gradle.applyPlugin4Gradle()) {
             classpath 'org.sweetchips:plugin4gradle:1.0.0'
@@ -49,4 +49,7 @@ task clean(type: Delete) {
 ext {
 
     buildUri = uri('./build')
+    versions = gradle.ext.versions
+    buildUri = gradle.ext.buildUri
+    groupId = 'org.sweetchips'
 }
