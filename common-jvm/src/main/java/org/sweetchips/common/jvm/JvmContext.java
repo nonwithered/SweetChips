@@ -1,9 +1,10 @@
-package org.sweetchips.platform.jvm;
+package org.sweetchips.common.jvm;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
+import org.sweetchips.foundation.PlatformContext;
 import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.ItemsUtil;
 
@@ -21,20 +22,22 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public final class ContextJvm {
+public final class JvmContext implements PlatformContext {
 
-    private static final ThreadLocal<Boolean> sDelFlag = new ThreadLocal<>();
-
+    private boolean mIncremental;
     private int mApi;
-    private Map<String, ?> mExtra = new ConcurrentHashMap<>();
+    private Map<?, ?> mExtra = new ConcurrentHashMap<>();
     private Deque<ClassVisitorFactory> mPrepare = new LinkedList<>();
     private Deque<ClassVisitorFactory> mTransform = new LinkedList<>();
     private Collection<Supplier<ClassNode>> mAdditions = new ConcurrentLinkedQueue<>();
-    private List<Runnable> mAttach = new ArrayList<>();
-    private List<Runnable> mDetach = new ArrayList<>();
+    private List<Runnable> mPrepareBefore = new ArrayList<>();
+    private List<Runnable> mPrepareAfter = new ArrayList<>();
+    private List<Runnable> mTransformBefore = new ArrayList<>();
+    private List<Runnable> mTransformAfter = new ArrayList<>();
     private Collection<ClassNode> mClasses;
     private BiConsumer<String, byte[]> mBytesWriter;
 
+    @Override
     public Runnable onPrepareBefore() {
         return this::doPrepareBefore;
     }
@@ -43,10 +46,12 @@ public final class ContextJvm {
         return this::doPrepare;
     }
 
+    @Override
     public Runnable onPrepareAfter() {
         return this::doPrepareAfter;
     }
 
+    @Override
     public Runnable onTransformBefore() {
         return this::doTransformBefore;
     }
@@ -55,8 +60,17 @@ public final class ContextJvm {
         return this::doTransform;
     }
 
+    @Override
     public Runnable onTransformAfter() {
         return this::doTransformAfter;
+    }
+
+    public boolean isIncremental() {
+        return mIncremental;
+    }
+
+    public void setIncremental(boolean incremental) {
+        mIncremental = incremental;
     }
 
     public void setApi(int api) {
@@ -71,12 +85,12 @@ public final class ContextJvm {
         mExtra = extra;
     }
 
-    public Map<String, ?> getExtra() {
+    public Map<?, ?> getExtra() {
         return mExtra;
     }
 
-    public void addAttach(Runnable runnable) {
-        ItemsUtil.checkAndAdd(mAttach, runnable);
+    public void addPrepareBafore(Runnable runnable) {
+        ItemsUtil.checkAndAdd(mPrepareBefore, runnable);
     }
 
     public void addPrepareFirst(ClassVisitorFactory factory) {
@@ -87,8 +101,16 @@ public final class ContextJvm {
         ItemsUtil.checkAndAdd(mPrepare, factory);
     }
 
+    public void addPrepareAfter(Runnable runnable) {
+        ItemsUtil.checkAndAdd(mPrepareAfter, runnable);
+    }
+
     public void addClass(Supplier<ClassNode> supplier) {
         ItemsUtil.checkAndAdd(mAdditions, supplier);
+    }
+
+    public void addTransformBefore(Runnable runnable) {
+        ItemsUtil.checkAndAdd(mTransformBefore, runnable);
     }
 
     public void addTransformFirst(ClassVisitorFactory factory) {
@@ -99,13 +121,13 @@ public final class ContextJvm {
         ItemsUtil.checkAndAdd(mTransform, factory);
     }
 
-    public void addDetach(Runnable runnable) {
-        ItemsUtil.checkAndAdd(mDetach, runnable);
+    public void addTransformAfter(Runnable runnable) {
+        ItemsUtil.checkAndAdd(mTransformAfter, runnable);
     }
 
     private void doPrepareBefore() {
-        AsyncUtil.with(mAttach.stream()).forkJoin(Runnable::run);
-        mAttach = null;
+        AsyncUtil.with(mPrepareBefore.stream()).forkJoin(Runnable::run);
+        mPrepareBefore = null;
     }
 
     private void doPrepare(byte[] bytes) {
@@ -121,7 +143,7 @@ public final class ContextJvm {
         cr.accept(cv, ClassReader.EXPAND_FRAMES);
     }
 
-    private void doPrepareAfter() {
+    private void doPrepareAdditions() {
         Collection<ClassVisitorFactory> collection = mPrepare;
         mPrepare = null;
         Queue<ClassNode> queue = new ConcurrentLinkedQueue<>();
@@ -142,7 +164,17 @@ public final class ContextJvm {
         mAdditions = null;
     }
 
+    private void doPrepareAfter() {
+        AsyncUtil.with(mPrepareAfter.stream()).forkJoin(Runnable::run);
+        mPrepareAfter = null;
+    }
+
     private void doTransformBefore() {
+        AsyncUtil.with(mTransformBefore.stream()).forkJoin(Runnable::run);
+        mTransformBefore = null;
+    }
+
+    private void doTransformAdditions() {
         Collection<ClassVisitorFactory> collection = mTransform;
         Collection<ClassNode> classes = mClasses;
         mClasses = null;
@@ -157,9 +189,9 @@ public final class ContextJvm {
             for (ClassVisitorFactory factory : collection) {
                 cv = factory.newInstance(mApi, cv, mExtra);
             }
-            sDelFlag.set(false);
+            ClassesSetting.resetDeleteFlag();
             it.accept(cv);
-            if (sDelFlag.get() == Boolean.TRUE) {
+            if (ClassesSetting.checkDeleteFlag()) {
                 return;
             }
             checkAndWriteBytes(cn);
@@ -178,9 +210,9 @@ public final class ContextJvm {
         for (ClassVisitorFactory factory : collection) {
             cv = factory.newInstance(mApi, cv, mExtra);
         }
-        sDelFlag.set(false);
+        ClassesSetting.resetDeleteFlag();
         cr.accept(cv, ClassReader.EXPAND_FRAMES);
-        if (sDelFlag.get() == Boolean.TRUE) {
+        if (ClassesSetting.checkDeleteFlag()) {
             return null;
         }
         return cw.toByteArray();
@@ -188,8 +220,8 @@ public final class ContextJvm {
 
     private void doTransformAfter() {
         mTransform = null;
-        AsyncUtil.with(mDetach.stream()).forkJoin(Runnable::run);
-        mDetach = null;
+        AsyncUtil.with(mTransformAfter.stream()).forkJoin(Runnable::run);
+        mTransformAfter = null;
         mExtra = null;
     }
 

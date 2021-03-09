@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 public interface AsyncUtil {
 
-    interface RunnableThrow {
+    interface RunnableThrows {
 
         void run() throws Exception;
     }
@@ -26,7 +26,7 @@ public interface AsyncUtil {
         }
     }
 
-    static void run(RunnableThrow runnable) {
+    static void run(RunnableThrows runnable) {
         try {
             runnable.run();
         } catch (Exception e) {

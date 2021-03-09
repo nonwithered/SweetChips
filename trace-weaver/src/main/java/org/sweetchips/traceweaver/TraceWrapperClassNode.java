@@ -84,7 +84,7 @@ final class TraceWrapperClassNode extends ClassNode {
             JavaFileManagerImpl javaFileManager =
                     new JavaFileManagerImpl(compiler.getStandardFileManager(null, null, null),
                             javaFileObject);
-            Boolean b = compiler.getTask(null,
+            boolean b = compiler.getTask(null,
                     javaFileManager,
                     null,
                     null,
@@ -147,17 +147,17 @@ final class TraceWrapperClassNode extends ClassNode {
         public OutputStream openOutputStream() {
             return mOutput;
         }
-    }
 
-    private static String getContent(InputStream inputStream) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-        try (InputStream input = inputStream;
-             Scanner scanner = new Scanner(inputStream)
-        ) {
-            while (scanner.hasNextLine()) {
-                stringBuilder.append(scanner.nextLine());
+        private static String getContent(InputStream inputStream) throws IOException {
+            StringBuilder stringBuilder = new StringBuilder();
+            try (InputStream input = inputStream;
+                 Scanner scanner = new Scanner(inputStream)
+            ) {
+                while (scanner.hasNextLine()) {
+                    stringBuilder.append(scanner.nextLine());
+                }
             }
+            return stringBuilder.toString();
         }
-        return stringBuilder.toString();
     }
 }

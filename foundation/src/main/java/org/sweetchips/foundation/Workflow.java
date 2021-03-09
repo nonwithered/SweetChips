@@ -23,7 +23,15 @@ public final class Workflow {
     private List<Runnable> mTransformBefore = new ArrayList<>();
     private List<Runnable> mTransformAfter = new ArrayList<>();
 
-    public Workflow() {
+    public void apply(PlatformContext context) {
+        addPrepareBefore(context.onPrepareBefore());
+        addPrepareAfter(context.onPrepareAfter());
+        addTransformBefore(context.onTransformBefore());
+        addTransformAfter(context.onTransformAfter());
+    }
+
+    public void addWork(Collection<RootUnit> collection) {
+        ItemsUtil.checkAndAdd(mWorkSet, collection);
     }
 
     public Future<?> start(Executor executor) {
@@ -56,10 +64,6 @@ public final class Workflow {
             executor.execute(runnableFuture);
             return runnableFuture;
         });
-    }
-
-    public void addWorkSet(Collection<RootUnit> collection) {
-        ItemsUtil.checkAndAdd(mWorkSet, collection);
     }
 
     public void addPrepareBefore(Runnable runnable) {

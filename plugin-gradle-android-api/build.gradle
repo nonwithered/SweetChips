@@ -2,7 +2,8 @@ apply plugin: 'java-library'
 apply from: rootProject.file('scripts/publish.groovy')
 
 dependencies {
-    implementation project(':utility')
-    implementation project(':foundation-api')
+    implementation project(path: ':utility')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly gradleApi()
+    compileOnly "com.android.tools.build:gradle:${rootProject.ext.versions.gradleApi}"
 }

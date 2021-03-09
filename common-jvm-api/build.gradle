@@ -2,7 +2,7 @@ apply plugin: 'java-library'
 apply from: rootProject.file('scripts/publish.groovy')
 
 dependencies {
-    implementation project(':utility')
-    implementation project(':foundation-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly "org.ow2.asm:asm:${rootProject.ext.versions.asm}"
+    compileOnly "org.ow2.asm:asm-tree:${rootProject.ext.versions.asm}"
 }
