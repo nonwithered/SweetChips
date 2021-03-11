@@ -13,13 +13,6 @@ import java.util.zip.ZipFile;
 
 public final class ZipUnit extends AbstractUnit {
 
-    public static Function<ZipEntry, Consumer<byte[]>> prepareIgnore() {
-        return z -> b -> {};
-    }
-    public static Function<ZipEntry, Function<byte[], byte[]>> transformIgnore() {
-        return z -> b -> b;
-    }
-
     private final List<Function<ZipEntry, Consumer<byte[]>>> mPrepare;
     private final List<Function<ZipEntry, Function<byte[], byte[]>>> mTransform;
 

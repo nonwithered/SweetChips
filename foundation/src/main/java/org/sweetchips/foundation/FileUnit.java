@@ -11,13 +11,6 @@ import java.util.function.Function;
 
 public final class FileUnit extends AbstractUnit {
 
-    public static Function<Path, Consumer<byte[]>> prepareIgnore() {
-        return p -> b -> {};
-    }
-    public static Function<Path, Function<byte[], byte[]>> transformIgnore() {
-        return p -> b -> b;
-    }
-
     private final List<Function<Path, Consumer<byte[]>>> mPrepare;
     private final List<Function<Path, Function<byte[], byte[]>>> mTransform;
 

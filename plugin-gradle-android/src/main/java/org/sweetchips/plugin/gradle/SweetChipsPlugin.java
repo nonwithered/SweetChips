@@ -8,8 +8,7 @@ import org.gradle.api.ProjectConfigurationException;
 public class SweetChipsPlugin extends AbstractPlugin<SweetChipsExtension> {
 
     static SweetChipsPlugin INSTANCE;
-
-    private BaseExtension android;
+    BaseExtension android;
 
     @Override
     protected String getName() {

@@ -4,6 +4,7 @@ import com.android.build.api.transform.DirectoryInput;
 import com.android.build.api.transform.Format;
 import com.android.build.api.transform.JarInput;
 import com.android.build.api.transform.QualifiedContent;
+import com.android.build.api.transform.Status;
 import com.android.build.api.transform.Transform;
 import com.android.build.api.transform.TransformException;
 import com.android.build.api.transform.TransformInput;
@@ -11,29 +12,39 @@ import com.android.build.api.transform.TransformInvocation;
 import com.android.build.gradle.internal.pipeline.TransformManager;
 
 import org.sweetchips.common.jvm.JvmContext;
+import org.sweetchips.foundation.AbstractUnit;
+import org.sweetchips.foundation.FileUnit;
+import org.sweetchips.foundation.PathUnit;
 import org.sweetchips.foundation.RootUnit;
 import org.sweetchips.foundation.Workflow;
+import org.sweetchips.foundation.ZipUnit;
+import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 
 public class WorkflowTransform extends Transform {
 
     private final String mName;
-    private final WorkflowExtension mExtension;
     private TransformInvocation mTransformInvocation;
     private JvmContext mContext;
 
-    WorkflowTransform(String name, WorkflowExtension extension) {
+    WorkflowTransform(String name, JvmContext context) {
         mName = name;
-        mExtension = extension;
+        mContext = context;
     }
 
     @Override
@@ -53,14 +64,12 @@ public class WorkflowTransform extends Transform {
 
     @Override
     public boolean isIncremental() {
-        JvmContext context = mContext;
-        return context != null ? context.isIncremental() : mExtension.isIncremental();
+        return mContext.isIncremental();
     }
 
     @Override
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
         Workflow workflow = new Workflow();
-        mContext = mExtension.transferContext();
         mTransformInvocation = transformInvocation;
         transformInvocation.getInputs().stream()
                 .map(this::forEachTransformInput)
@@ -86,11 +95,59 @@ public class WorkflowTransform extends Transform {
     }
 
     private RootUnit forEachJarInput(JarInput jarInput) {
-        return null;
+        RootUnit.Status status = statusOf(jarInput.getStatus());
+        Path input = jarInput.getFile().toPath();
+        Path output = provideJarInput(jarInput);
+        ZipUnit zipUnit = new ZipUnit(input, output, mPrepareZip, mTransformZip);
+        return new RootUnit(status, zipUnit);
     }
 
     private Collection<RootUnit> forEachDirectoryInput(DirectoryInput directoryInput) {
-        return null;
+        if (!mTransformInvocation.isIncremental()) {
+            RootUnit.Status status = RootUnit.Status.ADDED;
+            Path input = directoryInput.getFile().toPath();
+            Path output = provideDirectoryInput(directoryInput);
+            PathUnit pathUnit = new PathUnit(input, output, mPreparePath, mTransformPath);
+            return Collections.singleton(new RootUnit(status, pathUnit));
+        }
+        Path from = directoryInput.getFile().toPath();
+        Path to = provideDirectoryInput(directoryInput);
+        return directoryInput.getChangedFiles().entrySet().stream()
+                .map(it -> {
+                    Path input = it.getKey().toPath();
+                    Path output = provideChangedFileInput(input, from, to);
+                    Status status = it.getValue();
+                    return forEachChangedFile(input, output, status);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private RootUnit forEachChangedFile(Path input, Path output, Status stat) {
+        RootUnit.Status status = statusOf(stat);
+        AbstractUnit abstractUnit;
+        if (FilesUtil.isDirectory(input)) {
+            abstractUnit = new PathUnit(input, output, mPreparePath, mTransformPath);
+        } else {
+            abstractUnit = new FileUnit(input, output, mPrepareFile, mTransformFile);
+        }
+        return new RootUnit(status, abstractUnit);
+    }
+
+    private RootUnit.Status statusOf(Status status) {
+        switch (status) {
+            case NOTCHANGED:
+                if (mTransformInvocation.isIncremental() && mContext.isIncremental()) {
+                    return RootUnit.Status.NOTCHANGED;
+                }
+            case ADDED:
+                return RootUnit.Status.ADDED;
+            case CHANGED:
+                return RootUnit.Status.CHANGED;
+            case REMOVED:
+                return RootUnit.Status.REMOVED;
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     private Path provideJarInput(JarInput jarInput) {
@@ -99,5 +156,71 @@ public class WorkflowTransform extends Transform {
                 jarInput.getContentTypes(),
                 jarInput.getScopes(),
                 Format.JAR).toPath();
+    }
+
+    private Path provideDirectoryInput(DirectoryInput directoryInput) {
+        return mTransformInvocation.getOutputProvider().getContentLocation(
+                directoryInput.getName(),
+                directoryInput.getContentTypes(),
+                directoryInput.getScopes(),
+                Format.DIRECTORY).toPath();
+    }
+
+    private Path provideChangedFileInput(Path changedFile, Path from, Path to) {
+        return to.resolve(from.relativize(changedFile));
+    }
+
+    private final List<Function<ZipEntry, Consumer<byte[]>>> mPrepareZip;
+
+    {
+        List<Function<ZipEntry, Consumer<byte[]>>> list = new ArrayList<>();
+        mPrepareZip = list;
+        list.add(it -> !it.getName().endsWith(".class") ? b -> {} : null);
+        list.add(it -> mContext.onPrepare());
+    }
+
+    private final List<Function<ZipEntry, Function<byte[], byte[]>>> mTransformZip;
+
+    {
+        List<Function<ZipEntry, Function<byte[], byte[]>>> list = new ArrayList<>();
+        mTransformZip = list;
+        list.add(it -> !it.getName().endsWith(".class") ? b -> b : null);
+        list.add(it -> mContext.onTransform());
+    }
+
+    private final List<Function<Path, Consumer<byte[]>>> mPrepareFile;
+
+    {
+        List<Function<Path, Consumer<byte[]>>> list = new ArrayList<>();
+        mPrepareFile = list;
+        list.add(it -> !FilesUtil.getFileName(it).endsWith(".class") ? b -> {} : null);
+        list.add(it -> mContext.onPrepare());
+    }
+
+    private final List<Function<Path, Function<byte[], byte[]>>> mTransformFile;
+
+    {
+        List<Function<Path, Function<byte[], byte[]>>> list = new ArrayList<>();
+        mTransformFile = list;
+        list.add(it -> !FilesUtil.getFileName(it).endsWith(".class") ? b -> b : null);
+        list.add(it -> mContext.onTransform());
+    }
+
+    private final List<BiFunction<Path, Path, AbstractUnit>> mPreparePath;
+
+    {
+        List<BiFunction<Path, Path, AbstractUnit>> list = new ArrayList<>();
+        mPreparePath = list;
+        list.add((f, t) -> FilesUtil.isDirectory(f) ? new PathUnit(f, t, mPreparePath, null) : null);
+        list.add((f, t) -> new FileUnit(f, t, mPrepareFile, null));
+    }
+
+    private final List<BiFunction<Path, Path, AbstractUnit>> mTransformPath;
+
+    {
+        List<BiFunction<Path, Path, AbstractUnit>> list = new ArrayList<>();
+        mTransformPath = list;
+        list.add((f, t) -> FilesUtil.isDirectory(f) ? new PathUnit(f, t, null, mTransformPath) : null);
+        list.add((f, t) -> new FileUnit(f, t, null, mTransformFile));
     }
 }

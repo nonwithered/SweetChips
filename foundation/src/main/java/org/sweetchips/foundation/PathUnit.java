@@ -4,20 +4,10 @@ import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 
 public final class PathUnit extends AbstractUnit {
-
-    public static BiFunction<Path, Path, AbstractUnit> prepareIgnore() {
-        return (f, t) -> new FileUnit(f, t, Collections.singletonList(FileUnit.prepareIgnore()), null);
-    }
-    public static BiFunction<Path, Path, AbstractUnit> transformIgnore() {
-        return (f, t) -> FilesUtil.isRegularFile(f)
-                ? new FileUnit(f, t, null, Collections.singletonList(FileUnit.transformIgnore()))
-                : new PathUnit(f, t, null, Collections.singletonList(transformIgnore()));
-    }
 
     private final List<BiFunction<Path, Path, AbstractUnit>> mPrepare;
     private final List<BiFunction<Path, Path, AbstractUnit>> mTransform;

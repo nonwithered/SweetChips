@@ -42,7 +42,7 @@ public abstract class AbstractPlugin<E extends AbstractExtension> implements Plu
         Type type = getClass().getGenericSuperclass();
         ParameterizedType parameterizedType = (ParameterizedType) type;
         Class<E> clazz = (Class<E>) parameterizedType.getActualTypeArguments()[0];
-        mExtension = project.getExtensions().create(getName(), clazz, this);
+        mExtension = project.getExtensions().create(getName(), clazz);
         try {
             Field field = getClass().getDeclaredField(getStaticFieldName());
             field.setAccessible(true);

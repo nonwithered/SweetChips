@@ -81,7 +81,7 @@ public final class JvmContext implements PlatformContext {
         mBytesWriter = bytesWriter;
     }
 
-    public void setExtra(Map<String, ?> extra) {
+    public void setExtra(Map<?, ?> extra) {
         mExtra = extra;
     }
 
@@ -89,7 +89,7 @@ public final class JvmContext implements PlatformContext {
         return mExtra;
     }
 
-    public void addPrepareBafore(Runnable runnable) {
+    public void addPrepareBefore(Runnable runnable) {
         ItemsUtil.checkAndAdd(mPrepareBefore, runnable);
     }
 

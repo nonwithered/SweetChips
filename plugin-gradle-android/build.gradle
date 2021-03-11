@@ -2,6 +2,7 @@ apply plugin: 'java-library'
 apply from: rootProject.file('scripts/publish.groovy')
 
 dependencies {
+    implementation project(':utility')
     implementation project(':foundation')
     implementation project(':foundation-api')
     implementation project(':common-jvm')
