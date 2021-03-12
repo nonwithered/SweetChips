@@ -2,16 +2,15 @@ import java.nio.file.Files
 
 rootProject.name = 'SweetChips'
 
-include ':test'
-include ':demo'
-include ':plugin4gradle'
-include ':transform-launcher'
-include ':shared'
-include ':visitors'
-include ':package-renamer'
-include ':const-sweeper'
-include ':trace-weaver'
-include ':inline-tailor'
+//include ':test'
+//include ':demo'
+//include ':plugin4gradle'
+//include ':transform-launcher'
+//include ':shared'
+//include ':package-renamer'
+//include ':const-sweeper'
+//include ':trace-weaver'
+//include ':inline-tailor'
 
 gradle.ext.buildUri = uri('./build')
 
@@ -81,3 +80,18 @@ include ':foundation-api'
 include ':common-jvm-api'
 include ':plugin-gradle-android'
 include ':plugin-gradle-android-api'
+include ':demo-app'
+include ':demo-main'
+include ':visitors'
+
+gradle.ext.existsBuildTarget = { it ->
+    Files.exists(rootProject.projectDir.toPath()
+            .resolve('build')
+            .resolve('org')
+            .resolve('sweetchips')
+            .resolve("$it")
+            .resolve('snapshot')
+            .resolve("$it-snapshot.pom")
+    )
+}
+include ':annotations'

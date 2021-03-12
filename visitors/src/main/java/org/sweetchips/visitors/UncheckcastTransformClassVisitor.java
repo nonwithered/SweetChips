@@ -6,6 +6,8 @@ import java.util.Map;
 
 public class UncheckcastTransformClassVisitor extends ClassVisitor {
 
+    private final Map<String, Map<UncheckcastRecord, UncheckcastRecord>> mExt;
+
     private Map<UncheckcastRecord, UncheckcastRecord> mTarget;
 
     private UncheckcastRecord mElementClazz;
@@ -15,12 +17,18 @@ public class UncheckcastTransformClassVisitor extends ClassVisitor {
     }
 
     public UncheckcastTransformClassVisitor(int api, ClassVisitor cv) {
+        this(api, cv, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public UncheckcastTransformClassVisitor(int api, ClassVisitor cv, Map<?, ?> ext) {
         super(api, cv);
+        mExt = ext != null ? (Map<String, Map<UncheckcastRecord, UncheckcastRecord>>) ext : UncheckcastRecord.targets();
     }
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        mTarget = UncheckcastRecord.targets().get(name);
+        mTarget = mExt.get(name);
         if (mTarget != null) {
             mElementClazz = mTarget.get(new UncheckcastRecord(name, superName));
         }

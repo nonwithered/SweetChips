@@ -17,7 +17,7 @@ public class SweetChipsPlugin extends AbstractPlugin<SweetChipsExtension> {
 
     @Override
     protected void onApply(Project project) {
-
+        initAndroid();
     }
 
     private void initAndroid() {

@@ -35,8 +35,7 @@ public final class FileUnit extends AbstractUnit {
             }
         }
         if (consumer != null) {
-            Consumer<byte[]> c = consumer;
-            AsyncUtil.managedBlock(() -> c.accept(FilesUtil.readFrom(getInput())));
+            consumer.accept(FilesUtil.readFrom(getInput()));
         }
     }
 
@@ -53,11 +52,10 @@ public final class FileUnit extends AbstractUnit {
             }
         }
         Function<byte[], byte[]> f = function;
-        AtomicReference<byte[]> bytes = new AtomicReference<>();
-        AsyncUtil.managedBlock(() -> bytes.set(FilesUtil.readFrom(getInput())));
+        byte[] bytes = FilesUtil.readFrom(getInput());
         if (f != null) {
-            bytes.set(f.apply(bytes.get()));
+            bytes = f.apply(bytes);
         }
-        FilesUtil.writeTo(getOutput(), bytes.get());
+        FilesUtil.writeTo(getOutput(), bytes);
     }
 }

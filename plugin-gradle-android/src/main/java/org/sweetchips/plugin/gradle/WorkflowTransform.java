@@ -70,6 +70,7 @@ public class WorkflowTransform extends Transform {
     @Override
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
         Workflow workflow = new Workflow();
+        workflow.apply(mContext);
         mTransformInvocation = transformInvocation;
         transformInvocation.getInputs().stream()
                 .map(this::forEachTransformInput)

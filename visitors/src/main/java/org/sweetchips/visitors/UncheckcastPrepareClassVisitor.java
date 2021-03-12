@@ -9,6 +9,8 @@ import java.util.Map;
 
 public class UncheckcastPrepareClassVisitor extends ClassVisitor {
 
+    private final Map<String, Map<UncheckcastRecord, UncheckcastRecord>> mExt;
+
     private final Map<UncheckcastRecord, UncheckcastRecord> mTarget = new HashMap<>();
 
     private UncheckcastRecord mElements = null;
@@ -20,13 +22,19 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
     }
 
     public UncheckcastPrepareClassVisitor(int api, ClassVisitor cv) {
+        this(api, cv, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public UncheckcastPrepareClassVisitor(int api, ClassVisitor cv, Map<?, ?> ext) {
         super(api, cv);
+        mExt = ext != null ? (Map<String, Map<UncheckcastRecord, UncheckcastRecord>>) ext : UncheckcastRecord.targets();
     }
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         mElements = new UncheckcastRecord(name, superName);
-        UncheckcastRecord.targets().put(mName = name, mTarget);
+        mExt.put(mName = name, mTarget);
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
@@ -58,7 +66,7 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
     @Override
     public void visitEnd() {
         if (mTarget.isEmpty()) {
-            UncheckcastRecord.targets().remove(mName);
+            mExt.remove(mName);
         }
         super.visitEnd();
     }

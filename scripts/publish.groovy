@@ -4,7 +4,7 @@ publishing {
         maven(MavenPublication) {
             groupId "org.${rootProject.name.toLowerCase()}"
             artifactId project.name
-            version 'develop'
+            version 'snapshot'
             from components.java
         }
     }

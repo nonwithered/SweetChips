@@ -4,7 +4,7 @@ apply from: rootProject.file('scripts/publish.groovy')
 dependencies {
     implementation project(':utility')
     implementation project(':foundation-api')
-    implementation project(':common-jvm-api')
+    api project(':common-jvm-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly "org.ow2.asm:asm:${rootProject.ext.versions.asm}"
     compileOnly "org.ow2.asm:asm-tree:${rootProject.ext.versions.asm}"

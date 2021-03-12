@@ -68,7 +68,9 @@ public interface FilesUtil {
                 if (isRegularFile(file.toPath())) {
                     throw new FileAlreadyExistsException(file.toString());
                 } else {
-                    throw new IOException(file.toString());
+                    if (!exists(path)) {
+                        throw new IOException(file.toString());
+                    }
                 }
             }
             return file.toPath();
@@ -117,10 +119,6 @@ public interface FilesUtil {
         });
     }
 
-    static void writeToAsync(Path path, byte[] bytes) {
-        AsyncUtil.managedBlock(() -> writeTo(path, bytes));
-    }
-
     static byte[] readFrom(InputStream input) {
         return AsyncUtil.call(() -> {
             ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
@@ -138,12 +136,6 @@ public interface FilesUtil {
         });
     }
 
-    static byte[] readFromAsync(InputStream inputStream) {
-        AtomicReference<byte[]> bytes = new AtomicReference<>();
-        AsyncUtil.managedBlock(() -> bytes.set(readFrom(inputStream)));
-        return bytes.get();
-    }
-
     final class ZipReader {
         private final ZipFile zipFile;
         ZipReader(ZipFile zipFile) {
@@ -155,11 +147,6 @@ public interface FilesUtil {
                     return FilesUtil.readFrom(input);
                 }
             });
-        }
-        public byte[] readFromAsync(ZipEntry entry) {
-            AtomicReference<byte[]> bytes = new AtomicReference<>();
-            AsyncUtil.managedBlock(() -> readFrom(entry));
-            return bytes.get();
         }
     }
 
@@ -199,6 +186,7 @@ public interface FilesUtil {
         public void writeTo(String name, byte[] bytes) {
             if (bytes == null) {
                 queue.offer(ItemsUtil.newPairEntry(null, null));
+                return;
             }
             ZipEntry entry = new ZipEntry(name);
             CRC32 crc32 = new CRC32();

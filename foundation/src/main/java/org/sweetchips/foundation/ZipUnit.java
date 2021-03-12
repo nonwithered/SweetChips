@@ -30,7 +30,11 @@ public final class ZipUnit extends AbstractUnit {
             super.onPrepare();
             return;
         }
-        AsyncUtil.with(() -> new ZipFile(getInput().toFile()))
+        ZipFile zipFile = AsyncUtil.call(() -> new ZipFile(getInput().toFile()));
+        if (zipFile.size() == 0) {
+            return;
+        }
+        AsyncUtil.with(zipFile)
                 .with(it -> Collections.list(it.entries()).stream())
                 .forkJoin((zip, it) -> {
                     Consumer<byte[]> consumer = null;
@@ -40,7 +44,7 @@ public final class ZipUnit extends AbstractUnit {
                         }
                     }
                     if (consumer != null) {
-                        consumer.accept(FilesUtil.newZipReader(zip).readFromAsync(it));
+                        consumer.accept(FilesUtil.newZipReader(zip).readFrom(it));
                     }
                 });
     }
@@ -52,6 +56,9 @@ public final class ZipUnit extends AbstractUnit {
             return;
         }
         ZipFile zip = AsyncUtil.call(() -> new ZipFile(getInput().toFile()));
+        if (zip.size() == 0) {
+            return;
+        }
         FilesUtil.ZipWriter writer = FilesUtil.newZipWriter(getOutput(), zip.size());
         AsyncUtil.with(Collections.list(zip.entries()).stream())
                 .forEachAsync(it -> {
@@ -61,7 +68,7 @@ public final class ZipUnit extends AbstractUnit {
                             break;
                         }
                     }
-                    byte[] bytes = FilesUtil.newZipReader(zip).readFromAsync(it);
+                    byte[] bytes = FilesUtil.newZipReader(zip).readFrom(it);
                     if (function != null) {
                         bytes = function.apply(bytes);
                     }

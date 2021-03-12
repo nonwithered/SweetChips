@@ -1,0 +1,7 @@
+apply plugin: 'java-library'
+apply from: rootProject.file('scripts/publish.groovy')
+
+dependencies {
+    implementation project(path: ':annotations')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}

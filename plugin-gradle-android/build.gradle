@@ -4,11 +4,10 @@ apply from: rootProject.file('scripts/publish.groovy')
 dependencies {
     implementation project(':utility')
     implementation project(':foundation')
-    implementation project(':foundation-api')
     implementation project(':common-jvm')
-    implementation project(':common-jvm-api')
-    implementation project(':plugin-gradle-android-api')
+    api project(':plugin-gradle-android-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
     compileOnly "com.android.tools.build:gradle:${rootProject.ext.versions.gradleApi}"
+    compileOnly "org.codehaus.groovy:groovy-all:${rootProject.ext.versions.groovy}"
 }

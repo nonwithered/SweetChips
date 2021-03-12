@@ -1,7 +1,7 @@
 package org.sweetchips.visitors;
 
 import org.objectweb.asm.Type;
-import org.sweetchips.shared.Uncheckcast;
+import org.sweetchips.annotations.Uncheckcast;
 
 import java.util.HashSet;
 import java.util.Map;
