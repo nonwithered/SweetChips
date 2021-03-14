@@ -17,6 +17,7 @@ buildscript {
         classpathIfExists('plugin-android')
         classpathIfExists('visitors')
         classpathIfExists('trace-weaver')
+        classpathIfExists('const-sweeper')
     }
 }
 

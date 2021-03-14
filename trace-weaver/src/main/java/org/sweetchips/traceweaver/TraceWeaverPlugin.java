@@ -7,10 +7,6 @@ import org.sweetchips.android.WorkflowSettings;
 
 public final class TraceWeaverPlugin extends AbstractPlugin<TraceWeaverExtension> {
 
-    public TraceWeaverPlugin() {
-        super();
-    }
-
     static TraceWeaverPlugin INSTANCE;
 
     @Override

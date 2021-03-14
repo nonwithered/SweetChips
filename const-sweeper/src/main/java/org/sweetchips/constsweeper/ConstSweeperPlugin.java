@@ -1,19 +1,13 @@
 package org.sweetchips.constsweeper;
 
 import org.gradle.api.Project;
-import org.sweetchips.plugin4gradle.AbstractPlugin;
+import org.sweetchips.android.AbstractPlugin;
+import org.sweetchips.android.WorkflowSettings;
+import org.sweetchips.common.jvm.ClassVisitorFactory;
 
 public final class ConstSweeperPlugin extends AbstractPlugin<ConstSweeperExtension> {
 
-    public ConstSweeperPlugin() {
-        super();
-    }
-
-    private static ConstSweeperPlugin sPlugin;
-
-    static ConstSweeperPlugin getInstance() {
-        return sPlugin;
-    }
+    static ConstSweeperPlugin INSTANCE;
 
     @Override
     protected final String getName() {
@@ -24,10 +18,8 @@ public final class ConstSweeperPlugin extends AbstractPlugin<ConstSweeperExtensi
     protected final void onApply(Project project) {
     }
 
-    @Override
-    protected final void onAttach(String task) {
-        sPlugin = this;
-        addAction(ActionType.PREPARE, ActionMode.LAST, task, ConstSweeperPrepareClassVisitor.class);
-        addAction(ActionType.TRANSFORM, ActionMode.LAST, task, ConstSweeperTransformClassVisitor.class);
+    protected final void onAttach(String name) {
+        WorkflowSettings settings = getWorkflowSettings(name);
+        settings.addTransformFirst(ClassVisitorFactory.fromClassVisitor(ConstSweeperTransformClassVisitor.class));
     }
 }

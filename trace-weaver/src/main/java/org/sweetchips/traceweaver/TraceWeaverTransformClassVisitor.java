@@ -8,8 +8,6 @@ import org.sweetchips.traceweaver.ext.MethodInfo;
 
 public final class TraceWeaverTransformClassVisitor extends ClassVisitor {
 
-    private boolean mIsIgnored;
-
     private ClassInfo mClassInfo;
 
     public TraceWeaverTransformClassVisitor(int api) {
@@ -21,7 +19,6 @@ public final class TraceWeaverTransformClassVisitor extends ClassVisitor {
     }
 
     private void init(String name) {
-        mIsIgnored = TraceWeaverPlugin.INSTANCE.getExtension().isIgnored(name, null);
     }
 
     @Override
@@ -33,7 +30,7 @@ public final class TraceWeaverTransformClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        if (mIsIgnored || TraceWeaverPlugin.INSTANCE.getExtension().isIgnored(mClassInfo.name, name)) {
+        if (TraceWeaverPlugin.INSTANCE.getExtension().isIgnored(mClassInfo.name, name)) {
             return super.visitMethod(access, name, desc, signature, exceptions);
         }
         MethodInfo methodInfo = new MethodInfo(access, name, desc, signature, exceptions);

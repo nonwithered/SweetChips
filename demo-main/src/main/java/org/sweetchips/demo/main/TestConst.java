@@ -4,42 +4,30 @@ import java.lang.reflect.Field;
 
 final class TestConst extends AbstractTest {
 
-    private static final String sConst = "constant";
+    private static final String sConstant = "constant";
 
     @Override
     protected void onTest() {
-        checkIgnoreAll();
-        checkIgnorePart();
-        checkIgnoreNot();
+        checkConstant();
+        checkIgnore();
+        checkNotice();
     }
 
-    private void checkIgnoreAll() {
-        log("checkIgnoreAll", "constant".equals(getField(TestConst.class, "sConst")));
+    private void checkConstant() {
+        log("checkConstant", RuntimeException.class == getField(TestConst.class, "sConstant").getClass());
     }
 
-    private void checkIgnorePart() {
-        log("checkIgnorePart_constant", RuntimeException.class == getField(CheckIgnorePart.class, "sConst").getClass());
-        log("checkIgnorePart_ignore", "ignore".equals(getField(CheckIgnorePart.class, "sIgnore")));
+    private void checkIgnore() {
+        log("checkIgnore", "ignore".equals(getField(CheckInternal.class, "sIgnore")));
     }
-    private interface CheckIgnorePart {
 
-        String sConst = "constant";
+    private void checkNotice() {
+        log("checkNotice", RuntimeException.class == getField(CheckInternal.class, "sNotice").getClass());
+    }
+    private interface CheckInternal {
+
         String sIgnore = "ignore";
-    }
-
-    private void checkIgnoreNot() {
-        boolean check;
-        try {
-            Class.forName("org.sweetchips.test.TestConst$CheckIgnoreNot");
-            check = false;
-        } catch (ClassNotFoundException e) {
-            check = true;
-        }
-        log("checkIgnoreNot", check);
-    }
-    private interface CheckIgnoreNot {
-
-        String sConst = "constant";
+        String sNotice = "notice";
     }
 
     private Object getField(Class<?> clazz, String name) {
