@@ -3,17 +3,14 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion rootProject.ext.versions.compileSdkVersion
     buildToolsVersion rootProject.ext.versions.buildToolsVersion
-
     defaultConfig {
         applicationId "org.sweetchips.demo.app"
         minSdkVersion rootProject.ext.versions.minSdkVersion
         targetSdkVersion rootProject.ext.versions.targetSdkVersion
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -37,50 +34,26 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:${rootProject.ext.versions.espresso}"
 }
 
-if (gradle.ext.existsBuildTarget('plugin-gradle-android')) {
+if (gradle.ext.existsBuildTarget('plugin-android')) {
     apply plugin: 'SweetChips'
     SweetChips {
         asmApi = 5 << 16
-        addTransform 'Test'
-        addTransform 'Temp'
+        addTransform 'A'
+        addTransform 'B'
     }
-    Test {
+    A {
         prepare {
-            before {
-                println 'Test prepare before'
-            }
             first 'org.sweetchips.visitors.UncheckcastPrepareClassVisitor'
-            after {
-                println 'Test prepare after'
-            }
         }
         transform {
-            before {
-                println 'Test transform before'
-            }
             first adapt('org.sweetchips.visitors.HideTransformClassNode')
             first 'org.sweetchips.visitors.UncheckcastTransformClassVisitor'
-            after {
-                println 'Test transform after'
-            }
         }
     }
-    Temp {
+    B {
         prepare {
-            before {
-                println 'Temp prepare before'
-            }
-            after {
-                println 'Temp prepare after'
-            }
         }
         transform {
-            before {
-                println 'Test transform before'
-            }
-            after {
-                println 'Test transform after'
-            }
         }
     }
 }

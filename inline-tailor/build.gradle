@@ -1,26 +1,9 @@
 apply plugin: 'java-library'
+apply from: rootProject.file('scripts/publish.groovy')
 
 dependencies {
-    implementation gradleApi()
-    implementation "com.android.tools.build:gradle:$gradle.ext.VERSION_GRADLE"
-    implementation "org.ow2.asm:asm:$gradle.ext.VERSION_ASM"
-
-    implementation project(':plugin4gradle')
-}
-
-apply plugin: 'maven-publish'
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId 'org.sweetchips'
-            artifactId 'inline-tailor'
-            version '1.0.0'
-            from components.java
-        }
-    }
-    repositories {
-        maven {
-            url = gradle.ext.buildUri
-        }
-    }
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly gradleApi()
+    compileOnly "com.android.tools.build:gradle:$rootProject.ext.versions.gradleApi"
+    compileOnly "org.ow2.asm:asm:$rootProject.ext.versions.asm"
 }

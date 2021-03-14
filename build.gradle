@@ -1,5 +1,4 @@
 buildscript {
-
     repositories {
         maven {
             url gradle.buildUri
@@ -7,37 +6,20 @@ buildscript {
         google()
         jcenter()
     }
-
     dependencies {
         classpath "com.android.tools.build:gradle:$gradle.ext.versions.gradleApi"
-
-        if (gradle.applyPlugin4Gradle()) {
-            classpath 'org.sweetchips:plugin4gradle:1.0.0'
-        }
-        if (gradle.applyVisitors()) {
-            classpath 'org.sweetchips:visitors:1.0.0'
-        }
-        if (gradle.applyTraceWeaver()) {
-            classpath 'org.sweetchips:trace-weaver:1.0.0'
-        }
-        if (gradle.applyConstSweeper()) {
-            classpath 'org.sweetchips:const-sweeper:1.0.0'
-        }
-        if (gradle.applyInlineTailor()) {
-            classpath 'org.sweetchips:inline-tailor:1.0.0'
-        }
 
         def classpathIfExists = { name ->
             if (gradle.existsBuildTarget(name)) {
                 classpath "org.sweetchips:$name:snapshot"
             }
         }
-        classpathIfExists('plugin-gradle-android')
+        classpathIfExists('plugin-android')
+        classpathIfExists('visitors')
     }
 }
 
 allprojects {
-
     repositories {
         maven {
             url gradle.buildUri
@@ -52,7 +34,6 @@ task clean(type: Delete) {
 }
 
 ext {
-
     buildUri = uri('./build')
     versions = gradle.ext.versions
     buildUri = gradle.ext.buildUri
