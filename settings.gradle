@@ -17,6 +17,7 @@ include ':demo-main'
 include ':visitors'
 include ':trace-weaver'
 include ':const-sweeper'
+include ':sourceline-eraser'
 //include ':inline-tailor'
 
 gradle.ext.existsBuildTarget = { it ->

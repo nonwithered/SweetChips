@@ -41,7 +41,8 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
         apply plugin: 'ConstSweeper'
         ConstSweeper {
             attach 'B'
-            ignore 'org.sweetchips.demo.main.TestConst$CheckInternal', 'androidx.*'
+            ignore 'androidx.*'
+            ignore 'org.sweetchips.demo.main.TestConst$CheckInternal'
             notice 'org.sweetchips.demo.main.TestConst$CheckInternal#sNotice'
         }
     }

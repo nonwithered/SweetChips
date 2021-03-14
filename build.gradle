@@ -18,6 +18,7 @@ buildscript {
         classpathIfExists('visitors')
         classpathIfExists('trace-weaver')
         classpathIfExists('const-sweeper')
+        classpathIfExists('sourceline-eraser')
     }
 }
 
