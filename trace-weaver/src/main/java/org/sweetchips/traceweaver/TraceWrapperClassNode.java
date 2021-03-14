@@ -27,12 +27,7 @@ final class TraceWrapperClassNode extends ClassNode {
 
     TraceWrapperClassNode(int api) {
         super(api);
-    }
-
-    @Override
-    public void accept(ClassVisitor cv) {
         init();
-        super.accept(cv);
     }
 
     private void init() {
@@ -123,7 +118,7 @@ final class TraceWrapperClassNode extends ClassNode {
         private final OutputStream mOutput;
 
         private JavaFileObjectImpl(InputStream input, OutputStream output) {
-            super(TraceWeaverPlugin.getInstance().getProject()
+            super(TraceWeaverPlugin.INSTANCE.getProject()
                             .getRootDir().toPath()
                             .resolve("build")
                             .resolve(Paths.get("/")

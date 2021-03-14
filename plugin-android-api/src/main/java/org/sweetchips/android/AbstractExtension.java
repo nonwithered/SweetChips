@@ -1,4 +1,4 @@
-package org.sweetchips.plugin.android;
+package org.sweetchips.android;
 
 import java.util.Arrays;
 import java.util.HashSet;

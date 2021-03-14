@@ -1,5 +1,5 @@
 apply plugin: 'java-library'
-apply from: rootProject.file('scripts/publish.groovy')
+apply from: rootProject.file('scripts/publish.gradle')
 
 dependencies {
     implementation project(':utility')

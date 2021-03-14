@@ -1,5 +1,6 @@
-package org.sweetchips.plugin.android;
+package org.sweetchips.android;
 
+import org.gradle.internal.jvm.Jvm;
 import org.sweetchips.common.jvm.JvmContext;
 
 import java.util.HashMap;
@@ -22,6 +23,12 @@ public class SweetChipsExtension extends AbstractExtension {
             WorkflowExtension extension = (WorkflowExtension) SweetChipsPlugin.INSTANCE.getProject().getExtensions().getByName(name);
             mExtension.setExtra(extension.getExtra());
         }
+        public void setIncremental(boolean b) {
+            JvmContext context = mExtension.mContext.get();
+            if (context != null) {
+                context.setIncremental(b);
+            }
+        }
     }
 
     public TransformExt addTransform(String name) {
@@ -32,7 +39,7 @@ public class SweetChipsExtension extends AbstractExtension {
         return new TransformExt(extension);
     }
 
-    public TransformExt addTransform(String name, Map<String, ?> opt) {
+    public TransformExt addTransform(Map<String, ?> opt, String name) {
         TransformExt ext = addTransform(name);
         Map<String, Object> map = new HashMap<>();
         opt.entrySet().forEach(it -> {
@@ -43,8 +50,14 @@ public class SweetChipsExtension extends AbstractExtension {
                 }
                 map.put(key, Boolean.TRUE);
                 ext.sameExtra((String) it.getValue());
+            } else if (key.equals("incremental")) {
+                if (map.get(key) != null) {
+                    throw new IllegalArgumentException(key);
+                }
+                ext.setIncremental((Boolean) it.getValue());
+            } else {
+                throw new IllegalArgumentException(key);
             }
-            throw new IllegalArgumentException(key);
         });
         return ext;
     }

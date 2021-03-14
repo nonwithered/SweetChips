@@ -2,11 +2,11 @@ package org.sweetchips.traceweaver;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.sweetchips.plugin4gradle.BaseClassVisitor;
+import org.sweetchips.common.jvm.ClassesSetting;
 import org.sweetchips.traceweaver.ext.ClassInfo;
 import org.sweetchips.traceweaver.ext.MethodInfo;
 
-public final class TraceWeaverTransformClassVisitor extends BaseClassVisitor {
+public final class TraceWeaverTransformClassVisitor extends ClassVisitor {
 
     private boolean mIsIgnored;
 
@@ -21,7 +21,7 @@ public final class TraceWeaverTransformClassVisitor extends BaseClassVisitor {
     }
 
     private void init(String name) {
-        mIsIgnored = TraceWeaverPlugin.getInstance().getExtension().isIgnored(name, null);
+        mIsIgnored = TraceWeaverPlugin.INSTANCE.getExtension().isIgnored(name, null);
     }
 
     @Override
@@ -33,19 +33,11 @@ public final class TraceWeaverTransformClassVisitor extends BaseClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        if (mIsIgnored || TraceWeaverPlugin.getInstance().getExtension().isIgnored(mClassInfo.name, name)) {
+        if (mIsIgnored || TraceWeaverPlugin.INSTANCE.getExtension().isIgnored(mClassInfo.name, name)) {
             return super.visitMethod(access, name, desc, signature, exceptions);
         }
         MethodInfo methodInfo = new MethodInfo(access, name, desc, signature, exceptions);
-        String sectionName = TraceWeaverPlugin.getInstance().getExtension().getSectionName(mClassInfo, methodInfo);
+        String sectionName = TraceWeaverPlugin.INSTANCE.getExtension().getSectionName(mClassInfo, methodInfo);
         return new TraceWeaverMethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions), sectionName);
-    }
-
-    @Override
-    public void visitEnd() {
-        if (mClassInfo.name.equals(Util.TRACE_WRAPPER_CLASS_NAME)) {
-            setUnused();
-        }
-        super.visitEnd();
     }
 }

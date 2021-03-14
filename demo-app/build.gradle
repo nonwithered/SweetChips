@@ -34,26 +34,5 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:${rootProject.ext.versions.espresso}"
 }
 
-if (gradle.ext.existsBuildTarget('plugin-android')) {
-    apply plugin: 'SweetChips'
-    SweetChips {
-        asmApi = 5 << 16
-        addTransform 'A'
-        addTransform 'B'
-    }
-    A {
-        prepare {
-            first 'org.sweetchips.visitors.UncheckcastPrepareClassVisitor'
-        }
-        transform {
-            first adapt('org.sweetchips.visitors.HideTransformClassNode')
-            first 'org.sweetchips.visitors.UncheckcastTransformClassVisitor'
-        }
-    }
-    B {
-        prepare {
-        }
-        transform {
-        }
-    }
-}
+apply from: project.file('scripts/plugin.gradle')
+apply from: project.file('scripts/trace.gradle')

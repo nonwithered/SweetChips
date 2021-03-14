@@ -1,4 +1,4 @@
-package org.sweetchips.plugin.android;
+package org.sweetchips.android;
 
 import com.android.annotations.NonNull;
 
@@ -50,5 +50,9 @@ public abstract class AbstractPlugin<E extends AbstractExtension> implements Plu
         } catch (Exception e) {
             // ignore
         }
+    }
+
+    protected WorkflowSettings getWorkflowSettings(String name) {
+        return (WorkflowSettings) getProject().getExtensions().findByName(name);
     }
 }

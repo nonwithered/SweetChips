@@ -1,7 +1,9 @@
 package org.sweetchips.traceweaver;
 
 import org.gradle.api.Project;
-import org.sweetchips.plugin4gradle.AbstractPlugin;
+import org.sweetchips.common.jvm.ClassVisitorFactory;
+import org.sweetchips.android.AbstractPlugin;
+import org.sweetchips.android.WorkflowSettings;
 
 public final class TraceWeaverPlugin extends AbstractPlugin<TraceWeaverExtension> {
 
@@ -9,25 +11,21 @@ public final class TraceWeaverPlugin extends AbstractPlugin<TraceWeaverExtension
         super();
     }
 
-    private static TraceWeaverPlugin sPlugin;
-
-    static TraceWeaverPlugin getInstance() {
-        return sPlugin;
-    }
+    static TraceWeaverPlugin INSTANCE;
 
     @Override
-    protected final String getName() {
+    protected String getName() {
         return Util.NAME;
     }
 
     @Override
-    protected final void onApply(Project project) {
+    protected void onApply(Project project) {
     }
 
-    @Override
-    protected final void onAttach(String task) {
-        sPlugin = this;
-        addAction(ActionType.TRANSFORM, ActionMode.LAST, task, TraceWeaverTransformClassVisitor.class);
-        defineNewClass(task, Util.TRACE_WRAPPER_CLASS_NAME, () -> new TraceWrapperClassNode(getAsmApi()));
+    void onAttach(String name) {
+        WorkflowSettings settings = getWorkflowSettings(name);
+        settings.addTransformLast(ClassVisitorFactory.fromClassVisitor(TraceWeaverTransformClassVisitor.class));
+        int asmApi = settings.getAsmApi();
+        settings.addClass(() -> new TraceWrapperClassNode(asmApi));
     }
 }

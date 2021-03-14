@@ -2,7 +2,7 @@ import java.nio.file.Files
 
 rootProject.name = 'SweetChips'
 gradle.ext.buildUri = uri('./build')
-apply from: 'scripts/librarys.groovy'
+apply from: 'scripts/librarys.gradle'
 
 include ':annotations'
 include ':utility'
@@ -15,8 +15,8 @@ include ':plugin-android-api'
 include ':demo-app'
 include ':demo-main'
 include ':visitors'
+include ':trace-weaver'
 //include ':const-sweeper'
-//include ':trace-weaver'
 //include ':inline-tailor'
 
 gradle.ext.existsBuildTarget = { it ->

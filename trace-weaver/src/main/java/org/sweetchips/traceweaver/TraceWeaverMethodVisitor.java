@@ -48,7 +48,7 @@ final class TraceWeaverMethodVisitor extends MethodVisitor {
 
     private static String sectionName(String sectionName) {
         if (sectionName != null) {
-            int maxLength = TraceWeaverPlugin.getInstance().getExtension().getLength();
+            int maxLength = TraceWeaverPlugin.INSTANCE.getExtension().getLength();
             int length = sectionName.length();
             if (length > maxLength) {
                 sectionName = sectionName.substring(length - maxLength);
@@ -69,7 +69,7 @@ final class TraceWeaverMethodVisitor extends MethodVisitor {
     }
 
     private void visitDepth() {
-        int maxDepth = TraceWeaverPlugin.getInstance().getExtension().getDepth();
+        int maxDepth = TraceWeaverPlugin.INSTANCE.getExtension().getDepth();
         switch (maxDepth) {
             case 0:
                 visitInsn(Opcodes.ICONST_0);

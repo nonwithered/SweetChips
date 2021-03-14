@@ -1,7 +1,6 @@
 package org.sweetchips.traceweaver;
 
-import org.sweetchips.plugin4gradle.AbstractExtension;
-import org.sweetchips.plugin4gradle.AbstractPlugin;
+import org.sweetchips.android.AbstractExtension;
 import org.sweetchips.traceweaver.ext.ClassInfo;
 import org.sweetchips.traceweaver.ext.MethodInfo;
 
@@ -9,6 +8,10 @@ import java.util.Arrays;
 import java.util.function.BiFunction;
 
 public class TraceWeaverExtension extends AbstractExtension {
+
+    public TraceWeaverExtension() {
+        ignore(Util.TRACE_WRAPPER_CLASS_NAME.replace("/", "."));
+    }
 
     private int mDepth = Integer.MAX_VALUE;
 
@@ -40,6 +43,10 @@ public class TraceWeaverExtension extends AbstractExtension {
         return mIgnore.contains(clazz, member) && !mNotice.contains(clazz, member);
     }
 
+    public void attach(String name) {
+        TraceWeaverPlugin.INSTANCE.onAttach(name);
+    }
+
     public void ignore(String... name) {
         Arrays.asList(name).forEach(mIgnore::add);
     }
@@ -67,10 +74,5 @@ public class TraceWeaverExtension extends AbstractExtension {
             throw new NullPointerException();
         }
         mSectionName = sectionName;
-    }
-
-    public TraceWeaverExtension(AbstractPlugin<? extends AbstractExtension> plugin) {
-        super(plugin);
-        mIgnore.add(Util.TRACE_WRAPPER_CLASS_NAME);
     }
 }

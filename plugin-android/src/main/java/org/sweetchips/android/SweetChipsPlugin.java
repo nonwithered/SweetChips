@@ -1,4 +1,4 @@
-package org.sweetchips.plugin.android;
+package org.sweetchips.android;
 
 import com.android.build.gradle.BaseExtension;
 

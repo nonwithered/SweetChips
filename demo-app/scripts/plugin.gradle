@@ -1,0 +1,42 @@
+if (gradle.ext.existsBuildTarget('plugin-android')) {
+    apply plugin: 'SweetChips'
+    SweetChips {
+        asmApi = 5 << 16
+        addTransform 'A', incremental: true
+        addTransform 'B'
+        addTransform 'C'
+    }
+    A {
+        prepare {
+            first 'org.sweetchips.visitors.UncheckcastPrepareClassVisitor'
+        }
+        transform {
+            first 'org.sweetchips.visitors.UncheckcastTransformClassVisitor'
+            first adapt('org.sweetchips.visitors.HideTransformClassNode')
+        }
+    }
+    B {
+        prepare {
+            before {
+                println 'before'
+            }
+        }
+        transform {
+            before {
+                println 'after'
+            }
+        }
+    }
+    if (gradle.ext.existsBuildTarget('trace-weaver')) {
+        apply plugin: 'TraceWeaver'
+        TraceWeaver {
+            attach 'B'
+            maxDepth 10
+            ignore '*'
+            notice 'org.sweetchips.demo.main.*'
+            sectionName { classInfo, methodInfo ->
+                classInfo.name.replaceAll('/', '.') + '#' + methodInfo.name
+            }
+        }
+    }
+}

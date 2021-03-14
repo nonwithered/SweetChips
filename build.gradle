@@ -16,6 +16,7 @@ buildscript {
         }
         classpathIfExists('plugin-android')
         classpathIfExists('visitors')
+        classpathIfExists('trace-weaver')
     }
 }
 

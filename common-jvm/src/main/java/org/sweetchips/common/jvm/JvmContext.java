@@ -77,6 +77,10 @@ public final class JvmContext implements PlatformContext {
         mApi = api;
     }
 
+    public int getApi() {
+        return mApi;
+    }
+
     public void setBytesWriter(BiConsumer<String, byte[]> bytesWriter) {
         mBytesWriter = bytesWriter;
     }
@@ -165,12 +169,14 @@ public final class JvmContext implements PlatformContext {
     }
 
     private void doPrepareAfter() {
+        doPrepareAdditions();
         AsyncUtil.with(mPrepareAfter.stream()).forkJoin(Runnable::run);
         mPrepareAfter = null;
     }
 
     private void doTransformBefore() {
         AsyncUtil.with(mTransformBefore.stream()).forkJoin(Runnable::run);
+        doTransformAdditions();
         mTransformBefore = null;
     }
 
@@ -178,7 +184,6 @@ public final class JvmContext implements PlatformContext {
         Collection<ClassVisitorFactory> collection = mTransform;
         Collection<ClassNode> classes = mClasses;
         mClasses = null;
-        BiConsumer<String, byte[]> bytesWriter = mBytesWriter;
         AsyncUtil.with(classes.stream()).forkJoin(it -> {
             if (collection.size() == 0) {
                 checkAndWriteBytes(it);
