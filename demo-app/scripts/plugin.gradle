@@ -5,6 +5,7 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
         addTransform 'A', incremental: false
         addTransform 'B', incremental: true
         addTransform 'C'
+        addTransform 'D'
     }
     A {
         prepare {
@@ -37,13 +38,20 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
             }
         }
     }
-    if (gradle.ext.existsBuildTarget('const-Sweeper')) {
+    if (gradle.ext.existsBuildTarget('const-sweeper')) {
         apply plugin: 'ConstSweeper'
         ConstSweeper {
             attach 'B'
             ignore 'androidx.*'
             ignore 'org.sweetchips.demo.main.TestConst$CheckInternal'
             notice 'org.sweetchips.demo.main.TestConst$CheckInternal#sNotice'
+        }
+    }
+    if (gradle.ext.existsBuildTarget('inline-tailor')) {
+        apply plugin: 'InlineTailor'
+        InlineTailor {
+            attach 'C'
+            ignore 'androidx.*'
         }
     }
 }

@@ -19,6 +19,7 @@ buildscript {
         classpathIfExists('trace-weaver')
         classpathIfExists('const-sweeper')
         classpathIfExists('sourceline-eraser')
+        classpathIfExists('inline-tailor')
     }
 }
 

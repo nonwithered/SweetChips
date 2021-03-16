@@ -18,7 +18,7 @@ include ':visitors'
 include ':trace-weaver'
 include ':const-sweeper'
 include ':sourceline-eraser'
-//include ':inline-tailor'
+include ':inline-tailor'
 
 gradle.ext.existsBuildTarget = { it ->
     Files.exists(rootProject.projectDir.toPath()

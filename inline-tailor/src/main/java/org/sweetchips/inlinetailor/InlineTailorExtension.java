@@ -1,7 +1,6 @@
 package org.sweetchips.inlinetailor;
 
-import org.sweetchips.plugin4gradle.AbstractExtension;
-import org.sweetchips.plugin4gradle.AbstractPlugin;
+import org.sweetchips.android.AbstractExtension;
 
 import java.util.Arrays;
 
@@ -15,15 +14,15 @@ public class InlineTailorExtension extends AbstractExtension {
         return mIgnore.contains(clazz, member) && !mNotice.contains(clazz, member);
     }
 
+    public void attach(String name) {
+        InlineTailorPlugin.INSTANCE.onAttach(name);
+    }
+
     public void ignore(String... name) {
         Arrays.asList(name).forEach(mIgnore::add);
     }
 
     public void notice(String... name) {
         Arrays.asList(name).forEach(mNotice::add);
-    }
-
-    public InlineTailorExtension(AbstractPlugin<? extends AbstractExtension> plugin) {
-        super(plugin);
     }
 }

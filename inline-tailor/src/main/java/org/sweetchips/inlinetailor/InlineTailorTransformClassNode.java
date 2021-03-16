@@ -4,18 +4,13 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import org.sweetchips.plugin4gradle.BaseClassNode;
-import org.sweetchips.plugin4gradle.util.ClassesUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,47 +18,49 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public final class InlineTailorTransformClassNode extends BaseClassNode {
+public final class InlineTailorTransformClassNode extends ClassNode {
 
     public InlineTailorTransformClassNode(int api) {
-        this(api, null);
-    }
-
-    public InlineTailorTransformClassNode(int api, ClassVisitor cv) {
-        super(api, cv);
+        super(api);
     }
 
     @Override
-    protected void onAccept() {
-        if (InlineTailorPlugin.getInstance().getExtension().isIgnored(name, null)) {
+    public void accept(ClassVisitor cv) {
+        init();
+        super.accept(cv);
+    }
+
+    private void init() {
+        if (InlineTailorPlugin.INSTANCE.getExtension().isIgnored(name, null)) {
             return;
         }
-        Manager manager = createManager();
+        Manager manager = new Manager(this);
+        manager.prepare();
         @SuppressWarnings("unchecked")
         List<MethodNode> methods = (List<MethodNode>) this.methods;
         methods.stream()
-                .filter(it -> !InlineTailorPlugin.getInstance().getExtension().isIgnored(name, it.name))
+                .filter(it -> !InlineTailorPlugin.INSTANCE.getExtension().isIgnored(name, it.name))
                 .forEach(manager::change);
     }
 
-    private boolean checkMethod(MethodNode methodNode) {
-        if (InlineTailorPlugin.getInstance().getExtension().isIgnored(name, methodNode.name)) {
+    private static boolean checkMethod(ClassNode cn, MethodNode methodNode) {
+        if (InlineTailorPlugin.INSTANCE.getExtension().isIgnored(cn.name, methodNode.name)) {
             return false;
         }
-        if (!ClassesUtil.checkAccess(access, Opcodes.ACC_FINAL)
-                && !ClassesUtil.checkAccess(methodNode.access, Opcodes.ACC_FINAL)
-                && !ClassesUtil.checkAccess(methodNode.access, Opcodes.ACC_PRIVATE)
-                || ClassesUtil.checkAccess(methodNode.access, Opcodes.ACC_ABSTRACT)
-                || ClassesUtil.checkAccess(methodNode.access, Opcodes.ACC_NATIVE)) {
+        if (cn.name.equals("<init>")) {
+            return false;
+        }
+        if (!checkAccess(cn.access, Opcodes.ACC_FINAL)
+                && !checkAccess(methodNode.access, Opcodes.ACC_FINAL)
+                && !checkAccess(methodNode.access, Opcodes.ACC_PRIVATE)
+                || checkAccess(methodNode.access, Opcodes.ACC_ABSTRACT)
+                || checkAccess(methodNode.access, Opcodes.ACC_NATIVE)) {
             return false;
         }
         if (methodNode.tryCatchBlocks.size() > 0) {
             return false;
         }
-        if (methodNode.maxLocals != methodNode.localVariables.size()) {
-            return false;
-        }
-        if (methodNode.maxLocals != allArgsType(methodNode).length) {
+        if (methodNode.localVariables.size() != allArgsType(methodNode).length) {
             return false;
         }
         @SuppressWarnings("unchecked")
@@ -71,17 +68,36 @@ public final class InlineTailorTransformClassNode extends BaseClassNode {
         int index = Integer.MAX_VALUE;
         while (itr.hasNext()) {
             AbstractInsnNode insnNode = itr.next();
-            if (insnNode instanceof JumpInsnNode
-                    || insnNode instanceof TableSwitchInsnNode
-                    || insnNode instanceof LookupSwitchInsnNode) {
-                return false;
-            }
-            if (insnNode instanceof VarInsnNode) {
-                VarInsnNode varInsnNode = (VarInsnNode) insnNode;
-                if (!isLoadInsn(varInsnNode.getOpcode()) || varInsnNode.var > index) {
+            switch (insnNode.getType()) {
+                case AbstractInsnNode.JUMP_INSN:
+                case AbstractInsnNode.TABLESWITCH_INSN:
+                case AbstractInsnNode.LOOKUPSWITCH_INSN:
                     return false;
-                }
-                index = varInsnNode.var;
+                case AbstractInsnNode.INT_INSN:
+                case AbstractInsnNode.LDC_INSN:
+                    index = -1;
+                    continue;
+                case AbstractInsnNode.TYPE_INSN:
+                    switch (insnNode.getOpcode()) {
+                        case Opcodes.NEW:
+                        case Opcodes.ANEWARRAY:
+                            index = -1;
+                    }
+                    continue;
+                case AbstractInsnNode.INSN:
+                    if (isConstInsn(insnNode.getOpcode())) {
+                        index = -1;
+                    }
+                    continue;
+                case AbstractInsnNode.VAR_INSN:
+                    if (!isLoadInsn(insnNode.getOpcode())) {
+                        return false;
+                    }
+                    VarInsnNode varInsnNode = (VarInsnNode) insnNode;
+                    if (varInsnNode.var > index) {
+                        return false;
+                    }
+                    index = varInsnNode.var;
             }
         }
         return true;
@@ -96,27 +112,44 @@ public final class InlineTailorTransformClassNode extends BaseClassNode {
         @SuppressWarnings("unchecked")
         Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) methodNode.instructions.iterator();
         while (itr.hasNext()) {
-            AbstractInsnNode insn = itr.next();
-            if (insn instanceof VarInsnNode) {
-                VarInsnNode varInsn = (VarInsnNode) insn;
-                while (varInsn.var < topIndex) {
-                    if (allArgsType[topIndex] == Type.LONG || allArgsType[topIndex] == Type.DOUBLE) {
-                        insnList.add(new InsnNode(Opcodes.POP2));
-                    } else {
-                        insnList.add(new InsnNode(Opcodes.POP));
+            AbstractInsnNode insnNode = itr.next();
+            switch (insnNode.getType()) {
+                case AbstractInsnNode.LABEL:
+                case AbstractInsnNode.LINE:
+                    continue;
+                case AbstractInsnNode.VAR_INSN:
+                    VarInsnNode varInsn = (VarInsnNode) insnNode;
+                    while (varInsn.var < topIndex) {
+                        if (allArgsType[topIndex] == Type.LONG || allArgsType[topIndex] == Type.DOUBLE) {
+                            insnList.add(new InsnNode(Opcodes.POP2));
+                        } else {
+                            insnList.add(new InsnNode(Opcodes.POP));
+                        }
+                        topIndex--;
                     }
                     topIndex--;
-                }
-                topIndex--;
-                if (index < allLoadIndex.length - 1 && allLoadIndex[index + 1] == varInsn.var) {
-                    if (varInsn.var == Type.LONG || varInsn.var == Type.DOUBLE) {
-                        insnList.add(new InsnNode(Opcodes.DUP2));
-                    } else {
-                        insnList.add(new InsnNode(Opcodes.DUP));
+                    if (index < allLoadIndex.length - 1 && allLoadIndex[index + 1] == varInsn.var) {
+                        if (varInsn.var == Type.LONG || varInsn.var == Type.DOUBLE) {
+                            insnList.add(new InsnNode(Opcodes.DUP2));
+                        } else {
+                            insnList.add(new InsnNode(Opcodes.DUP));
+                        }
                     }
-                }
-            } else if (!(insn instanceof LabelNode) && !(insn instanceof LineNumberNode)) {
-                insnList.add(insn.clone(null));
+                    continue;
+                case AbstractInsnNode.INSN:
+                    if (isReturnInsn(insnNode.getOpcode())) {
+                        while (-1 < topIndex) {
+                            if (allArgsType[topIndex] == Type.LONG || allArgsType[topIndex] == Type.DOUBLE) {
+                                insnList.add(new InsnNode(Opcodes.POP2));
+                            } else {
+                                insnList.add(new InsnNode(Opcodes.POP));
+                            }
+                            topIndex--;
+                        }
+                        continue;
+                    }
+                default:
+                    insnList.add(insnNode.clone(null));
             }
         }
         while (topIndex >= 0) {
@@ -135,7 +168,7 @@ public final class InlineTailorTransformClassNode extends BaseClassNode {
         @SuppressWarnings("unchecked")
         Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) methodNode.instructions.iterator();
         itr.forEachRemaining(it -> {
-            if (it instanceof VarInsnNode) {
+            if (it.getType() == AbstractInsnNode.VAR_INSN) {
                 indexList.add(((VarInsnNode) it).var);
             }
         });
@@ -146,13 +179,9 @@ public final class InlineTailorTransformClassNode extends BaseClassNode {
         return allLoadIndex;
     }
 
-    private static boolean isLoadInsn(int opcode) {
-        return opcode >= Opcodes.ILOAD && opcode <= Opcodes.ALOAD;
-    }
-
     private static int[] allArgsType(MethodNode methodNode) {
         Type[] types = Type.getType(methodNode.desc).getArgumentTypes();
-        boolean self = !ClassesUtil.checkAccess(methodNode.access, Opcodes.ACC_STATIC);
+        boolean self = !checkAccess(methodNode.access, Opcodes.ACC_STATIC);
         int[] allArgsType = new int[types.length + (self ? 1 : 0)];
         int index = 0;
         if (self) {
@@ -182,26 +211,41 @@ public final class InlineTailorTransformClassNode extends BaseClassNode {
         return addStackSize;
     }
 
+    private static boolean checkAccess(int access, int flag) {
+        return (access & flag) != 0;
+    }
+
     private static String getItemId(String cls, String mtd, String desc) {
         return cls + "#" + mtd + desc;
     }
 
-    private Manager createManager() {
-        Manager manager = new Manager();
-        manager.prepare();
-        return manager;
+    private static boolean isLoadInsn(int opcode) {
+        return opcode >= Opcodes.ILOAD && opcode <= Opcodes.ALOAD;
     }
 
-    private class Manager {
+    private static boolean isReturnInsn(int opcode) {
+        return opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN;
+    }
+
+    private static boolean isConstInsn(int opcode) {
+        return opcode >= Opcodes.ACONST_NULL && opcode <= Opcodes.DCONST_1;
+    }
+
+    private static class Manager {
 
         private final Map<String, Item> items;
 
-        Manager() {
+        Manager(ClassNode cn) {
             items = new HashMap<>();
             @SuppressWarnings("unchecked")
-            List<MethodNode> methodNodes = (List<MethodNode>) methods;
-            methodNodes.stream().filter(InlineTailorTransformClassNode.this::checkMethod).forEach(it ->
-                    items.put(getItemId(name, it.name, it.desc), new Item(it)));
+            List<MethodNode> methodNodes = (List<MethodNode>) cn.methods;
+            methodNodes.stream().filter(it -> InlineTailorTransformClassNode.checkMethod(cn, it)).forEach(it ->
+                    items.put(getItemId(cn.name, it.name, it.desc), new Item(it)));
+        }
+
+        void prepare() {
+            items.values().forEach(Item::prepare);
+            changeAllItems();
         }
 
         void change(MethodNode method) {
@@ -209,7 +253,7 @@ public final class InlineTailorTransformClassNode extends BaseClassNode {
             Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) method.instructions.iterator();
             while (itr.hasNext()) {
                 AbstractInsnNode insn = itr.next();
-                if (!(insn instanceof MethodInsnNode)) {
+                if (insn.getType() != AbstractInsnNode.METHOD_INSN) {
                     continue;
                 }
                 MethodInsnNode methodInsn = (MethodInsnNode) insn;
@@ -221,11 +265,6 @@ public final class InlineTailorTransformClassNode extends BaseClassNode {
                 itr.remove();
                 method.maxStack += item.stackSize;
             }
-        }
-
-        void prepare() {
-            items.values().forEach(Item::prepare);
-            changeAllItems();
         }
 
         void changeAllItems() {
@@ -251,7 +290,7 @@ public final class InlineTailorTransformClassNode extends BaseClassNode {
             Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) item.insnList.iterator();
             while (itr.hasNext()) {
                 AbstractInsnNode insn = itr.next();
-                if (!(insn instanceof MethodInsnNode)) {
+                if (insn.getType() != AbstractInsnNode.METHOD_INSN) {
                     continue;
                 }
                 MethodInsnNode methodInsn = (MethodInsnNode) insn;
@@ -284,7 +323,7 @@ public final class InlineTailorTransformClassNode extends BaseClassNode {
                 Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) insnList.iterator();
                 while (itr.hasNext()) {
                     AbstractInsnNode insn = itr.next();
-                    if (!(insn instanceof MethodInsnNode)) {
+                    if (insn.getType() != AbstractInsnNode.METHOD_INSN) {
                         continue;
                     }
                     MethodInsnNode invokeInsn = (MethodInsnNode) insn;
@@ -299,8 +338,10 @@ public final class InlineTailorTransformClassNode extends BaseClassNode {
                 @SuppressWarnings("unchecked")
                 Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) insnList.iterator();
                 itr.forEachRemaining(it -> {
-                    if (it instanceof LabelNode || it instanceof LineNumberNode) {
-                        return;
+                    switch (it.getType()) {
+                        case AbstractInsnNode.LABEL:
+                        case AbstractInsnNode.LINE:
+                            return;
                     }
                     clone.add(it.clone(null));
                 });
