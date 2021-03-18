@@ -8,6 +8,7 @@ import org.sweetchips.utility.ClassesUtil;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import groovy.lang.Closure;
@@ -27,8 +28,8 @@ public class WorkflowExtension implements WorkflowSettings {
 
     public class PrepareExt {
 
-        public void before(Runnable runnable) {
-            addPrepareBefore(runnable);
+        public void before(Consumer<Map<?, ?>> consumer) {
+            addPrepareBefore(consumer);
         }
 
         public void first(ClassVisitorFactory factory) {
@@ -55,8 +56,8 @@ public class WorkflowExtension implements WorkflowSettings {
             last(ClassesUtil.forName(name));
         }
 
-        public void after(Runnable runnable) {
-            addPrepareAfter(runnable);
+        public void after(Consumer<Map<?, ?>> consumer) {
+            addPrepareAfter(consumer);
         }
     }
 
@@ -67,8 +68,8 @@ public class WorkflowExtension implements WorkflowSettings {
 
     public class TransformExt {
 
-        public void before(Runnable runnable) {
-            addTransformBefore(runnable);
+        public void before(Consumer<Map<?, ?>> consumer) {
+            addTransformBefore(consumer);
         }
 
         public void first(ClassVisitorFactory factory) {
@@ -95,8 +96,8 @@ public class WorkflowExtension implements WorkflowSettings {
             last(ClassesUtil.forName(name));
         }
 
-        public void after(Runnable runnable) {
-            addTransformAfter(runnable);
+        public void after(Consumer<Map<?, ?>> consumer) {
+            addTransformAfter(consumer);
         }
     }
 
@@ -143,21 +144,21 @@ public class WorkflowExtension implements WorkflowSettings {
     }
 
     @Override
-    public void addPrepareBefore(Runnable runnable) {
+    public void addPrepareBefore(Consumer<Map<?, ?>> consumer) {
         JvmContext context = mContext.get();
         if (context == null) {
             return;
         }
-        context.addPrepareBefore(runnable);
+        context.addPrepareBefore(consumer);
     }
 
     @Override
-    public void addPrepareAfter(Runnable runnable) {
+    public void addPrepareAfter(Consumer<Map<?, ?>> consumer) {
         JvmContext context = mContext.get();
         if (context == null) {
             return;
         }
-        context.addPrepareAfter(runnable);
+        context.addPrepareAfter(consumer);
     }
 
     @Override
@@ -179,21 +180,21 @@ public class WorkflowExtension implements WorkflowSettings {
     }
 
     @Override
-    public void addTransformBefore(Runnable runnable) {
+    public void addTransformBefore(Consumer<Map<?, ?>> consumer) {
         JvmContext context = mContext.get();
         if (context == null) {
             return;
         }
-        context.addTransformBefore(runnable);
+        context.addTransformBefore(consumer);
     }
 
     @Override
-    public void addTransformAfter(Runnable runnable) {
+    public void addTransformAfter(Consumer<Map<?, ?>> consumer) {
         JvmContext context = mContext.get();
         if (context == null) {
             return;
         }
-        context.addTransformAfter(runnable);
+        context.addTransformAfter(consumer);
     }
 
     @Override

@@ -6,19 +6,30 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import java.util.Map;
 import java.util.Set;
 
 public class HideTransformClassVisitor extends ClassVisitor {
 
+    private final Map<String, Set<HideRecord>> mExtra;
+
     private Set<HideRecord> mTarget;
 
     public HideTransformClassVisitor(int api, ClassVisitor cv) {
+        this(api, cv, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public HideTransformClassVisitor(int api, ClassVisitor cv, Map<?, ?> extra) {
         super(api, cv);
+        Map<String, Set<HideRecord>> map = extra == null
+                ? null : (Map<String, Set<HideRecord>>) extra.get("Hide");
+        mExtra = map != null ? map : HideRecord.targets();
     }
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        mTarget = HideRecord.targets().get(name);
+        mTarget = mExtra.get(name);
         if (mTarget != null && mTarget.contains(new HideRecord(name, superName))) {
             access |= Opcodes.ACC_SYNTHETIC;
         }

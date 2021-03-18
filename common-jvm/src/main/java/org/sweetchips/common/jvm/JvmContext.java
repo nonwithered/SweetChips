@@ -30,10 +30,10 @@ public final class JvmContext implements PlatformContext {
     private Deque<ClassVisitorFactory> mPrepare = new LinkedList<>();
     private Deque<ClassVisitorFactory> mTransform = new LinkedList<>();
     private Collection<Supplier<ClassNode>> mAdditions = new ConcurrentLinkedQueue<>();
-    private List<Runnable> mPrepareBefore = new ArrayList<>();
-    private List<Runnable> mPrepareAfter = new ArrayList<>();
-    private List<Runnable> mTransformBefore = new ArrayList<>();
-    private List<Runnable> mTransformAfter = new ArrayList<>();
+    private List<Consumer<Map<?, ?>>> mPrepareBefore = new ArrayList<>();
+    private List<Consumer<Map<?, ?>>> mPrepareAfter = new ArrayList<>();
+    private List<Consumer<Map<?, ?>>> mTransformBefore = new ArrayList<>();
+    private List<Consumer<Map<?, ?>>> mTransformAfter = new ArrayList<>();
     private Collection<ClassNode> mClasses;
     private BiConsumer<String, byte[]> mBytesWriter;
 
@@ -93,8 +93,8 @@ public final class JvmContext implements PlatformContext {
         return mExtra;
     }
 
-    public void addPrepareBefore(Runnable runnable) {
-        ItemsUtil.checkAndAdd(mPrepareBefore, runnable);
+    public void addPrepareBefore(Consumer<Map<?, ?>> consumer) {
+        ItemsUtil.checkAndAdd(mPrepareBefore, consumer);
     }
 
     public void addPrepareFirst(ClassVisitorFactory factory) {
@@ -105,16 +105,16 @@ public final class JvmContext implements PlatformContext {
         ItemsUtil.checkAndAdd(mPrepare, factory);
     }
 
-    public void addPrepareAfter(Runnable runnable) {
-        ItemsUtil.checkAndAdd(mPrepareAfter, runnable);
+    public void addPrepareAfter(Consumer<Map<?, ?>> consumer) {
+        ItemsUtil.checkAndAdd(mPrepareAfter, consumer);
     }
 
     public void addClass(Supplier<ClassNode> supplier) {
         ItemsUtil.checkAndAdd(mAdditions, supplier);
     }
 
-    public void addTransformBefore(Runnable runnable) {
-        ItemsUtil.checkAndAdd(mTransformBefore, runnable);
+    public void addTransformBefore(Consumer<Map<?, ?>> consumer) {
+        ItemsUtil.checkAndAdd(mTransformBefore, consumer);
     }
 
     public void addTransformFirst(ClassVisitorFactory factory) {
@@ -125,12 +125,12 @@ public final class JvmContext implements PlatformContext {
         ItemsUtil.checkAndAdd(mTransform, factory);
     }
 
-    public void addTransformAfter(Runnable runnable) {
-        ItemsUtil.checkAndAdd(mTransformAfter, runnable);
+    public void addTransformAfter(Consumer<Map<?, ?>> consumer) {
+        ItemsUtil.checkAndAdd(mTransformAfter, consumer);
     }
 
     private void doPrepareBefore() {
-        AsyncUtil.with(mPrepareBefore.stream()).forkJoin(Runnable::run);
+        AsyncUtil.with(mPrepareBefore.stream()).forkJoin(it -> it.accept(mExtra));
         mPrepareBefore = null;
     }
 
@@ -170,12 +170,12 @@ public final class JvmContext implements PlatformContext {
 
     private void doPrepareAfter() {
         doPrepareAdditions();
-        AsyncUtil.with(mPrepareAfter.stream()).forkJoin(Runnable::run);
+        AsyncUtil.with(mPrepareAfter.stream()).forkJoin(it -> it.accept(mExtra));
         mPrepareAfter = null;
     }
 
     private void doTransformBefore() {
-        AsyncUtil.with(mTransformBefore.stream()).forkJoin(Runnable::run);
+        AsyncUtil.with(mTransformBefore.stream()).forkJoin(it -> it.accept(mExtra));
         doTransformAdditions();
         mTransformBefore = null;
     }
@@ -225,7 +225,7 @@ public final class JvmContext implements PlatformContext {
 
     private void doTransformAfter() {
         mTransform = null;
-        AsyncUtil.with(mTransformAfter.stream()).forkJoin(Runnable::run);
+        AsyncUtil.with(mTransformAfter.stream()).forkJoin(it -> it.accept(mExtra));
         mTransformAfter = null;
         mExtra = null;
     }

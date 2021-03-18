@@ -6,9 +6,12 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class HidePrepareClassVisitor extends ClassVisitor {
+
+    private final Map<String, Set<HideRecord>> mExtra;
 
     private final Set<HideRecord> mTarget = new HashSet<>();
 
@@ -17,13 +20,21 @@ public class HidePrepareClassVisitor extends ClassVisitor {
     private String mName;
 
     public HidePrepareClassVisitor(int api, ClassVisitor cv) {
+        this(api, cv, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public HidePrepareClassVisitor(int api, ClassVisitor cv, Map<?, ?> extra) {
         super(api, cv);
+        Map<String, Set<HideRecord>> map = extra == null
+                ? null : (Map<String, Set<HideRecord>>) extra.get("Hide");
+        mExtra = map != null ? map : HideRecord.targets();
     }
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         mElements = new HideRecord(name, superName);
-        HideRecord.targets().put(mName = name, mTarget);
+        mExtra.put(mName = name, mTarget);
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
@@ -66,7 +77,7 @@ public class HidePrepareClassVisitor extends ClassVisitor {
     @Override
     public void visitEnd() {
         if (mTarget.isEmpty()) {
-            HideRecord.targets().remove(mName);
+            mExtra.remove(mName);
         }
         super.visitEnd();
     }

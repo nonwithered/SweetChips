@@ -1,3 +1,5 @@
+import java.util.concurrent.ConcurrentHashMap
+
 if (gradle.ext.existsBuildTarget('plugin-android')) {
     apply plugin: 'SweetChips'
     SweetChips {
@@ -9,11 +11,19 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
     }
     A {
         prepare {
+            before {
+                it.Uncheckcast = new ConcurrentHashMap<>()
+            }
+//            first 'org.sweetchips.visitors.HidePrepareClassVisitor'
             first 'org.sweetchips.visitors.UncheckcastPrepareClassVisitor'
         }
         transform {
-            first 'org.sweetchips.visitors.UncheckcastTransformClassVisitor'
+//            first 'org.sweetchips.visitors.HideTransformClassVisitor'
             first adapt('org.sweetchips.visitors.HideTransformClassNode')
+            first 'org.sweetchips.visitors.UncheckcastTransformClassVisitor'
+            after {
+                it.Uncheckcast = null
+            }
         }
         prepare {
             before {

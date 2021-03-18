@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class UncheckcastPrepareClassVisitor extends ClassVisitor {
 
-    private final Map<String, Map<UncheckcastRecord, UncheckcastRecord>> mExt;
+    private final Map<String, Map<UncheckcastRecord, UncheckcastRecord>> mExtra;
 
     private final Map<UncheckcastRecord, UncheckcastRecord> mTarget = new HashMap<>();
 
@@ -22,15 +22,17 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    public UncheckcastPrepareClassVisitor(int api, ClassVisitor cv, Map<?, ?> ext) {
+    public UncheckcastPrepareClassVisitor(int api, ClassVisitor cv, Map<?, ?> extra) {
         super(api, cv);
-        mExt = ext != null ? (Map<String, Map<UncheckcastRecord, UncheckcastRecord>>) ext : UncheckcastRecord.targets();
+        Map<String, Map<UncheckcastRecord, UncheckcastRecord>> map = extra == null
+                ? null : (Map<String, Map<UncheckcastRecord, UncheckcastRecord>>) extra.get("Uncheckcast");
+        mExtra = map != null ? map : UncheckcastRecord.targets();
     }
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         mElements = new UncheckcastRecord(name, superName);
-        mExt.put(mName = name, mTarget);
+        mExtra.put(mName = name, mTarget);
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
@@ -62,7 +64,7 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
     @Override
     public void visitEnd() {
         if (mTarget.isEmpty()) {
-            mExt.remove(mName);
+            mExtra.remove(mName);
         }
         super.visitEnd();
     }
