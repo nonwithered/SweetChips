@@ -12,10 +12,6 @@ public class HideTransformClassVisitor extends ClassVisitor {
 
     private Set<HideRecord> mTarget;
 
-    public HideTransformClassVisitor(int api) {
-        this(api, null);
-    }
-
     public HideTransformClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }

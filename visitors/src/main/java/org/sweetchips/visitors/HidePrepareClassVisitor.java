@@ -16,10 +16,6 @@ public class HidePrepareClassVisitor extends ClassVisitor {
 
     private String mName;
 
-    public HidePrepareClassVisitor(int api) {
-        this(api, null);
-    }
-
     public HidePrepareClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }

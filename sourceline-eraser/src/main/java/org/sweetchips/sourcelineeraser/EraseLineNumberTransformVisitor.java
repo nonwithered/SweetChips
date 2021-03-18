@@ -8,10 +8,6 @@ public class EraseLineNumberTransformVisitor extends ClassVisitor {
 
     private String mName;
 
-    public EraseLineNumberTransformVisitor(int api) {
-        this(api, null);
-    }
-
     public EraseLineNumberTransformVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }

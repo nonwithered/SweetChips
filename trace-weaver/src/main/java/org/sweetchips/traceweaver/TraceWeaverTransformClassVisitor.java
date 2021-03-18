@@ -10,10 +10,6 @@ public final class TraceWeaverTransformClassVisitor extends ClassVisitor {
 
     private ClassInfo mClassInfo;
 
-    public TraceWeaverTransformClassVisitor(int api) {
-        this(api, null);
-    }
-
     public TraceWeaverTransformClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }
