@@ -24,8 +24,7 @@ public class TraceWeaverExtension extends AbstractExtension {
     private BiFunction<ClassInfo, MethodInfo, String> mSectionName = (classInfo, methodInfo) ->
             classInfo.name.replaceAll("/", ".")
                     + "#"
-                    + methodInfo.name
-                    + methodInfo.desc;
+                    + methodInfo.name;
 
     String getSectionName(ClassInfo classInfo, MethodInfo methodInfo) {
         return mSectionName.apply(classInfo, methodInfo);

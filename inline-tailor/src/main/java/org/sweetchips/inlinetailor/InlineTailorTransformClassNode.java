@@ -216,7 +216,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
     }
 
     private static String getItemId(String cls, String mtd, String desc) {
-        return cls + "#" + mtd + desc;
+        return cls + "->" + mtd + desc;
     }
 
     private static boolean isLoadInsn(int opcode) {
