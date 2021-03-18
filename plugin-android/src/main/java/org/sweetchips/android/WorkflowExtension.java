@@ -28,7 +28,7 @@ public class WorkflowExtension implements WorkflowSettings {
 
     public class PrepareExt {
 
-        public void before(Consumer<Map<?, ?>> consumer) {
+        public void before(Consumer<Map<Object, Object>> consumer) {
             addPrepareBefore(consumer);
         }
 
@@ -56,7 +56,7 @@ public class WorkflowExtension implements WorkflowSettings {
             last(ClassesUtil.forName(name));
         }
 
-        public void after(Consumer<Map<?, ?>> consumer) {
+        public void after(Consumer<Map<Object, Object>> consumer) {
             addPrepareAfter(consumer);
         }
     }
@@ -68,7 +68,7 @@ public class WorkflowExtension implements WorkflowSettings {
 
     public class TransformExt {
 
-        public void before(Consumer<Map<?, ?>> consumer) {
+        public void before(Consumer<Map<Object, Object>> consumer) {
             addTransformBefore(consumer);
         }
 
@@ -96,7 +96,7 @@ public class WorkflowExtension implements WorkflowSettings {
             last(ClassesUtil.forName(name));
         }
 
-        public void after(Consumer<Map<?, ?>> consumer) {
+        public void after(Consumer<Map<Object, Object>> consumer) {
             addTransformAfter(consumer);
         }
     }
@@ -109,7 +109,7 @@ public class WorkflowExtension implements WorkflowSettings {
         return adapt(ClassesUtil.forName(name));
     }
 
-    void setExtra(Map<?, ?> extra) {
+    void setExtra(Map<Object, Object> extra) {
         JvmContext context = mContext.get();
         if (context == null) {
             return;
@@ -117,7 +117,7 @@ public class WorkflowExtension implements WorkflowSettings {
         context.setExtra(extra);
     }
 
-    Map<?, ?> getExtra() {
+    Map<Object, Object> getExtra() {
         JvmContext context = mContext.get();
         if (context == null) {
             return null;
@@ -144,7 +144,7 @@ public class WorkflowExtension implements WorkflowSettings {
     }
 
     @Override
-    public void addPrepareBefore(Consumer<Map<?, ?>> consumer) {
+    public void addPrepareBefore(Consumer<Map<Object, Object>> consumer) {
         JvmContext context = mContext.get();
         if (context == null) {
             return;
@@ -153,7 +153,7 @@ public class WorkflowExtension implements WorkflowSettings {
     }
 
     @Override
-    public void addPrepareAfter(Consumer<Map<?, ?>> consumer) {
+    public void addPrepareAfter(Consumer<Map<Object, Object>> consumer) {
         JvmContext context = mContext.get();
         if (context == null) {
             return;
@@ -180,7 +180,7 @@ public class WorkflowExtension implements WorkflowSettings {
     }
 
     @Override
-    public void addTransformBefore(Consumer<Map<?, ?>> consumer) {
+    public void addTransformBefore(Consumer<Map<Object, Object>> consumer) {
         JvmContext context = mContext.get();
         if (context == null) {
             return;
@@ -189,7 +189,7 @@ public class WorkflowExtension implements WorkflowSettings {
     }
 
     @Override
-    public void addTransformAfter(Consumer<Map<?, ?>> consumer) {
+    public void addTransformAfter(Consumer<Map<Object, Object>> consumer) {
         JvmContext context = mContext.get();
         if (context == null) {
             return;

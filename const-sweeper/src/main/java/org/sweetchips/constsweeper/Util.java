@@ -39,4 +39,8 @@ interface Util {
                 return false;
         }
     }
+
+    static String getKey(String className, String fieldName, String fieldType) {
+        return className + "->" + fieldName + ":" + fieldType;
+    }
 }

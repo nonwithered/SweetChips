@@ -35,5 +35,5 @@ public interface ClassVisitorFactory {
         return (api, cv, ext) -> new ClassNodeAdaptor(api, cv, (ClassNode) factory.newInstance(api, null, ext));
     }
 
-    ClassVisitor newInstance(int api, ClassVisitor cv, Map<?, ?> ext);
+    ClassVisitor newInstance(int api, ClassVisitor cv, Map<Object, Object> ext);
 }

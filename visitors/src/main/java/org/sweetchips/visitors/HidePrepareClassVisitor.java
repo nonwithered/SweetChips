@@ -24,7 +24,7 @@ public class HidePrepareClassVisitor extends ClassVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    public HidePrepareClassVisitor(int api, ClassVisitor cv, Map<?, ?> extra) {
+    public HidePrepareClassVisitor(int api, ClassVisitor cv, Map<Object, Object> extra) {
         super(api, cv);
         Map<String, Set<HideRecord>> map = extra == null
                 ? null : (Map<String, Set<HideRecord>>) extra.get("Hide");

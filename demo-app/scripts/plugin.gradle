@@ -22,7 +22,7 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
             first adapt('org.sweetchips.visitors.HideTransformClassNode')
             first 'org.sweetchips.visitors.UncheckcastTransformClassVisitor'
             after {
-                it.Uncheckcast = null
+                it.remove('Uncheckcast')
             }
         }
         prepare {
@@ -52,7 +52,7 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
         apply plugin: 'ConstSweeper'
         ConstSweeper {
             attach 'B'
-            ignore 'androidx.*'
+//            ignore 'androidx.*'
             ignore 'org.sweetchips.demo.main.TestConst$CheckInternal'
             notice 'org.sweetchips.demo.main.TestConst$CheckInternal#sNotice'
         }

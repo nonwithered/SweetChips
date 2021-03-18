@@ -11,13 +11,13 @@ public interface WorkflowSettings {
 
     void addPrepareFirst(ClassVisitorFactory factory);
     void addPrepareLast(ClassVisitorFactory factory);
-    void addPrepareBefore(Consumer<Map<?, ?>> consumer);
-    void addPrepareAfter(Consumer<Map<?, ?>> consumer);
+    void addPrepareBefore(Consumer<Map<Object, Object>> consumer);
+    void addPrepareAfter(Consumer<Map<Object, Object>> consumer);
 
     void addTransformFirst(ClassVisitorFactory factory);
     void addTransformLast(ClassVisitorFactory factory);
-    void addTransformBefore(Consumer<Map<?, ?>> consumer);
-    void addTransformAfter(Consumer<Map<?, ?>> consumer);
+    void addTransformBefore(Consumer<Map<Object, Object>> consumer);
+    void addTransformAfter(Consumer<Map<Object, Object>> consumer);
 
     void addClass(Supplier<ClassNode> cn);
 

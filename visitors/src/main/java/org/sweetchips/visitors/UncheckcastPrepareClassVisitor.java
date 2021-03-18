@@ -22,7 +22,7 @@ public class UncheckcastPrepareClassVisitor extends ClassVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    public UncheckcastPrepareClassVisitor(int api, ClassVisitor cv, Map<?, ?> extra) {
+    public UncheckcastPrepareClassVisitor(int api, ClassVisitor cv, Map<Object, Object> extra) {
         super(api, cv);
         Map<String, Map<UncheckcastRecord, UncheckcastRecord>> map = extra == null
                 ? null : (Map<String, Map<UncheckcastRecord, UncheckcastRecord>>) extra.get("Uncheckcast");

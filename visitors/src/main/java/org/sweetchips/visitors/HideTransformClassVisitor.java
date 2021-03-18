@@ -20,7 +20,7 @@ public class HideTransformClassVisitor extends ClassVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    public HideTransformClassVisitor(int api, ClassVisitor cv, Map<?, ?> extra) {
+    public HideTransformClassVisitor(int api, ClassVisitor cv, Map<Object, Object> extra) {
         super(api, cv);
         Map<String, Set<HideRecord>> map = extra == null
                 ? null : (Map<String, Set<HideRecord>>) extra.get("Hide");

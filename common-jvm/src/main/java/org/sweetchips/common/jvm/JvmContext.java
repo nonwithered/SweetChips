@@ -26,14 +26,14 @@ public final class JvmContext implements PlatformContext {
 
     private boolean mIncremental;
     private int mApi;
-    private Map<?, ?> mExtra = new ConcurrentHashMap<>();
+    private Map<Object, Object> mExtra = new ConcurrentHashMap<>();
     private Deque<ClassVisitorFactory> mPrepare = new LinkedList<>();
     private Deque<ClassVisitorFactory> mTransform = new LinkedList<>();
     private Collection<Supplier<ClassNode>> mAdditions = new ConcurrentLinkedQueue<>();
-    private List<Consumer<Map<?, ?>>> mPrepareBefore = new ArrayList<>();
-    private List<Consumer<Map<?, ?>>> mPrepareAfter = new ArrayList<>();
-    private List<Consumer<Map<?, ?>>> mTransformBefore = new ArrayList<>();
-    private List<Consumer<Map<?, ?>>> mTransformAfter = new ArrayList<>();
+    private List<Consumer<Map<Object, Object>>> mPrepareBefore = new ArrayList<>();
+    private List<Consumer<Map<Object, Object>>> mPrepareAfter = new ArrayList<>();
+    private List<Consumer<Map<Object, Object>>> mTransformBefore = new ArrayList<>();
+    private List<Consumer<Map<Object, Object>>> mTransformAfter = new ArrayList<>();
     private Collection<ClassNode> mClasses;
     private BiConsumer<String, byte[]> mBytesWriter;
 
@@ -85,15 +85,15 @@ public final class JvmContext implements PlatformContext {
         mBytesWriter = bytesWriter;
     }
 
-    public void setExtra(Map<?, ?> extra) {
+    public void setExtra(Map<Object, Object> extra) {
         mExtra = extra;
     }
 
-    public Map<?, ?> getExtra() {
+    public Map<Object, Object> getExtra() {
         return mExtra;
     }
 
-    public void addPrepareBefore(Consumer<Map<?, ?>> consumer) {
+    public void addPrepareBefore(Consumer<Map<Object, Object>> consumer) {
         ItemsUtil.checkAndAdd(mPrepareBefore, consumer);
     }
 
@@ -105,7 +105,7 @@ public final class JvmContext implements PlatformContext {
         ItemsUtil.checkAndAdd(mPrepare, factory);
     }
 
-    public void addPrepareAfter(Consumer<Map<?, ?>> consumer) {
+    public void addPrepareAfter(Consumer<Map<Object, Object>> consumer) {
         ItemsUtil.checkAndAdd(mPrepareAfter, consumer);
     }
 
@@ -113,7 +113,7 @@ public final class JvmContext implements PlatformContext {
         ItemsUtil.checkAndAdd(mAdditions, supplier);
     }
 
-    public void addTransformBefore(Consumer<Map<?, ?>> consumer) {
+    public void addTransformBefore(Consumer<Map<Object, Object>> consumer) {
         ItemsUtil.checkAndAdd(mTransformBefore, consumer);
     }
 
@@ -125,7 +125,7 @@ public final class JvmContext implements PlatformContext {
         ItemsUtil.checkAndAdd(mTransform, factory);
     }
 
-    public void addTransformAfter(Consumer<Map<?, ?>> consumer) {
+    public void addTransformAfter(Consumer<Map<Object, Object>> consumer) {
         ItemsUtil.checkAndAdd(mTransformAfter, consumer);
     }
 

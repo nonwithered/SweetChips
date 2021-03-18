@@ -17,7 +17,7 @@ public class UncheckcastTransformClassVisitor extends ClassVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    public UncheckcastTransformClassVisitor(int api, ClassVisitor cv, Map<?, ?> extra) {
+    public UncheckcastTransformClassVisitor(int api, ClassVisitor cv, Map<Object, Object> extra) {
         super(api, cv);
         Map<String, Map<UncheckcastRecord, UncheckcastRecord>> map = extra == null
                 ? null : (Map<String, Map<UncheckcastRecord, UncheckcastRecord>>) extra.get("Uncheckcast");
