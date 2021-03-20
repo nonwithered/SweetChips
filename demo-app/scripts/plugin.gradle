@@ -60,7 +60,6 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
         apply plugin: 'InlineTailor'
         InlineTailor {
             attach 'C'
-            ignore 'androidx.*'
         }
     }
 }

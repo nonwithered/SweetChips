@@ -80,7 +80,14 @@ public final class InlineTailorTransformClassNode extends ClassNode {
                     return false;
                 case AbstractInsnNode.INT_INSN:
                 case AbstractInsnNode.LDC_INSN:
+                case AbstractInsnNode.FIELD_INSN:
                     index = -1;
+                    continue;
+                case AbstractInsnNode.METHOD_INSN:
+                    MethodInsnNode methodInsn = (MethodInsnNode) insnNode;
+                    if (Type.getType(methodInsn.desc).getReturnType() != Type.VOID_TYPE) {
+                        index = -1;
+                    }
                     continue;
                 case AbstractInsnNode.TYPE_INSN:
                     switch (insnNode.getOpcode()) {
