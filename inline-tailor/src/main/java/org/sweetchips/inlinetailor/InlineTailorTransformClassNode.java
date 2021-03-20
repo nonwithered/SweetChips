@@ -7,9 +7,9 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.ArrayList;
@@ -51,10 +51,12 @@ public final class InlineTailorTransformClassNode extends ClassNode {
             return false;
         }
         if (!checkAccess(cn.access, Opcodes.ACC_FINAL)
+                && !checkAccess(methodNode.access, Opcodes.ACC_STATIC)
                 && !checkAccess(methodNode.access, Opcodes.ACC_FINAL)
                 && !checkAccess(methodNode.access, Opcodes.ACC_PRIVATE)
                 || checkAccess(methodNode.access, Opcodes.ACC_ABSTRACT)
-                || checkAccess(methodNode.access, Opcodes.ACC_NATIVE)) {
+                || checkAccess(methodNode.access, Opcodes.ACC_NATIVE)
+                || checkAccess(methodNode.access, Opcodes.ACC_SYNCHRONIZED)) {
             return false;
         }
         if (methodNode.tryCatchBlocks.size() > 0) {
@@ -69,9 +71,12 @@ public final class InlineTailorTransformClassNode extends ClassNode {
         while (itr.hasNext()) {
             AbstractInsnNode insnNode = itr.next();
             switch (insnNode.getType()) {
+                case AbstractInsnNode.FRAME:
+                case AbstractInsnNode.IINC_INSN:
                 case AbstractInsnNode.JUMP_INSN:
                 case AbstractInsnNode.TABLESWITCH_INSN:
                 case AbstractInsnNode.LOOKUPSWITCH_INSN:
+                case AbstractInsnNode.MULTIANEWARRAY_INSN:
                     return false;
                 case AbstractInsnNode.INT_INSN:
                 case AbstractInsnNode.LDC_INSN:
@@ -85,7 +90,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
                     }
                     continue;
                 case AbstractInsnNode.INSN:
-                    if (isConstInsn(insnNode.getOpcode())) {
+                    if (isConstInsn(insnNode.getOpcode()) || isDupInsn(insnNode.getOpcode())) {
                         index = -1;
                     }
                     continue;
@@ -138,27 +143,53 @@ public final class InlineTailorTransformClassNode extends ClassNode {
                     continue;
                 case AbstractInsnNode.INSN:
                     if (isReturnInsn(insnNode.getOpcode())) {
-                        while (-1 < topIndex) {
-                            if (allArgsType[topIndex] == Type.LONG || allArgsType[topIndex] == Type.DOUBLE) {
-                                insnList.add(new InsnNode(Opcodes.POP2));
-                            } else {
-                                insnList.add(new InsnNode(Opcodes.POP));
-                            }
-                            topIndex--;
+                        switch (insnNode.getOpcode()) {
+                            case Opcodes.RETURN:
+                                while (-1 < topIndex) {
+                                    if (allArgsType[topIndex] == Type.LONG || allArgsType[topIndex] == Type.DOUBLE) {
+                                        insnList.add(new InsnNode(Opcodes.POP2));
+                                    } else {
+                                        insnList.add(new InsnNode(Opcodes.POP));
+                                    }
+                                    topIndex--;
+                                }
+                                continue;
+                            case Opcodes.IRETURN:
+                            case Opcodes.FRETURN:
+                            case Opcodes.ARETURN:
+                                while (-1 < topIndex) {
+                                    if (allArgsType[topIndex] == Type.LONG || allArgsType[topIndex] == Type.DOUBLE) {
+                                        insnList.add(new InsnNode(Opcodes.DUP_X2));
+                                        insnList.add(new InsnNode(Opcodes.POP));
+                                        insnList.add(new InsnNode(Opcodes.POP2));
+                                    } else {
+                                        insnList.add(new InsnNode(Opcodes.DUP_X1));
+                                        insnList.add(new InsnNode(Opcodes.POP));
+                                        insnList.add(new InsnNode(Opcodes.POP));
+                                    }
+                                    topIndex--;
+                                }
+                                continue;
+                            case Opcodes.LRETURN:
+                            case Opcodes.DRETURN:
+                                while (-1 < topIndex) {
+                                    if (allArgsType[topIndex] == Type.LONG || allArgsType[topIndex] == Type.DOUBLE) {
+                                        insnList.add(new InsnNode(Opcodes.DUP2_X2));
+                                        insnList.add(new InsnNode(Opcodes.POP2));
+                                        insnList.add(new InsnNode(Opcodes.POP2));
+                                    } else {
+                                        insnList.add(new InsnNode(Opcodes.DUP2_X1));
+                                        insnList.add(new InsnNode(Opcodes.POP2));
+                                        insnList.add(new InsnNode(Opcodes.POP));
+                                    }
+                                    topIndex--;
+                                }
+                                continue;
                         }
-                        continue;
                     }
                 default:
                     insnList.add(insnNode.clone(null));
             }
-        }
-        while (topIndex >= 0) {
-            if (allArgsType[topIndex] == Type.LONG || allArgsType[topIndex] == Type.DOUBLE) {
-                insnList.add(new InsnNode(Opcodes.POP2));
-            } else {
-                insnList.add(new InsnNode(Opcodes.POP));
-            }
-            topIndex--;
         }
         return insnList;
     }
@@ -229,6 +260,10 @@ public final class InlineTailorTransformClassNode extends ClassNode {
 
     private static boolean isConstInsn(int opcode) {
         return opcode >= Opcodes.ACONST_NULL && opcode <= Opcodes.DCONST_1;
+    }
+
+    private static boolean isDupInsn(int opcode) {
+        return opcode >= Opcodes.DUP && opcode <= Opcodes.DUP2_X2;
     }
 
     private static class Manager {
@@ -335,15 +370,14 @@ public final class InlineTailorTransformClassNode extends ClassNode {
 
             InsnList cloneInsn() {
                 InsnList clone = new InsnList();
+                Map<LabelNode, LabelNode> labels = new HashMap<>();
                 @SuppressWarnings("unchecked")
                 Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) insnList.iterator();
                 itr.forEachRemaining(it -> {
-                    switch (it.getType()) {
-                        case AbstractInsnNode.LABEL:
-                        case AbstractInsnNode.LINE:
-                            return;
+                    if (it.getType() == AbstractInsnNode.LABEL) {
+                        labels.put((LabelNode) it, new LabelNode());
                     }
-                    clone.add(it.clone(null));
+                    clone.add(it.clone(labels));
                 });
                 return clone;
             }

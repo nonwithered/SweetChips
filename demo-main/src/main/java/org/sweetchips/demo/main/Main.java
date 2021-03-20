@@ -7,7 +7,8 @@ public class Main {
                 TestHide.class,
                 TestUncheckcast.class,
                 TestConst.class,
-                TestTrace.class
+                TestTrace.class,
+                TestInline.class
         );
     }
 

@@ -52,16 +52,15 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
         apply plugin: 'ConstSweeper'
         ConstSweeper {
             attach 'B'
-//            ignore 'androidx.*'
             ignore 'org.sweetchips.demo.main.TestConst$CheckInternal'
             notice 'org.sweetchips.demo.main.TestConst$CheckInternal#sNotice'
         }
     }
-//    if (gradle.ext.existsBuildTarget('inline-tailor')) {
-//        apply plugin: 'InlineTailor'
-//        InlineTailor {
-//            attach 'C'
-//            ignore 'androidx.*'
-//        }
-//    }
+    if (gradle.ext.existsBuildTarget('inline-tailor')) {
+        apply plugin: 'InlineTailor'
+        InlineTailor {
+            attach 'C'
+            ignore 'androidx.*'
+        }
+    }
 }

@@ -8,10 +8,10 @@ import org.sweetchips.foundation.PlatformContext;
 import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.ItemsUtil;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -27,8 +27,8 @@ public final class JvmContext implements PlatformContext {
     private boolean mIncremental;
     private int mApi;
     private Map<Object, Object> mExtra = new ConcurrentHashMap<>();
-    private Deque<ClassVisitorFactory> mPrepare = new LinkedList<>();
-    private Deque<ClassVisitorFactory> mTransform = new LinkedList<>();
+    private Deque<ClassVisitorFactory> mPrepare = new ArrayDeque<>();
+    private Deque<ClassVisitorFactory> mTransform = new ArrayDeque<>();
     private Collection<Supplier<ClassNode>> mAdditions = new ConcurrentLinkedQueue<>();
     private List<Consumer<Map<Object, Object>>> mPrepareBefore = new ArrayList<>();
     private List<Consumer<Map<Object, Object>>> mPrepareAfter = new ArrayList<>();
