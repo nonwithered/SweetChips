@@ -1,11 +1,10 @@
 package org.sweetchips.foundation;
 
-import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -18,14 +17,13 @@ public final class FileUnit extends AbstractUnit {
                     List<Function<Path, Consumer<byte[]>>> prepare,
                     List<Function<Path, Function<byte[], byte[]>>> transform) {
         super(input, output);
-        mPrepare = prepare;
-        mTransform = transform;
+        mPrepare = prepare != null ? prepare : Collections.emptyList();
+        mTransform = transform != null ? transform : Collections.emptyList();
     }
 
     @Override
-    protected void onPrepare() {
-        if (mPrepare == null || mPrepare.size() == 0) {
-            super.onPrepare();
+    protected final void onPrepare() {
+        if (mPrepare.isEmpty()) {
             return;
         }
         Consumer<byte[]> consumer = null;
@@ -40,11 +38,7 @@ public final class FileUnit extends AbstractUnit {
     }
 
     @Override
-    protected void onTransform() {
-        if (mTransform == null || mTransform.size() == 0) {
-            super.onTransform();
-            return;
-        }
+    protected final void onTransform() {
         Function<byte[], byte[]> function = null;
         for (Function<Path, Function<byte[], byte[]>> filter : mTransform) {
             if ((function = filter.apply(getInput())) != null) {

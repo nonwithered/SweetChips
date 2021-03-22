@@ -26,10 +26,7 @@ public abstract class AbstractUnit {
         FilesUtil.deleteIfExists(mOutput);
     }
 
-    protected void onPrepare() {
-    }
+    protected abstract void onPrepare();
 
-    protected void onTransform() {
-        FilesUtil.copy(mInput, mOutput);
-    }
+    protected abstract void onTransform();
 }

@@ -56,8 +56,15 @@ public interface AsyncUtil {
                     .collect(Collectors.toList())
                     .forEach(ForkJoinTask::join);
         }
-        public void forEachAsync(Consumer<T> consumer) {
-            stream.forEach(fork(consumer)::apply);
+        public void forEachAsync(Consumer<Throwable> caught, Consumer<T> consumer) {
+            Consumer<T> c = it -> {
+                try {
+                    consumer.accept(it);
+                } catch (Throwable e) {
+                    caught.accept(e);
+                }
+            };
+            stream.forEach(fork(c)::apply);
         }
     }
 

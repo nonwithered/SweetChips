@@ -4,6 +4,7 @@ import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -16,14 +17,13 @@ public final class PathUnit extends AbstractUnit {
                     List<BiFunction<Path, Path, AbstractUnit>> prepare,
                     List<BiFunction<Path, Path, AbstractUnit>> transform) {
         super(input, output);
-        mPrepare = prepare;
-        mTransform = transform;
+        mPrepare = prepare != null ? prepare : Collections.emptyList();
+        mTransform = transform != null ? transform : Collections.emptyList();
     }
 
     @Override
-    protected void onPrepare() {
-        if (mPrepare == null || mPrepare.size() == 0) {
-            super.onPrepare();
+    protected final void onPrepare() {
+        if (mPrepare.isEmpty()) {
             return;
         }
         AsyncUtil.with(FilesUtil.list(getInput()))
@@ -50,11 +50,7 @@ public final class PathUnit extends AbstractUnit {
     }
 
     @Override
-    protected void onTransform() {
-        if (mTransform == null || mTransform.size() == 0) {
-            super.onTransform();
-            return;
-        }
+    protected final void onTransform() {
         AsyncUtil.with(FilesUtil.list(getInput()))
                 .forkJoin(it -> {
                     if (!FilesUtil.exists(it)) {

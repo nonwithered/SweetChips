@@ -6,6 +6,7 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.sweetchips.annotations.Hide;
 
 import java.util.Iterator;
 import java.util.List;
@@ -30,10 +31,10 @@ public class HideTransformClassNode extends ClassNode {
         }
         boolean hide = false;
         @SuppressWarnings("unchecked")
-        Iterator<AnnotationNode> itr = (Iterator<AnnotationNode>) invisibleAnnotations.iterator();
+        Iterator<AnnotationNode> itr = invisibleAnnotations.iterator();
         while ((itr.hasNext())) {
             AnnotationNode an = itr.next();
-            if (an.desc.equals(HideRecord.NAME)) {
+            if (an.desc.equals("L" + Hide .class.getName().replace(".", "/") + ";")) {
                 itr.remove();
                 hide = true;
                 break;
@@ -46,17 +47,17 @@ public class HideTransformClassNode extends ClassNode {
 
     private void acceptField() {
         @SuppressWarnings("unchecked")
-        List<FieldNode> fields = (List<FieldNode>) this.fields;
+        List<FieldNode> fields = this.fields;
         fields.forEach(it -> {
             if (it.invisibleAnnotations == null) {
                 return;
             }
             boolean hide = false;
             @SuppressWarnings("unchecked")
-            Iterator<AnnotationNode> itr = (Iterator<AnnotationNode>) it.invisibleAnnotations.iterator();
+            Iterator<AnnotationNode> itr = it.invisibleAnnotations.iterator();
             while (itr.hasNext()) {
                 AnnotationNode an = itr.next();
-                if (an.desc.equals(HideRecord.NAME)) {
+                if (an.desc.equals("L" + Hide .class.getName().replace(".", "/") + ";")) {
                     itr.remove();
                     hide = true;
                     break;
@@ -70,17 +71,17 @@ public class HideTransformClassNode extends ClassNode {
 
     private void acceptMethod() {
         @SuppressWarnings("unchecked")
-        List<MethodNode> methods = (List<MethodNode>) this.methods;
+        List<MethodNode> methods = this.methods;
         methods.forEach(it -> {
             if (it.invisibleAnnotations == null) {
                 return;
             }
             boolean hide = false;
             @SuppressWarnings("unchecked")
-            Iterator<AnnotationNode> itr = (Iterator<AnnotationNode>) it.invisibleAnnotations.iterator();
+            Iterator<AnnotationNode> itr = it.invisibleAnnotations.iterator();
             while (itr.hasNext()) {
                 AnnotationNode an = itr.next();
-                if (an.desc.equals(HideRecord.NAME)) {
+                if (an.desc.equals("L" + Hide.class.getName().replace(".", "/") + ";")) {
                     itr.remove();
                     hide = true;
                     break;

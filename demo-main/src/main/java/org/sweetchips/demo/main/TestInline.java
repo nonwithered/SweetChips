@@ -3,7 +3,7 @@ package org.sweetchips.demo.main;
 public class TestInline extends AbstractTest {
 
     @Override
-    protected void onTest() {
+    protected final void onTest() {
         log("checkReturn", getClass().getName().equals(toString()));
     }
 

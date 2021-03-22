@@ -52,7 +52,7 @@ public abstract class AbstractPlugin<E extends AbstractExtension> implements Plu
         }
     }
 
-    protected WorkflowSettings getWorkflowSettings(String name) {
+    protected final WorkflowSettings getWorkflowSettings(String name) {
         return (WorkflowSettings) getProject().getExtensions().findByName(name);
     }
 }

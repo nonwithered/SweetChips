@@ -11,12 +11,12 @@ public class SweetChipsPlugin extends AbstractPlugin<SweetChipsExtension> {
     BaseExtension android;
 
     @Override
-    protected String getName() {
+    protected final String getName() {
         return "SweetChips";
     }
 
     @Override
-    protected void onApply(Project project) {
+    protected final void onApply(Project project) {
         initAndroid();
     }
 

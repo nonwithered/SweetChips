@@ -10,12 +10,12 @@ public final class TraceWeaverPlugin extends AbstractPlugin<TraceWeaverExtension
     static TraceWeaverPlugin INSTANCE;
 
     @Override
-    protected String getName() {
+    protected final String getName() {
         return Util.NAME;
     }
 
     @Override
-    protected void onApply(Project project) {
+    protected final void onApply(Project project) {
     }
 
     void onAttach(String name) {

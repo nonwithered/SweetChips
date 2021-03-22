@@ -10,28 +10,23 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
         addTransform 'D'
     }
     A {
-        prepare {
-            before {
-                it.Uncheckcast = new ConcurrentHashMap<>()
-            }
-//            first 'org.sweetchips.visitors.HidePrepareClassVisitor'
-            first 'org.sweetchips.visitors.UncheckcastPrepareClassVisitor'
-        }
         transform {
-//            first 'org.sweetchips.visitors.HideTransformClassVisitor'
             first adapt('org.sweetchips.visitors.HideTransformClassNode')
-            first 'org.sweetchips.visitors.UncheckcastTransformClassVisitor'
-            after {
-                it.remove('Uncheckcast')
-            }
+            first adapt('org.sweetchips.visitors.UncheckcastTransformClassNode')
         }
         prepare {
             before {
                 println 'before'
             }
+            after {
+                println 'after'
+            }
         }
         transform {
             before {
+                println 'before'
+            }
+            after {
                 println 'after'
             }
         }
@@ -56,10 +51,10 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
             notice 'org.sweetchips.demo.main.TestConst$CheckInternal#sNotice'
         }
     }
-    if (gradle.ext.existsBuildTarget('inline-tailor')) {
-        apply plugin: 'InlineTailor'
-        InlineTailor {
-            attach 'C'
-        }
-    }
+//    if (gradle.ext.existsBuildTarget('inline-tailor')) {
+//        apply plugin: 'InlineTailor'
+//        InlineTailor {
+//            attach 'C'
+//        }
+//    }
 }

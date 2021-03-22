@@ -9,10 +9,10 @@ import android.widget.Toast;
 
 import org.sweetchips.demo.main.Main;
 
-public class MainApplication extends Application {
+public final class MainApplication extends Application {
 
     @Override
-    protected void attachBaseContext(Context base) {
+    protected final void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         Main.setLog((tag, msg) -> Log.println(Log.ASSERT, tag, msg));
         Main.setTrace(20, 200, () ->

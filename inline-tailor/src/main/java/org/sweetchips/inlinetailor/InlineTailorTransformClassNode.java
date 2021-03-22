@@ -37,7 +37,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
         Manager manager = new Manager(this);
         manager.prepare();
         @SuppressWarnings("unchecked")
-        List<MethodNode> methods = (List<MethodNode>) this.methods;
+        List<MethodNode> methods = this.methods;
         methods.stream()
                 .filter(it -> !InlineTailorPlugin.INSTANCE.getExtension().isIgnored(name, it.name))
                 .forEach(manager::change);
@@ -66,7 +66,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
             return false;
         }
         @SuppressWarnings("unchecked")
-        Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) methodNode.instructions.iterator();
+        Iterator<AbstractInsnNode> itr = methodNode.instructions.iterator();
         int index = Integer.MAX_VALUE;
         while (itr.hasNext()) {
             AbstractInsnNode insnNode = itr.next();
@@ -122,7 +122,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
         int topIndex = allArgsType.length - 1;
         int index = 0;
         @SuppressWarnings("unchecked")
-        Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) methodNode.instructions.iterator();
+        Iterator<AbstractInsnNode> itr = methodNode.instructions.iterator();
         while (itr.hasNext()) {
             AbstractInsnNode insnNode = itr.next();
             switch (insnNode.getType()) {
@@ -204,7 +204,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
     private static int[] allLoadIndex(MethodNode methodNode) {
         List<Integer> indexList = new ArrayList<>();
         @SuppressWarnings("unchecked")
-        Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) methodNode.instructions.iterator();
+        Iterator<AbstractInsnNode> itr = methodNode.instructions.iterator();
         itr.forEachRemaining(it -> {
             if (it.getType() == AbstractInsnNode.VAR_INSN) {
                 indexList.add(((VarInsnNode) it).var);
@@ -280,7 +280,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
         Manager(ClassNode cn) {
             items = new HashMap<>();
             @SuppressWarnings("unchecked")
-            List<MethodNode> methodNodes = (List<MethodNode>) cn.methods;
+            List<MethodNode> methodNodes = cn.methods;
             methodNodes.stream().filter(it -> InlineTailorTransformClassNode.checkMethod(cn, it)).forEach(it ->
                     items.put(getItemId(cn.name, it.name, it.desc), new Item(it)));
         }
@@ -292,7 +292,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
 
         void change(MethodNode method) {
             @SuppressWarnings("unchecked")
-            Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) method.instructions.iterator();
+            Iterator<AbstractInsnNode> itr = method.instructions.iterator();
             while (itr.hasNext()) {
                 AbstractInsnNode insn = itr.next();
                 if (insn.getType() != AbstractInsnNode.METHOD_INSN) {
@@ -329,7 +329,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
         boolean changeOneItem(Item item) {
             boolean b = false;
             @SuppressWarnings("unchecked")
-            Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) item.insnList.iterator();
+            Iterator<AbstractInsnNode> itr = item.insnList.iterator();
             while (itr.hasNext()) {
                 AbstractInsnNode insn = itr.next();
                 if (insn.getType() != AbstractInsnNode.METHOD_INSN) {
@@ -362,7 +362,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
                     throw new IllegalStateException();
                 }
                 @SuppressWarnings("unchecked")
-                Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) insnList.iterator();
+                Iterator<AbstractInsnNode> itr = insnList.iterator();
                 while (itr.hasNext()) {
                     AbstractInsnNode insn = itr.next();
                     if (insn.getType() != AbstractInsnNode.METHOD_INSN) {
@@ -379,7 +379,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
                 InsnList clone = new InsnList();
                 Map<LabelNode, LabelNode> labels = new HashMap<>();
                 @SuppressWarnings("unchecked")
-                Iterator<AbstractInsnNode> itr = (Iterator<AbstractInsnNode>) insnList.iterator();
+                Iterator<AbstractInsnNode> itr = insnList.iterator();
                 itr.forEachRemaining(it -> {
                     if (it.getType() == AbstractInsnNode.LABEL) {
                         labels.put((LabelNode) it, new LabelNode());

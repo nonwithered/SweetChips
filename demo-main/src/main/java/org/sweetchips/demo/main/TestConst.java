@@ -7,7 +7,7 @@ final class TestConst extends AbstractTest {
     private static final String sConstant = "constant";
 
     @Override
-    protected void onTest() {
+    protected final void onTest() {
         checkConstant();
         checkIgnore();
         checkNotice();

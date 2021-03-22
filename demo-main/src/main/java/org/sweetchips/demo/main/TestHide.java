@@ -12,7 +12,7 @@ final class TestHide extends AbstractTest {
 
     @Hide
     @Override
-    protected void onTest() {
+    protected final void onTest() {
         log("type", check(null, null));
         log("field", check("mObj", null));
         log("method", check("onTest", new Class[]{}));

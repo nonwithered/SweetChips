@@ -17,7 +17,7 @@ final class TestTrace extends AbstractTest {
     private int mDepth;
 
     @Override
-    protected void onTest() {
+    protected final void onTest() {
         new Thread(this::run).start();
     }
 

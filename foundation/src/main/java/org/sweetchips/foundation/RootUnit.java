@@ -20,12 +20,12 @@ public final class RootUnit extends AbstractUnit {
     }
 
     @Override
-    protected void onPrepare() {
+    protected final void onPrepare() {
         mDelegate.onPrepare();
     }
 
     @Override
-    protected void onTransform() {
+    protected final void onTransform() {
         mDelegate.onTransform();
     }
 

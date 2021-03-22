@@ -20,14 +20,13 @@ public final class ZipUnit extends AbstractUnit {
                    List<Function<ZipEntry, Consumer<byte[]>>> prepare,
                    List<Function<ZipEntry, Function<byte[], byte[]>>> transform) {
         super(input, output);
-        mPrepare = prepare;
-        mTransform = transform;
+        mPrepare = prepare != null ? prepare : Collections.emptyList();
+        mTransform = transform != null ? transform : Collections.emptyList();
     }
 
     @Override
-    protected void onPrepare() {
-        if (mPrepare == null || mPrepare.size() == 0) {
-            super.onPrepare();
+    protected final void onPrepare() {
+        if (mPrepare.isEmpty()) {
             return;
         }
         ZipFile zipFile = AsyncUtil.call(() -> new ZipFile(getInput().toFile()));
@@ -50,18 +49,14 @@ public final class ZipUnit extends AbstractUnit {
     }
 
     @Override
-    protected void onTransform() {
-        if (mTransform == null || mTransform.size() == 0) {
-            super.onTransform();
-            return;
-        }
+    protected final void onTransform() {
         ZipFile zip = AsyncUtil.call(() -> new ZipFile(getInput().toFile()));
         if (zip.size() == 0) {
             return;
         }
         FilesUtil.ZipWriter writer = FilesUtil.newZipWriter(getOutput(), zip.size());
         AsyncUtil.with(Collections.list(zip.entries()).stream())
-                .forEachAsync(it -> {
+                .forEachAsync(writer, it -> {
                     Function<byte[], byte[]> function = null;
                     for (Function<ZipEntry, Function<byte[], byte[]>> filter : mTransform) {
                         if ((function = filter.apply(it)) != null) {

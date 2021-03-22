@@ -16,10 +16,12 @@ import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
@@ -104,10 +106,6 @@ public interface FilesUtil {
         });
     }
 
-    static Path copy(Path source, Path target) {
-        return null;
-    }
-
     static void writeTo(Path path, byte[] bytes) {
         if (bytes == null) {
             return;
@@ -154,9 +152,10 @@ public interface FilesUtil {
         return new ZipReader(zipFile);
     }
 
-    final class ZipWriter implements Runnable {
+    final class ZipWriter implements Runnable, Consumer<Throwable> {
         private final Path path;
         private final BlockingQueue<Map.Entry<ZipEntry, byte[]>> queue;
+        private final Collection<Throwable> except = new ConcurrentLinkedQueue<>();
         private int count;
         ZipWriter(Path path, int n) {
             this.path = path;
@@ -171,24 +170,32 @@ public interface FilesUtil {
                 ) {
                     while (count > 0) {
                         Map.Entry<ZipEntry, byte[]> pair = queue.take();
-                        byte[] bytes;
-                        if ((bytes = pair.getValue()) != null) {
-                            zipOutput.putNextEntry(pair.getKey());
-                            zipOutput.write(bytes);
-                            zipOutput.closeEntry();
+                        ZipEntry entry = pair.getKey();
+                        if (entry != null) {
+                            byte[] bytes = pair.getValue();
+                            if (bytes != null) {
+                                zipOutput.putNextEntry(pair.getKey());
+                                zipOutput.write(bytes);
+                                zipOutput.closeEntry();
+                            }
                         }
                         count--;
                     }
                     zipOutput.flush();
+                    if (!except.isEmpty()) {
+                        RuntimeException e = new RuntimeException();
+                        except.forEach(e::addSuppressed);
+                        throw e;
+                    }
                 }
             });
         }
         public void writeTo(String name, byte[] bytes) {
+            ZipEntry entry = new ZipEntry(name);
             if (bytes == null) {
-                queue.offer(ItemsUtil.newPairEntry(null, null));
+                queue.offer(ItemsUtil.newPairEntry(entry, null));
                 return;
             }
-            ZipEntry entry = new ZipEntry(name);
             CRC32 crc32 = new CRC32();
             crc32.update(bytes, 0, bytes.length);
             entry.setCrc(crc32.getValue());
@@ -200,6 +207,12 @@ public interface FilesUtil {
             entry.setLastModifiedTime(fileTime);
             entry.setCreationTime(fileTime);
             queue.offer(ItemsUtil.newPairEntry(entry, bytes));
+        }
+
+        @Override
+        public void accept(Throwable e) {
+            except.add(e);
+            queue.offer(ItemsUtil.newPairEntry(null, null));
         }
     }
 

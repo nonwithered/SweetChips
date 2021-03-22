@@ -17,9 +17,9 @@ public final class ConstSweeperTransformClassVisitor extends ClassVisitor {
         this(api, cv, null);
     }
 
-    @SuppressWarnings("unchecked")
     public ConstSweeperTransformClassVisitor(int api, ClassVisitor cv, Map<Object, Object> extra) {
         super(api, cv);
+        @SuppressWarnings("unchecked")
         Map<String, Object> map = extra == null
                 ? null : (Map<String, Object>) extra.get(Util.NAME);
         mExtra = map != null ? map : Util.sConstantValues;

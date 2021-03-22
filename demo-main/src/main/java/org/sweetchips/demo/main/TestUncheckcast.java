@@ -5,7 +5,7 @@ import org.sweetchips.annotations.Uncheckcast;
 final class TestUncheckcast extends AbstractTest {
 
     @Override
-    protected void onTest() {
+    protected final void onTest() {
         checkMethod();
         checkType();
     }

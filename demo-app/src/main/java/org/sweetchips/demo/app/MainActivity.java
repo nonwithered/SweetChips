@@ -6,10 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.sweetchips.demo.main.Main;
 
-public class MainActivity extends AppCompatActivity {
+public final class MainActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Main.main();
