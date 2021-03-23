@@ -1,7 +1,7 @@
 package org.sweetchips.foundation;
 
 import org.sweetchips.utility.AsyncUtil;
-import org.sweetchips.utility.BarrierWorker;
+import org.sweetchips.utility.StageWorker;
 import org.sweetchips.utility.ItemsUtil;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public final class Workflow {
                 },
                 this::transformAfter
         };
-        BarrierWorker worker = new BarrierWorker(list.size(), runnables);
+        StageWorker worker = new StageWorker(list.size(), runnables);
         Runnable command = () -> list.forEach(it -> new Transformer(worker, it).doWork());
         boolean b = executor instanceof ForkJoinPool;
         ForkJoinPool pool = b ? (ForkJoinPool) executor : new ForkJoinPool();

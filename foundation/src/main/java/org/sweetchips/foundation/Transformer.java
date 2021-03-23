@@ -1,16 +1,16 @@
 package org.sweetchips.foundation;
 
 import org.sweetchips.utility.AsyncUtil;
-import org.sweetchips.utility.BarrierWorker;
+import org.sweetchips.utility.StageWorker;
 
 import java.util.Collection;
 
 public final class Transformer {
 
-    private final BarrierWorker mBarrier;
+    private final StageWorker mBarrier;
     private final Collection<RootUnit> mUnits;
 
-    public Transformer(BarrierWorker barrier, Collection<RootUnit> units) {
+    public Transformer(StageWorker barrier, Collection<RootUnit> units) {
         mBarrier = barrier;
         mUnits = units;
     }
