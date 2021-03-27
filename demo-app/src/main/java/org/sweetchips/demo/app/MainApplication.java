@@ -18,5 +18,6 @@ public final class MainApplication extends Application {
         Main.setTrace(20, 200, () ->
                 new Handler(Looper.getMainLooper()).post(() ->
                         Toast.makeText(getApplicationContext(), "finally", Toast.LENGTH_SHORT).show()));
+        Main.setRecursive(10000);
     }
 }

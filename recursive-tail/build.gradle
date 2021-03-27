@@ -2,7 +2,6 @@ apply plugin: 'java-library'
 apply from: rootProject.file('scripts/publish.gradle')
 
 dependencies {
-    implementation project(':utility')
     implementation project(':common-jvm-api')
     implementation project(':plugin-android-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])

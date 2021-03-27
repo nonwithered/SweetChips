@@ -11,7 +11,7 @@ buildscript {
 
         def classpathIfExists = { name ->
             if (gradle.existsBuildTarget(name)) {
-                classpath "org.sweetchips:$name:snapshot"
+                classpath "org.sweetchips:$name:0.0.1-snapshot"
             }
         }
         classpathIfExists('plugin-android')
@@ -20,6 +20,7 @@ buildscript {
         classpathIfExists('const-sweeper')
         classpathIfExists('sourceline-eraser')
         classpathIfExists('inline-tailor')
+        classpathIfExists('recursive-tail')
     }
 }
 

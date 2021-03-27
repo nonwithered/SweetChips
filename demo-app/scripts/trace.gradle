@@ -31,7 +31,7 @@ def apkFile = projectDir.toPath()
         .resolve('outputs')
         .resolve('apk')
         .resolve('debug')
-        .resolve('demo-debug.apk')
+        .resolve('demo-app-debug.apk')
 
 
 task testDepends() {

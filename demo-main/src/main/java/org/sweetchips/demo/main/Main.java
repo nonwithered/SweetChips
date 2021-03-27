@@ -8,7 +8,8 @@ public class Main {
                 TestUncheckcast.class,
                 TestConst.class,
                 TestTrace.class,
-                TestInline.class
+                TestInline.class,
+                TestTail.class
         );
     }
 
@@ -18,6 +19,10 @@ public class Main {
 
     public static void setTrace(int depth, long time, Runnable callback) {
         TestTrace.init(depth, time, callback);
+    }
+
+    public static void setRecursive(long max) {
+        TestTail.init(max);
     }
 
     public interface ILog {

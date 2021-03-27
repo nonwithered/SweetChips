@@ -19,6 +19,7 @@ include ':trace-weaver'
 include ':const-sweeper'
 include ':sourceline-eraser'
 include ':inline-tailor'
+include ':recursive-tail'
 
 gradle.ext.existsBuildTarget = { it ->
     Files.exists(rootProject.projectDir.toPath()
@@ -26,7 +27,7 @@ gradle.ext.existsBuildTarget = { it ->
             .resolve('org')
             .resolve('sweetchips')
             .resolve("$it")
-            .resolve('snapshot')
-            .resolve("$it-snapshot.pom")
+            .resolve('0.0.1-snapshot')
+            .resolve("$it-0.0.1-snapshot.pom")
     )
 }

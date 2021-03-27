@@ -26,11 +26,11 @@ public final class InlineTailorTransformClassNode extends ClassNode {
 
     @Override
     public void accept(ClassVisitor cv) {
-        init();
+        onAccept();
         super.accept(cv);
     }
 
-    private void init() {
+    private void onAccept() {
         if (InlineTailorPlugin.INSTANCE.getExtension().isIgnored(name, null)) {
             return;
         }
@@ -44,10 +44,10 @@ public final class InlineTailorTransformClassNode extends ClassNode {
     }
 
     private static boolean checkMethod(ClassNode cn, MethodNode methodNode) {
-        if (InlineTailorPlugin.INSTANCE.getExtension().isIgnored(cn.name, methodNode.name)) {
+        if (cn.name.equals("<init>") || cn.name.equals("<clinit>")) {
             return false;
         }
-        if (cn.name.equals("<init>")) {
+        if (InlineTailorPlugin.INSTANCE.getExtension().isIgnored(cn.name, methodNode.name)) {
             return false;
         }
         if (!checkAccess(cn.access, Opcodes.ACC_FINAL)
