@@ -11,19 +11,19 @@ final class TestTail extends AbstractTest {
     @Override
     protected final void onTest() {
         new Thread(() -> {
-            log("checkTail", recursive(0));
+            log("checkTail", recursive(0) > sMax);
+            boolean ex = false;
             try {
-                log("checkOver", "begin");
                 over(0);
             } catch (StackOverflowError e) {
-                log("checkOver", e);
+                ex = true;
             } finally {
-                log("checkOver", "end");
+                log("checkOver", ex);
             }
         }).start();
     }
 
-    long recursive(long x) {
+    private long recursive(long x) {
         long y = x + 1;
         if (y > sMax) {
             return y;
@@ -31,12 +31,12 @@ final class TestTail extends AbstractTest {
         return recursive(y);
     }
 
-    long over(long x) {
+    private void over(long x) {
         long y = x + 1;
         if (y > sMax) {
-            return y;
+            return;
         }
-        return over(y);
+        over(y);
     }
 }
 

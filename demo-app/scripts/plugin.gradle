@@ -59,10 +59,10 @@ if (gradle.ext.existsBuildTarget('plugin-android')) {
             notice 'org.sweetchips.demo.main.TestTail#recursive'
         }
     }
-//    if (gradle.ext.existsBuildTarget('inline-tailor')) {
-//        apply plugin: 'InlineTailor'
-//        InlineTailor {
-//            attach 'C'
-//        }
-//    }
+    if (gradle.ext.existsBuildTarget('inline-tailor')) {
+        apply plugin: 'InlineTailor'
+        InlineTailor {
+            attach 'C'
+        }
+    }
 }

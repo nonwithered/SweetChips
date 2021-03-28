@@ -113,7 +113,7 @@ public final class RecursiveTailClassNode extends ClassNode {
 
     private static InsnList getInsns(MethodInsnNode methodInsnNode) {
         InsnList insnList = new InsnList();
-        int[] argsTypes = getArgsType(methodInsnNode.desc, methodInsnNode.getOpcode() == Opcodes.INVOKESTATIC);
+        int[] argsTypes = getArgsTypes(methodInsnNode.desc, methodInsnNode.getOpcode() == Opcodes.INVOKESTATIC);
         for (int i = argsTypes.length - 1; i >= 0; i--) {
             switch (argsTypes[i]) {
                 case Type.BOOLEAN:
@@ -139,7 +139,7 @@ public final class RecursiveTailClassNode extends ClassNode {
         return insnList;
     }
 
-    private static int[] getArgsType(String desc, boolean isStatic) {
+    private static int[] getArgsTypes(String desc, boolean isStatic) {
         Type[] types = Type.getType(desc).getArgumentTypes();
         int[] argsTypes = new int[types.length + (isStatic ? 0 : 1)];
         int index = 0;
