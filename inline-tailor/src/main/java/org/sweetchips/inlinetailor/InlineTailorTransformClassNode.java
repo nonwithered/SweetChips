@@ -39,23 +39,21 @@ public final class InlineTailorTransformClassNode extends ClassNode {
         if (InlineTailorPlugin.INSTANCE.getExtension().isIgnored(name, null)) {
             return;
         }
-        Manager manager = new Manager(this);
+        Manager manager = new Manager(name, checkAccess(access, Opcodes.ACC_FINAL));
+        ((List<MethodNode>) this.methods).stream().filter(it ->
+                !InlineTailorPlugin.INSTANCE.getExtension().isIgnored(name, it.name)
+                        && !it.name.equals("<init>") && !it.name.equals("<clinit>")
+        ).forEach(manager::register);
         manager.prepare();
         @SuppressWarnings("unchecked")
         List<MethodNode> methods = this.methods;
-        methods.stream()
-                .filter(it -> !InlineTailorPlugin.INSTANCE.getExtension().isIgnored(name, it.name))
-                .forEach(manager::change);
+        methods.stream().filter(it ->
+                !InlineTailorPlugin.INSTANCE.getExtension().isIgnored(name, it.name)
+        ).forEach(manager::change);
     }
 
-    private static boolean checkMethod(ClassNode cn, MethodNode mn) {
-        if (cn.name.equals("<init>") || cn.name.equals("<clinit>")) {
-            return false;
-        }
-        if (InlineTailorPlugin.INSTANCE.getExtension().isIgnored(cn.name, mn.name)) {
-            return false;
-        }
-        if (!checkAccess(cn.access, Opcodes.ACC_FINAL)
+    private static boolean checkMethod(MethodNode mn, boolean isFinal) {
+        if (!isFinal
                 && !checkAccess(mn.access, Opcodes.ACC_STATIC)
                 && !checkAccess(mn.access, Opcodes.ACC_FINAL)
                 && !checkAccess(mn.access, Opcodes.ACC_PRIVATE)
@@ -552,23 +550,28 @@ public final class InlineTailorTransformClassNode extends ClassNode {
 
     private static class Manager {
 
-        private final Map<String, Item> items;
+        private final Map<String, Item> mItems = new HashMap<>();
+        private final String mName;
+        private final boolean mFinal;
 
-        Manager(ClassNode cn) {
-            items = new HashMap<>();
-            @SuppressWarnings("unchecked")
-            List<MethodNode> methodNodes = cn.methods;
-            methodNodes.stream().filter(it -> checkMethod(cn, it)).forEach(it -> {
-                InsnList insnList = getInsnList(it);
-                if (insnList == null) {
-                    return;
-                }
-                items.put(getItemId(cn.name, it.name, it.desc), new Item(insnList, it.maxStack));
-            });
+        Manager(String name, boolean isFinal) {
+            mName = name;
+            mFinal = isFinal;
+        }
+
+        void register(MethodNode mn) {
+            if (!checkMethod(mn, mFinal)) {
+                return;
+            }
+            InsnList insnList = getInsnList(mn);
+            if (insnList == null) {
+                return;
+            }
+            mItems.put(getItemId(mName, mn.name, mn.desc), new Item(insnList, mn.maxStack));
         }
 
         void prepare() {
-            items.values().forEach(Item::prepare);
+            mItems.values().forEach(Item::prepare);
             changeAllItems();
         }
 
@@ -581,21 +584,21 @@ public final class InlineTailorTransformClassNode extends ClassNode {
                     continue;
                 }
                 MethodInsnNode methodInsn = (MethodInsnNode) insn;
-                Item item = items.get(getItemId(methodInsn.owner, methodInsn.name, methodInsn.desc));
+                Item item = mItems.get(getItemId(methodInsn.owner, methodInsn.name, methodInsn.desc));
                 if (item == null) {
                     continue;
                 }
                 mn.instructions.insertBefore(methodInsn, item.cloneInsn());
                 itr.remove();
-                mn.maxStack += item.stackSize;
+                mn.maxStack += item.mStackSize;
             }
         }
 
         void changeAllItems() {
             while (true) {
                 boolean update = false;
-                for (Item item : items.values()) {
-                    if (item.contains <= 0) {
+                for (Item item : mItems.values()) {
+                    if (item.mContains <= 0) {
                         continue;
                     }
                     if (changeOneItem(item)) {
@@ -611,15 +614,15 @@ public final class InlineTailorTransformClassNode extends ClassNode {
         boolean changeOneItem(Item item) {
             boolean b = false;
             @SuppressWarnings("unchecked")
-            Iterator<AbstractInsnNode> itr = item.insnList.iterator();
+            Iterator<AbstractInsnNode> itr = item.mInsnList.iterator();
             while (itr.hasNext()) {
                 AbstractInsnNode abstractInsnNode = itr.next();
                 if (abstractInsnNode.getType() != AbstractInsnNode.METHOD_INSN) {
                     continue;
                 }
                 MethodInsnNode methodInsnNode = (MethodInsnNode) abstractInsnNode;
-                Item another = items.get(getItemId(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc));
-                if (another == null || another.contains > 0) {
+                Item another = mItems.get(getItemId(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc));
+                if (another == null || another.mContains > 0) {
                     continue;
                 }
                 item.replaceInvoke(itr, methodInsnNode, another);
@@ -630,29 +633,29 @@ public final class InlineTailorTransformClassNode extends ClassNode {
 
         private class Item {
 
-            final InsnList insnList;
-            int stackSize;
-            int contains;
+            final InsnList mInsnList;
+            int mStackSize;
+            int mContains;
 
             Item(InsnList insnList, int stackSize) {
-                this.insnList = insnList;
-                this.stackSize = stackSize;
+                mInsnList = insnList;
+                mStackSize = stackSize;
             }
 
             void prepare() {
-                if (contains != 0) {
+                if (mContains != 0) {
                     throw new IllegalStateException();
                 }
                 @SuppressWarnings("unchecked")
-                Iterator<AbstractInsnNode> itr = insnList.iterator();
+                Iterator<AbstractInsnNode> itr = mInsnList.iterator();
                 while (itr.hasNext()) {
                     AbstractInsnNode insn = itr.next();
                     if (insn.getType() != AbstractInsnNode.METHOD_INSN) {
                         continue;
                     }
                     MethodInsnNode invokeInsn = (MethodInsnNode) insn;
-                    if (items.containsKey(getItemId(invokeInsn.owner, invokeInsn.name, invokeInsn.desc))) {
-                        contains++;
+                    if (mItems.containsKey(getItemId(invokeInsn.owner, invokeInsn.name, invokeInsn.desc))) {
+                        mContains++;
                     }
                 }
             }
@@ -661,7 +664,7 @@ public final class InlineTailorTransformClassNode extends ClassNode {
                 InsnList clone = new InsnList();
                 Map<LabelNode, LabelNode> labels = new HashMap<>();
                 @SuppressWarnings("unchecked")
-                Iterator<AbstractInsnNode> itr = insnList.iterator();
+                Iterator<AbstractInsnNode> itr = mInsnList.iterator();
                 itr.forEachRemaining(it -> {
                     if (it.getType() == AbstractInsnNode.LABEL) {
                         labels.put((LabelNode) it, new LabelNode());
@@ -672,10 +675,10 @@ public final class InlineTailorTransformClassNode extends ClassNode {
             }
 
             void replaceInvoke(Iterator<AbstractInsnNode> itr, MethodInsnNode methodInsn, Item item) {
-                insnList.insertBefore(methodInsn, item.cloneInsn());
+                mInsnList.insertBefore(methodInsn, item.cloneInsn());
                 itr.remove();
-                stackSize += item.stackSize;
-                contains--;
+                mStackSize += item.mStackSize;
+                mContains--;
             }
         }
     }
