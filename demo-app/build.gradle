@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion rootProject.ext.versions.compileSdkVersion
-    buildToolsVersion rootProject.ext.versions.buildToolsVersion
+    compileSdkVersion gradle.ext.versions.compileSdkVersion
+    buildToolsVersion gradle.ext.versions.buildToolsVersion
     defaultConfig {
         applicationId "org.sweetchips.demo.app"
-        minSdkVersion rootProject.ext.versions.minSdkVersion
-        targetSdkVersion rootProject.ext.versions.targetSdkVersion
+        minSdkVersion gradle.ext.versions.minSdkVersion
+        targetSdkVersion gradle.ext.versions.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -27,11 +27,11 @@ android {
 dependencies {
     implementation project(':demo-main')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "androidx.appcompat:appcompat:${rootProject.ext.versions.appcompat}"
-    implementation "androidx.constraintlayout:constraintlayout:${rootProject.ext.versions.constraintlayout}"
-    testImplementation "junit:junit:${rootProject.ext.versions.junit}"
-    androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.versions.testJunit}"
-    androidTestImplementation "androidx.test.espresso:espresso-core:${rootProject.ext.versions.espresso}"
+    implementation "androidx.appcompat:appcompat:${gradle.ext.versions.appcompat}"
+    implementation "androidx.constraintlayout:constraintlayout:${gradle.ext.versions.constraintlayout}"
+    testImplementation "junit:junit:${gradle.ext.versions.junit}"
+    androidTestImplementation "androidx.test.ext:junit:${gradle.ext.versions.testJunit}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${gradle.ext.versions.espresso}"
 }
 
 apply from: project.file('scripts/plugin.gradle')

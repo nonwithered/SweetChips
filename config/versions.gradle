@@ -1,6 +1,7 @@
 def versions = [:]
 gradle.ext.versions = versions
 
+versions.root = '0.0.1-snapshot'
 versions.asm = '5.1'
 versions.gradleApi = '3.1.4'
 versions.groovy = '2.4.15'

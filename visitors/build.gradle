@@ -5,6 +5,6 @@ dependencies {
     implementation project(':annotations')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
-    compileOnly "com.android.tools.build:gradle:$rootProject.ext.versions.gradleApi"
-    compileOnly "org.ow2.asm:asm:$rootProject.ext.versions.asm"
+    compileOnly "com.android.tools.build:gradle:$gradle.ext.versions.gradleApi"
+    compileOnly "org.ow2.asm:asm:$gradle.ext.versions.asm"
 }

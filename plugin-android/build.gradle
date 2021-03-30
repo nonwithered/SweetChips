@@ -8,6 +8,6 @@ dependencies {
     api project(':plugin-android-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
-    compileOnly "com.android.tools.build:gradle:${rootProject.ext.versions.gradleApi}"
-    compileOnly "org.codehaus.groovy:groovy-all:${rootProject.ext.versions.groovy}"
+    compileOnly "com.android.tools.build:gradle:${gradle.ext.versions.gradleApi}"
+    compileOnly "org.codehaus.groovy:groovy-all:${gradle.ext.versions.groovy}"
 }

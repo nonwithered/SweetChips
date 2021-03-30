@@ -37,10 +37,3 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
-ext {
-    buildUri = uri('./build')
-    versions = gradle.ext.versions
-    buildUri = gradle.ext.buildUri
-    groupId = 'org.sweetchips'
-}

@@ -6,6 +6,6 @@ dependencies {
     implementation project(':foundation-api')
     api project(':common-jvm-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly "org.ow2.asm:asm:${rootProject.ext.versions.asm}"
-    compileOnly "org.ow2.asm:asm-tree:${rootProject.ext.versions.asm}"
+    compileOnly "org.ow2.asm:asm:${gradle.ext.versions.asm}"
+    compileOnly "org.ow2.asm:asm-tree:${gradle.ext.versions.asm}"
 }

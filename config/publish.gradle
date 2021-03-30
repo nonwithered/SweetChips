@@ -4,13 +4,13 @@ publishing {
         maven(MavenPublication) {
             groupId "org.${rootProject.name.toLowerCase()}"
             artifactId project.name
-            version '0.0.1-snapshot'
+            version "${gradle.ext.versions.root}"
             from components.java
         }
     }
     repositories {
         maven {
-            url = rootProject.ext.buildUri
+            url = gradle.ext.buildUri
         }
     }
 }
