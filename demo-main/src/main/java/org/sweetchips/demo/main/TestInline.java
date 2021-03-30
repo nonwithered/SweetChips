@@ -1,6 +1,6 @@
 package org.sweetchips.demo.main;
 
-public class TestInline extends AbstractTest {
+final class TestInline extends AbstractTest {
 
     @Override
     protected final void onTest() {
@@ -16,11 +16,27 @@ public class TestInline extends AbstractTest {
         return toStringSynchronized();
     }
 
-    synchronized String toStringSynchronized() {
-        return toStringStatic(null, this);
+    private synchronized String toStringSynchronized() {
+        return toStringStatic(null, this, null);
     }
 
-    static String toStringStatic(Object obj, TestInline self) {
+    private static String toStringStatic(Object before, TestInline self, Object after) {
+        checkInline('0', "1", 2, 3.0f, "4", 5, 6L);
         return self.getClass().getName();
+    }
+
+    private static void checkInline(char v0, String v1, int v2, float v3, String v4, int v5, long v6) {
+        print(v4, v5, v5);
+        print(v1, v2, v2);
+    }
+
+    private static void print(String a, int b, double c) {
+        print(c);
+        print(b);
+        print(a);
+    }
+
+    private static void print(Object object) {
+        System.out.println(object);
     }
 }
