@@ -57,7 +57,7 @@ final class InlineTailorManager {
         }
     }
 
-    void changeAllItems() {
+    private void changeAllItems() {
         while (true) {
             boolean update = false;
             for (Item item : mItems.values()) {
@@ -74,7 +74,7 @@ final class InlineTailorManager {
         }
     }
 
-    boolean changeOneItem(Item item) {
+    private boolean changeOneItem(Item item) {
         boolean b = false;
         @SuppressWarnings("unchecked")
         Iterator<AbstractInsnNode> itr = item.mInsnList.iterator();
