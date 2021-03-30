@@ -1,5 +1,5 @@
 apply plugin: 'java-library'
-apply from: rootProject.file('scripts/publish.gradle')
+apply from: rootProject.file('config/publish.gradle')
 
 dependencies {
     implementation project(':common-jvm-api')

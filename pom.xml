@@ -12,8 +12,8 @@
     </modules>
     <distributionManagement>
         <repository>
-            <id>build</id>
-            <url>file://build</url>
+            <id>target</id>
+            <url>file://target</url>
         </repository>
     </distributionManagement>
 </project>

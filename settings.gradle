@@ -2,7 +2,7 @@ import java.nio.file.Files
 
 rootProject.name = 'SweetChips'
 gradle.ext.buildUri = uri('./build')
-apply from: 'scripts/librarys.gradle'
+apply from: 'config/versions.gradle'
 
 include ':annotations'
 include ':utility'
