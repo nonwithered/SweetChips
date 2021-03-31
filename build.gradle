@@ -9,9 +9,9 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$gradle.ext.versions.gradleApi"
 
-        def classpathIfExists = { name ->
-            if (gradle.existsBuildTarget(name)) {
-                classpath "org.sweetchips:$name:0.0.1-snapshot"
+        def classpathIfExists = {
+            if (gradle.existsBuildTarget(it)) {
+                classpath "$gradle.ext.groupId:$it:$gradle.ext.versions.root"
             }
         }
         classpathIfExists('plugin-android')

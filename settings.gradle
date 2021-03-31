@@ -1,7 +1,6 @@
-import java.nio.file.Files
-
 rootProject.name = 'SweetChips'
 gradle.ext.buildUri = uri('./build')
+gradle.ext.groupId = "org.${rootProject.name.toLowerCase()}"
 apply from: 'config/versions.gradle'
 
 include ':annotations'
@@ -22,12 +21,12 @@ include ':inline-tailor'
 include ':recursive-tail'
 
 gradle.ext.existsBuildTarget = { it ->
-    Files.exists(rootProject.projectDir.toPath()
+    rootProject.projectDir.toPath()
             .resolve('build')
             .resolve('org')
             .resolve('sweetchips')
             .resolve("$it")
             .resolve('0.0.1-snapshot')
             .resolve("$it-0.0.1-snapshot.pom")
-    )
+            .toFile().exists()
 }

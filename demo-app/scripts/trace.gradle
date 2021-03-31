@@ -1,6 +1,3 @@
-import java.nio.file.Files
-import java.nio.file.Paths
-
 def time = 10
 
 def atraceName = 'a.trace'
@@ -19,7 +16,7 @@ def atraceProject = traceDir
 def systraceProject = traceDir
         .resolve(systraceName)
 
-def sdkDir = Paths.get(System.getenv('ANDROID_HOME'))
+def sdkDir = new File(System.getenv('ANDROID_HOME')).toPath()
 
 def systracePython = sdkDir
         .resolve('platform-tools')
@@ -35,7 +32,7 @@ def apkFile = projectDir.toPath()
 
 
 task testDepends() {
-    if (!Files.exists(apkFile)) {
+    if (!apkFile.toFile().exists()) {
         dependsOn ':demo-app:installDebug'
     }
 }
@@ -54,8 +51,8 @@ task testAtrace(type: Exec, dependsOn: testDepends) {
 task testAtracePull(type: Exec, dependsOn: testAtrace) {
     commandLine 'adb', 'pull', atraceSdcard, "${traceDir.toAbsolutePath()}"
     doFirst {
-        if (!Files.exists(traceDir)) {
-            Files.createDirectories(traceDir)
+        if (!traceDir.toFile().exists()) {
+            traceDir.toFile().mkdirs()
         }
     }
     doFirst {

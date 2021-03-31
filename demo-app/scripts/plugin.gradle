@@ -1,5 +1,3 @@
-import java.util.concurrent.ConcurrentHashMap
-
 if (gradle.ext.existsBuildTarget('plugin-android')) {
     apply plugin: 'SweetChips'
     SweetChips {
