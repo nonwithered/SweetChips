@@ -28,7 +28,7 @@ gradle.ext.existsBuildTarget = { it ->
             .resolve('org')
             .resolve("${rootProject.name.toLowerCase()}")
             .resolve("$it")
-            .resolve('0.0.1-snapshot')
-            .resolve("$it-0.0.1-snapshot.pom")
+            .resolve("$gradle.ext.versions.root")
+            .resolve("$it-${gradle.ext.versions.root}.pom")
             .toFile().exists()
 }
