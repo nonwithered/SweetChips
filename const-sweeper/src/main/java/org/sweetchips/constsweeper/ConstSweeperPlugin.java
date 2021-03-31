@@ -1,8 +1,8 @@
 package org.sweetchips.constsweeper;
 
 import org.gradle.api.Project;
-import org.sweetchips.android.AbstractPlugin;
-import org.sweetchips.android.WorkflowSettings;
+import org.sweetchips.gradle.AbstractPlugin;
+import org.sweetchips.gradle.WorkflowSettings;
 import org.sweetchips.common.jvm.ClassVisitorFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,7 +12,7 @@ public final class ConstSweeperPlugin extends AbstractPlugin<ConstSweeperExtensi
     static ConstSweeperPlugin INSTANCE;
 
     @Override
-    protected final String getName() {
+    public final String getName() {
         return Util.NAME;
     }
 

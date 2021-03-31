@@ -1,6 +1,15 @@
 apply plugin: 'java-library'
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.sweetchips.demo.main.Main'
+    }
+}
+
 dependencies {
     implementation project(':annotations')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+apply from: project.file('scripts/plugin.gradle')
+apply from: project.file('scripts/run.gradle')

@@ -2,11 +2,7 @@ package org.sweetchips.demo.main;
 
 final class TestTail extends AbstractTest {
 
-    private static long sMax;
-
-    static void init(long max) {
-        sMax = max;
-    }
+    private static final long sMax = Short.MAX_VALUE;
 
     @Override
     protected final void onTest() {

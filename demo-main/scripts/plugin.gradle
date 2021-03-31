@@ -1,0 +1,60 @@
+if (gradle.ext.existsBuildTarget('plugin-gradle-java')) {
+    apply plugin: 'SweetChips-java'
+    SweetChips {
+        asmApi = 5 << 16
+        addTransform 'A', incremental: false
+        addTransform 'B', incremental: true
+        addTransform 'C'
+        addTransform 'D'
+    }
+    A {
+        transform {
+            first adapt('org.sweetchips.visitors.HideTransformClassNode')
+            first adapt('org.sweetchips.visitors.UncheckcastTransformClassNode')
+        }
+        prepare {
+            before {
+                println 'before'
+            }
+            after {
+                println 'after'
+            }
+        }
+        transform {
+            before {
+                println 'before'
+            }
+            after {
+                println 'after'
+            }
+        }
+    }
+    if (gradle.ext.existsBuildTarget('sourceline-eraser')) {
+        apply plugin: 'SourceLineEraser'
+        SourceLineEraser {
+            attach 'B'
+        }
+    }
+    if (gradle.ext.existsBuildTarget('const-sweeper')) {
+        apply plugin: 'ConstSweeper'
+        ConstSweeper {
+            attach 'B'
+            ignore 'org.sweetchips.demo.main.TestConst$CheckInternal'
+            notice 'org.sweetchips.demo.main.TestConst$CheckInternal#sNotice'
+        }
+    }
+    if (gradle.ext.existsBuildTarget('recursive-tail')) {
+        apply plugin: 'RecursiveTail'
+        RecursiveTail {
+            attach 'B'
+            ignore '*'
+            notice 'org.sweetchips.demo.main.TestTail#recursive'
+        }
+    }
+    if (gradle.ext.existsBuildTarget('inline-tailor')) {
+        apply plugin: 'InlineTailor'
+        InlineTailor {
+            attach 'C'
+        }
+    }
+}

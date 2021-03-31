@@ -1,5 +1,5 @@
-if (gradle.ext.existsBuildTarget('plugin-android')) {
-    apply plugin: 'SweetChips'
+if (gradle.ext.existsBuildTarget('plugin-gradle-android')) {
+    apply plugin: 'SweetChips-android'
     SweetChips {
         asmApi = 5 << 16
         addTransform 'A', incremental: false

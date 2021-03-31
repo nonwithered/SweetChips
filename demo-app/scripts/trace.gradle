@@ -6,8 +6,7 @@ def systraceName = 'a.html'
 
 def atraceSdcard = '/sdcard/a.trace'
 
-def traceDir = projectDir.toPath()
-        .resolve('build')
+def traceDir = project.buildDir.toPath()
         .resolve('trace')
 
 def atraceProject = traceDir
@@ -23,8 +22,7 @@ def systracePython = sdkDir
         .resolve('systrace')
         .resolve('systrace.py')
 
-def apkFile = projectDir.toPath()
-        .resolve('build')
+def apkFile = project.buildDir.toPath()
         .resolve('outputs')
         .resolve('apk')
         .resolve('debug')

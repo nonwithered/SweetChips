@@ -1,0 +1,12 @@
+apply plugin: 'java-library'
+apply from: rootProject.file('config/publish.gradle')
+
+dependencies {
+    implementation project(':utility')
+    implementation project(':foundation')
+    implementation project(':common-jvm')
+    implementation project(':plugin-gradle-common')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly gradleApi()
+    compileOnly "com.android.tools.build:gradle:$gradle.ext.versions.gradleApi"
+}

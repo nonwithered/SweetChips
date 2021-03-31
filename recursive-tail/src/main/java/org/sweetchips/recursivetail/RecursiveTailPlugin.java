@@ -1,8 +1,8 @@
 package org.sweetchips.recursivetail;
 
 import org.gradle.api.Project;
-import org.sweetchips.android.AbstractPlugin;
-import org.sweetchips.android.WorkflowSettings;
+import org.sweetchips.gradle.AbstractPlugin;
+import org.sweetchips.gradle.WorkflowSettings;
 import org.sweetchips.common.jvm.ClassVisitorFactory;
 
 public final class RecursiveTailPlugin extends AbstractPlugin<RecursiveTailExtension> {
@@ -10,7 +10,7 @@ public final class RecursiveTailPlugin extends AbstractPlugin<RecursiveTailExten
     static RecursiveTailPlugin INSTANCE;
 
     @Override
-    protected final String getName() {
+    public final String getName() {
         return Util.NAME;
     }
 

@@ -1,8 +1,8 @@
 package org.sweetchips.inlinetailor;
 
 import org.gradle.api.Project;
-import org.sweetchips.android.AbstractPlugin;
-import org.sweetchips.android.WorkflowSettings;
+import org.sweetchips.gradle.AbstractPlugin;
+import org.sweetchips.gradle.WorkflowSettings;
 import org.sweetchips.common.jvm.ClassVisitorFactory;
 
 public final class InlineTailorPlugin extends AbstractPlugin<InlineTailorExtension> {
@@ -14,7 +14,7 @@ public final class InlineTailorPlugin extends AbstractPlugin<InlineTailorExtensi
     }
 
     @Override
-    protected final String getName() {
+    public final String getName() {
         return Util.NAME;
     }
 

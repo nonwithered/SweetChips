@@ -14,7 +14,8 @@ buildscript {
                 classpath "$gradle.ext.groupId:$it:$gradle.ext.versions.root"
             }
         }
-        classpathIfExists('plugin-android')
+        classpathIfExists('plugin-gradle-android')
+        classpathIfExists('plugin-gradle-java')
         classpathIfExists('visitors')
         classpathIfExists('trace-weaver')
         classpathIfExists('const-sweeper')

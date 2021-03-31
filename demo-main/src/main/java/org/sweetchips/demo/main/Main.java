@@ -21,10 +21,6 @@ public class Main {
         TestTrace.init(depth, time, callback);
     }
 
-    public static void setRecursive(long max) {
-        TestTail.init(max);
-    }
-
     public interface ILog {
 
         void log(String tag, String msg);

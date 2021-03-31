@@ -1,6 +1,6 @@
 package org.sweetchips.traceweaver;
 
-import org.sweetchips.android.AbstractExtension;
+import org.sweetchips.gradle.AbstractExtension;
 import org.sweetchips.traceweaver.ext.ClassInfo;
 import org.sweetchips.traceweaver.ext.MethodInfo;
 

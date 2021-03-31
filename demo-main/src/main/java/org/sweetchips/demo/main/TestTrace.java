@@ -6,7 +6,7 @@ final class TestTrace extends AbstractTest {
 
     private static long sTime;
 
-    private static Runnable sCallback = () -> LogDelegate.log("(depth, time)", "(" + sDepth + ", " + sTime + ")");
+    private static Runnable sCallback = () -> {};
 
     static void init(int depth, long time, Runnable callback) {
         sDepth = depth;

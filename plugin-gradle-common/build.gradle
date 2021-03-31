@@ -1,0 +1,14 @@
+apply plugin: 'java-library'
+apply from: rootProject.file('config/publish.gradle')
+
+dependencies {
+    implementation project(':utility')
+    implementation project(':foundation')
+    implementation project(':common-jvm')
+    api project(':plugin-gradle-api')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly gradleApi()
+    compileOnly "org.ow2.asm:asm:$gradle.ext.versions.asm"
+    compileOnly "org.ow2.asm:asm-tree:$gradle.ext.versions.asm"
+    compileOnly "org.codehaus.groovy:groovy-all:$gradle.ext.versions.groovy"
+}
