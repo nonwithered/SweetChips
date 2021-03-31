@@ -2,24 +2,23 @@
     xmlns="http://maven.apache.org/POM/4.0.0"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>${rootProject-name}</groupId>
+    <groupId>org.sweetchips</groupId>
     <artifactId>root</artifactId>
-    <version>${versions-root}</version>
+    <version>0.0.1-snapshot</version>
     <packaging>pom</packaging>
     <modules>
         <module>demo-main</module>
-        <module>annotations</module>
     </modules>
+    <repositories>
+        <repository>
+            <id>build</id>
+            <url>file://build</url>
+        </repository>
+    </repositories>
     <distributionManagement>
         <repository>
             <id>target</id>
             <url>file://target</url>
         </repository>
     </distributionManagement>
-    <properties>
-        <rootProject-name>org.sweetchips</rootProject-name>
-        <versions-root>0.0.1-snapshot</versions-root>
-        <versions-maven-jar-plugin>3.2.0</versions-maven-jar-plugin>
-        <versions-maven-compiler-plugin>3.8.1</versions-maven-compiler-plugin>
-    </properties>
 </project>

@@ -3,19 +3,23 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>${rootProject-name}</groupId>
+        <groupId>org.sweetchips</groupId>
         <artifactId>root</artifactId>
-        <version>${versions-root}</version>
+        <version>0.0.1-snapshot</version>
     </parent>
-    <groupId>${rootProject-name}</groupId>
+    <groupId>org.sweetchips</groupId>
     <artifactId>demo-main</artifactId>
-    <version>${versions-root}</version>
+    <version>0.0.1-snapshot</version>
     <packaging>jar</packaging>
+    <properties>
+        <versions-maven-jar-plugin>3.2.0</versions-maven-jar-plugin>
+        <versions-maven-compiler-plugin>3.8.1</versions-maven-compiler-plugin>
+    </properties>
     <dependencies>
         <dependency>
-            <groupId>${rootProject-name}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>annotations</artifactId>
-            <version>${versions-root}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
