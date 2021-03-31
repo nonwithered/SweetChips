@@ -11,13 +11,13 @@ import com.android.build.api.transform.TransformInput;
 import com.android.build.api.transform.TransformInvocation;
 import com.android.build.gradle.internal.pipeline.TransformManager;
 
-import org.sweetchips.common.jvm.JvmContext;
-import org.sweetchips.foundation.AbstractUnit;
-import org.sweetchips.foundation.FileUnit;
-import org.sweetchips.foundation.PathUnit;
-import org.sweetchips.foundation.RootUnit;
-import org.sweetchips.foundation.Workflow;
-import org.sweetchips.foundation.ZipUnit;
+import org.sweetchips.platform.jvm.JvmContext;
+import org.sweetchips.platform.common.AbstractUnit;
+import org.sweetchips.platform.common.FileUnit;
+import org.sweetchips.platform.common.PathUnit;
+import org.sweetchips.platform.common.RootUnit;
+import org.sweetchips.platform.common.Workflow;
+import org.sweetchips.platform.common.ZipUnit;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;

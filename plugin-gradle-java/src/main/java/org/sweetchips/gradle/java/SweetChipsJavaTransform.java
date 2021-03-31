@@ -1,11 +1,11 @@
 package org.sweetchips.gradle.java;
 
-import org.sweetchips.common.jvm.JvmContext;
-import org.sweetchips.foundation.AbstractUnit;
-import org.sweetchips.foundation.FileUnit;
-import org.sweetchips.foundation.PathUnit;
-import org.sweetchips.foundation.RootUnit;
-import org.sweetchips.foundation.Workflow;
+import org.sweetchips.platform.jvm.JvmContext;
+import org.sweetchips.platform.common.AbstractUnit;
+import org.sweetchips.platform.common.FileUnit;
+import org.sweetchips.platform.common.PathUnit;
+import org.sweetchips.platform.common.RootUnit;
+import org.sweetchips.platform.common.Workflow;
 import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.FilesUtil;
 

@@ -1,7 +1,7 @@
 package org.sweetchips.gradle.java;
 
 import org.gradle.api.Task;
-import org.sweetchips.common.jvm.JvmContext;
+import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.utility.FilesUtil;
 import org.sweetchips.utility.ItemsUtil;
 

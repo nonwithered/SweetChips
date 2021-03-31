@@ -2,9 +2,8 @@ package org.sweetchips.gradle.common;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.tree.ClassNode;
-import org.sweetchips.common.jvm.ClassVisitorFactory;
-import org.sweetchips.common.jvm.JvmContext;
-import org.sweetchips.gradle.WorkflowSettings;
+import org.sweetchips.platform.jvm.ClassVisitorFactory;
+import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.utility.ClassesUtil;
 
 import java.lang.ref.WeakReference;

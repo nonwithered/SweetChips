@@ -1,7 +1,6 @@
 package org.sweetchips.gradle.common;
 
-import org.sweetchips.common.jvm.JvmContext;
-import org.sweetchips.gradle.AbstractExtension;
+import org.sweetchips.platform.jvm.JvmContext;
 
 import java.util.HashMap;
 import java.util.Map;

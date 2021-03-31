@@ -1,9 +1,9 @@
 package org.sweetchips.sourcelineeraser;
 
 import org.gradle.api.Project;
-import org.sweetchips.gradle.AbstractPlugin;
-import org.sweetchips.gradle.WorkflowSettings;
-import org.sweetchips.common.jvm.ClassVisitorFactory;
+import org.sweetchips.gradle.common.AbstractPlugin;
+import org.sweetchips.gradle.common.WorkflowSettings;
+import org.sweetchips.platform.jvm.ClassVisitorFactory;
 
 public class SourceLineEraserPlugin extends AbstractPlugin<SourceLineEraserExtension> {
 

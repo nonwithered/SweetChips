@@ -2,8 +2,8 @@ apply plugin: 'java-library'
 apply from: rootProject.file('config/publish.gradle')
 
 dependencies {
-    implementation project(':common-jvm-api')
-    implementation project(':plugin-gradle-api')
+    implementation project(':platform-jvm-api')
+    implementation project(':plugin-gradle-common-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
     compileOnly "org.ow2.asm:asm:$gradle.ext.versions.asm"

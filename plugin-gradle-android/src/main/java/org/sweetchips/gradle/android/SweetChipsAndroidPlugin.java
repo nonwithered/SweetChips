@@ -4,7 +4,7 @@ import com.android.build.gradle.BaseExtension;
 
 import org.gradle.api.Project;
 import org.gradle.api.ProjectConfigurationException;
-import org.sweetchips.common.jvm.JvmContext;
+import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.gradle.common.SweetChipsPlugin;
 
 public final class SweetChipsAndroidPlugin extends SweetChipsPlugin {

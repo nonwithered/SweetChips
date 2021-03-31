@@ -2,7 +2,6 @@ package org.sweetchips.traceweaver;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.sweetchips.common.jvm.ClassesSetting;
 import org.sweetchips.traceweaver.ext.ClassInfo;
 import org.sweetchips.traceweaver.ext.MethodInfo;
 

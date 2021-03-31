@@ -2,7 +2,7 @@ package org.sweetchips.gradle.java;
 
 import org.gradle.api.Project;
 import org.gradle.api.ProjectConfigurationException;
-import org.sweetchips.common.jvm.JvmContext;
+import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.gradle.common.SweetChipsPlugin;
 
 public final class SweetChipsJavaPlugin extends SweetChipsPlugin {

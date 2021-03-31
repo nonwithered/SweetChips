@@ -1,8 +1,7 @@
 package org.sweetchips.gradle.common;
 
 import org.gradle.api.Project;
-import org.sweetchips.common.jvm.JvmContext;
-import org.sweetchips.gradle.AbstractPlugin;
+import org.sweetchips.platform.jvm.JvmContext;
 
 public abstract class SweetChipsPlugin extends AbstractPlugin<SweetChipsExtension> {
 

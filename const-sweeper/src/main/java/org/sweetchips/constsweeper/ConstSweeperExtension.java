@@ -1,6 +1,6 @@
 package org.sweetchips.constsweeper;
 
-import org.sweetchips.gradle.AbstractExtension;
+import org.sweetchips.gradle.common.AbstractExtension;
 
 import java.util.Arrays;
 
