@@ -22,7 +22,7 @@ public class EraseSourceTransformClassVisitor extends ClassVisitor {
 
     @Override
     public void visitSource(String source, String debug) {
-        if (SourceLineEraserPlugin.INSTANCE.getExtension().isIgnored(mName, null)) {
+        if (!SourceLineEraserPlugin.INSTANCE.getExtension().isIgnored(mName, null)) {
             return;
         }
         super.visitSource(source, debug);

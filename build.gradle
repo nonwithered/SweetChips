@@ -8,20 +8,20 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$gradle.ext.versions.gradleApi"
-
-        def classpathIfExists = {
+        [
+                'plugin-gradle-android',
+                'plugin-gradle-java',
+                'visitors',
+                'trace-weaver',
+                'const-sweeper',
+                'sourceline-eraser',
+                'inline-tailor',
+                'recursive-tail',
+        ].forEach {
             if (gradle.existsBuildTarget(it)) {
                 classpath "$gradle.ext.groupId:$it:$gradle.ext.versions.root"
             }
         }
-        classpathIfExists('plugin-gradle-android')
-        classpathIfExists('plugin-gradle-java')
-        classpathIfExists('visitors')
-        classpathIfExists('trace-weaver')
-        classpathIfExists('const-sweeper')
-        classpathIfExists('sourceline-eraser')
-        classpathIfExists('inline-tailor')
-        classpathIfExists('recursive-tail')
     }
 }
 
