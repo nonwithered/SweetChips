@@ -26,7 +26,7 @@ gradle.ext.existsBuildTarget = { it ->
     rootProject.projectDir.toPath()
             .resolve('build')
             .resolve('org')
-            .resolve('sweetchips')
+            .resolve("${rootProject.name.toLowerCase()}")
             .resolve("$it")
             .resolve('0.0.1-snapshot')
             .resolve("$it-0.0.1-snapshot.pom")
