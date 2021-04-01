@@ -1,9 +1,8 @@
 package org.sweetchips.gradle.java;
 
 import org.gradle.api.Project;
-import org.gradle.api.ProjectConfigurationException;
-import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.gradle.common.SweetChipsGradlePlugin;
+import org.sweetchips.platform.jvm.JvmContext;
 
 public final class SweetChipsJavaGradlePlugin extends SweetChipsGradlePlugin {
 
@@ -17,11 +16,6 @@ public final class SweetChipsJavaGradlePlugin extends SweetChipsGradlePlugin {
     }
 
     private void init() {
-        if (getProject().getPlugins().findPlugin("java") == null
-                && getProject().getPlugins().findPlugin("java-library") == null) {
-            throw new ProjectConfigurationException("java plugin should be enabled first",
-                    new RuntimeException("java plugin should be enabled first"));
-        }
         mActions = new WorkflowActions(getProject().getTasks().getByName("classes"), getProject().getTasks().getByName("jar"));
     }
 

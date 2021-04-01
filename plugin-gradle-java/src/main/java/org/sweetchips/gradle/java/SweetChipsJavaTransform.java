@@ -9,10 +9,12 @@ import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 final class SweetChipsJavaTransform {
 
@@ -26,11 +28,15 @@ final class SweetChipsJavaTransform {
         mContextCallbacks = new JvmContextCallbacks(context);
     }
 
-    void transform(Path from, Path to) {
+    String getName() {
+        return mName;
+    }
+
+    void transform(Function<Path, Path> provider, Path path, Collection<Path> paths) {
         Workflow workflow = new Workflow();
         workflow.apply(mContext);
-        mContext.setBytesWriter((str, bytes) -> FilesUtil.writeTo(to.resolve(str + ".class"), bytes));
-        workflow.addWork(Collections.singletonList(new RootUnit(RootUnit.Status.ADDED, new PathUnit(from, to, mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath()))));
+        initBytesWriter(provider, path, paths);
+        paths.forEach(it -> workflow.addWork(Collections.singletonList(new RootUnit(RootUnit.Status.ADDED, new PathUnit(it, provider.apply(it), mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath())))));
         ExecutorService executorService = Executors.newWorkStealingPool();
         try {
             AsyncUtil.run(() -> workflow.start(executorService).get());
@@ -42,7 +48,13 @@ final class SweetChipsJavaTransform {
         }
     }
 
-    String getName() {
-        return mName;
+    private void initBytesWriter(Function<Path, Path> provider, Path path, Collection<Path> paths) {
+        for (Path it : paths) {
+            if (FilesUtil.isDirectory(it)) {
+                mContext.setBytesWriter((str, bytes) -> FilesUtil.writeTo(provider.apply(it).resolve(str + ".class"), bytes));
+                return;
+            }
+        }
+        mContext.setBytesWriter((str, bytes) -> FilesUtil.writeTo(provider.apply(path.resolve("java").resolve("main")).resolve(str + ".class"), bytes));
     }
 }

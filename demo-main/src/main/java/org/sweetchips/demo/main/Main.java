@@ -2,7 +2,7 @@ package org.sweetchips.demo.main;
 
 public class Main {
 
-    public static void main(String... args) {
+    public static void main(String[] args) {
         AbstractTest.testAll(
                 TestHide.class,
                 TestUncheckcast.class,
