@@ -76,14 +76,11 @@ final class SweetChipsAndroidTransform extends Transform {
         transformInvocation.getInputs().stream()
                 .map(this::forEachTransformInput)
                 .forEach(workflow::addWork);
-        ExecutorService executorService = Executors.newWorkStealingPool();
         try {
-            workflow.start(executorService).get();
+            workflow.start(Runnable::run).get();
         } catch (ExecutionException e) {
             throw new TransformException(e);
         } finally {
-            executorService.shutdown();
-            executorService.awaitTermination(60, TimeUnit.SECONDS);
             mTransformInvocation = null;
             mContextCallbacks = null;
             mContext = null;

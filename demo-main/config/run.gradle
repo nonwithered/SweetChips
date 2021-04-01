@@ -5,8 +5,7 @@ def mainJar = project.buildDir.toPath()
 task testDemo(type: Exec) {
     dependsOn ':demo-main:assemble'
     commandLine 'java',
-            '-jar', "${mainJar.toAbsolutePath()}",
-
+            '-jar', "${mainJar.toAbsolutePath()}"
     doFirst {
         standardOutput = System.out
         errorOutput = System.err

@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -37,12 +38,10 @@ final class SweetChipsJavaTransform {
         workflow.apply(mContext);
         initBytesWriter(provider, path, paths);
         paths.forEach(it -> workflow.addWork(Collections.singletonList(new RootUnit(RootUnit.Status.ADDED, new PathUnit(it, provider.apply(it), mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath())))));
-        ExecutorService executorService = Executors.newWorkStealingPool();
         try {
-            AsyncUtil.run(() -> workflow.start(executorService).get());
+            Future<?> future = workflow.start(Runnable::run);
+            AsyncUtil.run(future::get);
         } finally {
-            executorService.shutdown();
-            AsyncUtil.run(() -> executorService.awaitTermination(60, TimeUnit.SECONDS));
             mContextCallbacks = null;
             mContext = null;
         }

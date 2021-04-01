@@ -1,13 +1,14 @@
 package org.sweetchips.platform.common;
 
 import org.sweetchips.utility.AsyncUtil;
-import org.sweetchips.utility.StageWorker;
 import org.sweetchips.utility.ItemsUtil;
+import org.sweetchips.utility.StageWorker;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.Future;
@@ -47,23 +48,22 @@ public final class Workflow {
                 },
                 this::transformAfter
         };
+        ForkJoinPool pool = (ForkJoinPool) Executors.newWorkStealingPool();
         StageWorker worker = new StageWorker(list.size(), runnables);
-        Runnable command = () -> list.forEach(it -> new Transformer(worker, it).doWork());
-        boolean b = executor instanceof ForkJoinPool;
-        ForkJoinPool pool = b ? (ForkJoinPool) executor : new ForkJoinPool();
-        pool.execute(command);
-        ForkJoinTask<?> forkJoinTask = ForkJoinTask.adapt(() -> AsyncUtil.managedBlock(worker));
-        pool.execute(forkJoinTask);
-        return b ? forkJoinTask : AsyncUtil.call(() -> {
-            RunnableFuture<?> runnableFuture = new FutureTask<>(() -> {
-                forkJoinTask.join();
+        Runnable command = () -> AsyncUtil.with(list.stream()).forkJoin(it -> new Transformer(worker, it).doWork());
+        ForkJoinTask<?> workerFuture = pool.submit(worker);
+        ForkJoinTask<?> commandFuture = pool.submit(command);
+        RunnableFuture<?> future = new FutureTask<Void>(() -> AsyncUtil.run(() -> {
+            try {
+                commandFuture.get();
+                workerFuture.get();
+            } finally {
                 pool.shutdown();
                 pool.awaitTermination(60, TimeUnit.SECONDS);
-                return null;
-            });
-            executor.execute(runnableFuture);
-            return runnableFuture;
-        });
+            }
+        }), null);
+        executor.execute(future);
+        return future;
     }
 
     public void addPrepareBefore(Runnable runnable) {
