@@ -1,8 +1,10 @@
 apply plugin: 'java'
 
+project.ext.mainClass = 'org.sweetchips.demo.main.Main'
+
 jar {
     manifest {
-        attributes 'Main-Class': 'org.sweetchips.demo.main.Main'
+        attributes 'Main-Class': "$project.ext.mainClass"
     }
 }
 

@@ -1,11 +1,11 @@
-def mainJar = project.buildDir.toPath()
+def jarPath = project.buildDir.toPath()
         .resolve('libs')
         .resolve("${project.name}.jar")
 
 task testDemo(type: Exec) {
-    dependsOn ':demo-main:assemble'
+    dependsOn project(':demo-main').tasks.assemble
     commandLine 'java',
-            '-jar', "${mainJar.toAbsolutePath()}"
+            '-jar', "${jarPath.toAbsolutePath()}"
     doFirst {
         standardOutput = System.out
         errorOutput = System.err

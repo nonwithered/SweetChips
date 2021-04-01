@@ -1,0 +1,15 @@
+apply plugin: 'kotlin'
+
+project.ext.mainClass = 'org.sweetchips.demo.mainkt.MainKt'
+
+jar {
+    manifest {
+        attributes 'Main-Class': "$mainClass"
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+apply from: project.file('config/run.gradle')

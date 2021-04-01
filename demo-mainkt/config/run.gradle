@@ -1,0 +1,19 @@
+def cmdKotlin = System.getProperty('os.name')
+        .toLowerCase().contains('windows')
+        ? 'kotlin.bat'
+        : 'kotlin'
+
+def jarPath = project.buildDir.toPath()
+        .resolve('libs')
+        .resolve("${project.name}.jar")
+
+task testDemo(type: Exec) {
+    dependsOn project(':demo-mainkt').tasks.assemble
+    commandLine "$cmdKotlin",
+            '-cp', "${jarPath.toAbsolutePath()}",
+            "$project.ext.mainClass"
+    doFirst {
+        standardOutput = System.out
+        errorOutput = System.err
+    }
+}
