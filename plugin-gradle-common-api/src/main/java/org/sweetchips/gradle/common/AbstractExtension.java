@@ -5,7 +5,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public abstract class AbstractExtension {
+public abstract class AbstractExtension<P extends AbstractPlugin> {
+
+    private final P mPlugin;
+
+    public AbstractExtension(P plugin) {
+        mPlugin = plugin;
+    }
+
+    protected final P getPlugin() {
+        return mPlugin;
+    }
 
     protected static MemberScope newMemberScope() {
         return new MemberScope();

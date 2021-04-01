@@ -4,6 +4,13 @@ import org.objectweb.asm.ClassVisitor;
 
 public class EraseSourceTransformClassVisitor extends ClassVisitor {
 
+    private SourceLineEraserPlugin mPlugin;
+
+    EraseSourceTransformClassVisitor withPlugin(SourceLineEraserPlugin plugin) {
+        mPlugin = plugin;
+        return this;
+    }
+
     private String mName;
 
     public EraseSourceTransformClassVisitor(int i) {
@@ -22,7 +29,7 @@ public class EraseSourceTransformClassVisitor extends ClassVisitor {
 
     @Override
     public void visitSource(String source, String debug) {
-        if (!SourceLineEraserPlugin.INSTANCE.getExtension().isIgnored(mName, null)) {
+        if (!mPlugin.getExtension().isIgnored(mName, null)) {
             return;
         }
         super.visitSource(source, debug);

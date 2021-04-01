@@ -30,10 +30,6 @@ public abstract class AbstractPlugin<E extends AbstractExtension> implements Plu
         onApply(project);
     }
 
-    protected String getStaticFieldName() {
-        return "INSTANCE";
-    }
-
     private void init(Project project) {
         mProject = project;
         Type type = getClass();
@@ -43,14 +39,7 @@ public abstract class AbstractPlugin<E extends AbstractExtension> implements Plu
         ParameterizedType parameterizedType = (ParameterizedType) type;
         @SuppressWarnings("unchecked")
         Class<E> clazz = (Class<E>) parameterizedType.getActualTypeArguments()[0];
-        mExtension = project.getExtensions().create(getName(), clazz);
-        try {
-            Field field = getClass().getDeclaredField(getStaticFieldName());
-            field.setAccessible(true);
-            field.set(null, this);
-        } catch (Exception e) {
-            // ignore
-        }
+        mExtension = project.getExtensions().create(getName(), clazz, this);
     }
 
     protected final WorkflowSettings getWorkflowSettings(String name) {

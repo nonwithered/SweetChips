@@ -9,7 +9,9 @@ jar {
 }
 
 dependencies {
+    implementation project(':annotations')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
+apply from: project.file('config/plugin.gradle')
 apply from: project.file('config/run.gradle')

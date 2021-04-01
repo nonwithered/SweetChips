@@ -7,15 +7,14 @@ import org.sweetchips.traceweaver.ext.MethodInfo;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
-public class TraceWeaverExtension extends AbstractExtension {
+public class TraceWeaverExtension extends AbstractExtension<TraceWeaverPlugin> {
 
-    public TraceWeaverExtension() {
+    public TraceWeaverExtension(TraceWeaverPlugin plugin) {
+        super(plugin);
         ignore(Util.TRACE_WRAPPER_CLASS_NAME.replace("/", "."));
     }
 
     private int mDepth = Integer.MAX_VALUE;
-
-    private int mLength = 127;
 
     private MemberScope mIgnore = newMemberScope();
 
@@ -34,16 +33,12 @@ public class TraceWeaverExtension extends AbstractExtension {
         return mDepth;
     }
 
-    int getLength() {
-        return mLength;
-    }
-
     boolean isIgnored(String clazz, String member) {
         return mIgnore.contains(clazz, member) && !mNotice.contains(clazz, member);
     }
 
     public void attach(String name) {
-        TraceWeaverPlugin.INSTANCE.onAttach(name);
+        getPlugin().onAttach(name);
     }
 
     public void ignore(String... name) {
@@ -59,13 +54,6 @@ public class TraceWeaverExtension extends AbstractExtension {
             throw new IllegalArgumentException(String.valueOf(max));
         }
         mDepth = max;
-    }
-
-    public void mexLength(int max) {
-        if (max < 0) {
-            throw new IllegalArgumentException(String.valueOf(max));
-        }
-        mLength = max;
     }
 
     public void sectionName(BiFunction<ClassInfo, MethodInfo, String> sectionName) {

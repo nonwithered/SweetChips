@@ -20,6 +20,13 @@ import java.util.ListIterator;
 
 public final class RecursiveTailClassNode extends ClassNode {
 
+    private RecursiveTailPlugin mPlugin;
+
+    RecursiveTailClassNode withPlugin(RecursiveTailPlugin plugin) {
+        mPlugin = plugin;
+        return this;
+    }
+
     public RecursiveTailClassNode(int api) {
         super(api);
     }
@@ -42,7 +49,7 @@ public final class RecursiveTailClassNode extends ClassNode {
         if (mn.name.equals("<init>") || mn.name.equals("<clinit>")) {
             return false;
         }
-        if (RecursiveTailPlugin.INSTANCE.getExtension().isIgnored(name, mn.name)) {
+        if (mPlugin.getExtension().isIgnored(name, mn.name)) {
             return false;
         }
         if (!checkAccess(access, Opcodes.ACC_FINAL)

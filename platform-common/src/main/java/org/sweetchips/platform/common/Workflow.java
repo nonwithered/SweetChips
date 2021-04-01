@@ -58,7 +58,7 @@ public final class Workflow {
                 commandFuture.get();
                 workerFuture.get();
             } finally {
-                pool.shutdown();
+                pool.shutdownNow();
                 pool.awaitTermination(60, TimeUnit.SECONDS);
             }
         }), null);

@@ -7,13 +7,15 @@ import java.util.Map;
 
 public final class ConstSweeperPrepareClassVisitor extends ClassVisitor {
 
-    private final Map<String, Object> mExtra;
+    private ConstSweeperPlugin mPlugin;
 
-    private String mName;
-
-    public ConstSweeperPrepareClassVisitor(int api, ClassVisitor cv) {
-        this(api, cv, null);
+    ConstSweeperPrepareClassVisitor withPlugin(ConstSweeperPlugin plugin) {
+        mPlugin = plugin;
+        return this;
     }
+
+    private final Map<String, Object> mExtra;
+    private String mName;
 
     public ConstSweeperPrepareClassVisitor(int api, ClassVisitor cv, Map<Object, Object> extra) {
         super(api, cv);
@@ -31,7 +33,7 @@ public final class ConstSweeperPrepareClassVisitor extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        if (!ConstSweeperPlugin.INSTANCE.getExtension().isIgnored(mName, name)
+        if (!mPlugin.getExtension().isIgnored(mName, name)
                 && Util.unusedField(access, name, desc, signature, value)) {
             mExtra.put(Util.getKey(mName, name, desc), value);
         }

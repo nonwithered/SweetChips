@@ -7,7 +7,6 @@ public abstract class SweetChipsGradlePlugin extends AbstractPlugin<SweetChipsEx
 
     @Override
     protected void onApply(Project project) {
-        getExtension().setPlugin(this);
     }
 
     @Override

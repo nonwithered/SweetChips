@@ -1,0 +1,12 @@
+if (gradle.ext.existsBuildTarget('plugin-gradle-java')) {
+    apply plugin: 'SweetChips-java'
+    SweetChips {
+        asmApi = 5 << 16
+        addTransform 'mainktA', incremental: false
+    }
+    mainktA {
+        transform {
+            first adapt('org.sweetchips.visitors.UncheckcastTransformClassNode')
+        }
+    }
+}

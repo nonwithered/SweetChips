@@ -17,10 +17,6 @@ public class Main {
         LogDelegate.log(log);
     }
 
-    public static void setTrace(int depth, long time, Runnable callback) {
-        TestTrace.init(depth, time, callback);
-    }
-
     public interface ILog {
 
         void log(String tag, String msg);

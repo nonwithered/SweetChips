@@ -13,10 +13,6 @@ public final class ConstSweeperTransformClassVisitor extends ClassVisitor {
 
     private String mName;
 
-    public ConstSweeperTransformClassVisitor(int api, ClassVisitor cv) {
-        this(api, cv, null);
-    }
-
     public ConstSweeperTransformClassVisitor(int api, ClassVisitor cv, Map<Object, Object> extra) {
         super(api, cv);
         @SuppressWarnings("unchecked")

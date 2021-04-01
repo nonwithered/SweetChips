@@ -6,7 +6,6 @@ import org.sweetchips.platform.jvm.JvmContext;
 
 public final class SweetChipsJavaGradlePlugin extends SweetChipsGradlePlugin {
 
-    static SweetChipsJavaGradlePlugin INSTANCE;
     private WorkflowActions mActions;
 
     @Override
@@ -16,7 +15,7 @@ public final class SweetChipsJavaGradlePlugin extends SweetChipsGradlePlugin {
     }
 
     private void init() {
-        mActions = new WorkflowActions(getProject().getTasks().getByName("classes"), getProject().getTasks().getByName("jar"));
+        mActions = new WorkflowActions(this, getProject().getTasks().getByName("classes"), getProject().getTasks().getByName("jar"));
     }
 
     @Override

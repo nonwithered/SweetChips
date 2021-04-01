@@ -5,6 +5,13 @@ import org.objectweb.asm.Opcodes;
 
 final class TraceWeaverMethodVisitor extends MethodVisitor {
 
+    private TraceWeaverPlugin mPlugin;
+
+    TraceWeaverMethodVisitor withPlugin(TraceWeaverPlugin plugin) {
+        mPlugin = plugin;
+        return this;
+    }
+
     private final String mSectionName;
 
     TraceWeaverMethodVisitor(int api, MethodVisitor mv, String sectionName) {
@@ -46,9 +53,9 @@ final class TraceWeaverMethodVisitor extends MethodVisitor {
         super.visitMaxs(maxStack, maxLocals);
     }
 
-    private static String sectionName(String sectionName) {
+    private String sectionName(String sectionName) {
         if (sectionName != null) {
-            int maxLength = TraceWeaverPlugin.INSTANCE.getExtension().getLength();
+            int maxLength = 127;
             int length = sectionName.length();
             if (length > maxLength) {
                 sectionName = sectionName.substring(length - maxLength);
@@ -69,7 +76,7 @@ final class TraceWeaverMethodVisitor extends MethodVisitor {
     }
 
     private void visitDepth() {
-        int maxDepth = TraceWeaverPlugin.INSTANCE.getExtension().getDepth();
+        int maxDepth = mPlugin.getExtension().getDepth();
         switch (maxDepth) {
             case 0:
                 visitInsn(Opcodes.ICONST_0);

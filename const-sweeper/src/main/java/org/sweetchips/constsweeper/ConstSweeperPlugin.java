@@ -9,8 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class ConstSweeperPlugin extends AbstractPlugin<ConstSweeperExtension> {
 
-    static ConstSweeperPlugin INSTANCE;
-
     @Override
     public final String getName() {
         return Util.NAME;
@@ -20,10 +18,10 @@ public final class ConstSweeperPlugin extends AbstractPlugin<ConstSweeperExtensi
     protected final void onApply(Project project) {
     }
 
-    protected final void onAttach(String name) {
+    final void onAttach(String name) {
         WorkflowSettings settings = getWorkflowSettings(name);
         settings.addPrepareBefore(it -> it.put(Util.NAME, new ConcurrentHashMap<String, Object>()));
-        settings.addPrepareFirst(ClassVisitorFactory.fromClassVisitor(ConstSweeperPrepareClassVisitor.class));
+        settings.addPrepareFirst((api, cv, ext) -> new ConstSweeperPrepareClassVisitor(api, cv, ext).withPlugin(this));
         settings.addTransformFirst(ClassVisitorFactory.fromClassVisitor(ConstSweeperTransformClassVisitor.class));
         settings.addTransformAfter(it -> it.remove(Util.NAME));
     }

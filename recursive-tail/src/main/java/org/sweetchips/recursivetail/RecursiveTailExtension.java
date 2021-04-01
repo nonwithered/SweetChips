@@ -4,18 +4,21 @@ import org.sweetchips.gradle.common.AbstractExtension;
 
 import java.util.Arrays;
 
-public class RecursiveTailExtension extends AbstractExtension {
+public class RecursiveTailExtension extends AbstractExtension<RecursiveTailPlugin> {
 
-    private MemberScope mIgnore = newMemberScope();
+    private final MemberScope mIgnore = newMemberScope();
+    private final MemberScope mNotice = newMemberScope();
 
-    private MemberScope mNotice = newMemberScope();
+    public RecursiveTailExtension(RecursiveTailPlugin plugin) {
+        super(plugin);
+    }
 
     boolean isIgnored(String clazz, String member) {
         return mIgnore.contains(clazz, member) && !mNotice.contains(clazz, member);
     }
 
     public void attach(String name) {
-        RecursiveTailPlugin.INSTANCE.onAttach(name);
+        getPlugin().onAttach(name);
     }
 
     public void ignore(String... name) {

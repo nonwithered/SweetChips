@@ -6,6 +6,13 @@ import org.objectweb.asm.MethodVisitor;
 
 public class EraseLineNumberTransformVisitor extends ClassVisitor {
 
+    private SourceLineEraserPlugin mPlugin;
+
+    EraseLineNumberTransformVisitor withPlugin(SourceLineEraserPlugin plugin) {
+        mPlugin = plugin;
+        return this;
+    }
+
     private String mName;
 
     public EraseLineNumberTransformVisitor(int api, ClassVisitor cv) {
@@ -23,7 +30,7 @@ public class EraseLineNumberTransformVisitor extends ClassVisitor {
         return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
             @Override
             public void visitLineNumber(int line, Label start) {
-                if (!SourceLineEraserPlugin.INSTANCE.getExtension().isIgnored(mName, name)) {
+                if (!mPlugin.getExtension().isIgnored(mName, name)) {
                     return;
                 }
                 super.visitLineNumber(line, start);

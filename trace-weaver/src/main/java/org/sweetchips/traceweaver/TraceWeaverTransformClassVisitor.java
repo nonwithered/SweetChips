@@ -7,6 +7,13 @@ import org.sweetchips.traceweaver.ext.MethodInfo;
 
 public final class TraceWeaverTransformClassVisitor extends ClassVisitor {
 
+    private TraceWeaverPlugin mPlugin;
+
+    TraceWeaverTransformClassVisitor withPlugin(TraceWeaverPlugin plugin) {
+        mPlugin = plugin;
+        return this;
+    }
+
     private ClassInfo mClassInfo;
 
     public TraceWeaverTransformClassVisitor(int api, ClassVisitor cv) {
@@ -25,11 +32,11 @@ public final class TraceWeaverTransformClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        if (TraceWeaverPlugin.INSTANCE.getExtension().isIgnored(mClassInfo.name, name)) {
+        if (mPlugin.getExtension().isIgnored(mClassInfo.name, name)) {
             return super.visitMethod(access, name, desc, signature, exceptions);
         }
         MethodInfo methodInfo = new MethodInfo(access, name, desc, signature, exceptions);
-        String sectionName = TraceWeaverPlugin.INSTANCE.getExtension().getSectionName(mClassInfo, methodInfo);
-        return new TraceWeaverMethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions), sectionName);
+        String sectionName = mPlugin.getExtension().getSectionName(mClassInfo, methodInfo);
+        return new TraceWeaverMethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions), sectionName).withPlugin(mPlugin);
     }
 }

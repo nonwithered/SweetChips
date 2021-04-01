@@ -3,15 +3,9 @@ package org.sweetchips.inlinetailor;
 import org.gradle.api.Project;
 import org.sweetchips.gradle.common.AbstractPlugin;
 import org.sweetchips.gradle.common.WorkflowSettings;
-import org.sweetchips.platform.jvm.ClassVisitorFactory;
+import org.sweetchips.platform.jvm.ClassNodeAdaptor;
 
 public final class InlineTailorPlugin extends AbstractPlugin<InlineTailorExtension> {
-
-    static InlineTailorPlugin INSTANCE;
-
-    public InlineTailorPlugin() {
-        super();
-    }
 
     @Override
     public final String getName() {
@@ -22,8 +16,8 @@ public final class InlineTailorPlugin extends AbstractPlugin<InlineTailorExtensi
     protected final void onApply(Project project) {
     }
 
-    protected final void onAttach(String name) {
+    final void onAttach(String name) {
         WorkflowSettings settings = getWorkflowSettings(name);
-        settings.addTransformLast(ClassVisitorFactory.fromClassNode(InlineTailorTransformClassNode.class));
+        settings.addTransformLast((api, cv, ext) -> new ClassNodeAdaptor(api, cv, new InlineTailorTransformClassNode(api).withPlugin(this)));
     }
 }

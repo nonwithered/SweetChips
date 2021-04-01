@@ -2,17 +2,9 @@ package org.sweetchips.demo.main;
 
 final class TestTrace extends AbstractTest {
 
-    private static int sDepth;
+    private static final int sDepth = 20;
 
-    private static long sTime;
-
-    private static Runnable sCallback = () -> {};
-
-    static void init(int depth, long time, Runnable callback) {
-        sDepth = depth;
-        sTime = time;
-        sCallback = callback;
-    }
+    private static final long sTime = 200;
 
     private int mDepth;
 
@@ -23,7 +15,6 @@ final class TestTrace extends AbstractTest {
 
     void run() {
         if (++mDepth > sDepth) {
-            sCallback.run();
             return;
         }
         try {

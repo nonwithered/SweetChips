@@ -2,12 +2,12 @@ if (gradle.ext.existsBuildTarget('plugin-gradle-java')) {
     apply plugin: 'SweetChips-java'
     SweetChips {
         asmApi = 5 << 16
-        addTransform 'A', incremental: false
-        addTransform 'B', incremental: true
-        addTransform 'C'
-        addTransform 'D'
+        addTransform 'mainA', incremental: false
+        addTransform 'mainB', incremental: true
+        addTransform 'mainC'
+        addTransform 'mainD'
     }
-    A {
+    mainA {
         transform {
             first adapt('org.sweetchips.visitors.HideTransformClassNode')
             first adapt('org.sweetchips.visitors.UncheckcastTransformClassNode')
@@ -32,13 +32,13 @@ if (gradle.ext.existsBuildTarget('plugin-gradle-java')) {
     if (gradle.ext.existsBuildTarget('sourceline-eraser')) {
         apply plugin: 'SourceLineEraser'
         SourceLineEraser {
-            attach 'B'
+            attach 'mainB'
         }
     }
     if (gradle.ext.existsBuildTarget('const-sweeper')) {
         apply plugin: 'ConstSweeper'
         ConstSweeper {
-            attach 'B'
+            attach 'mainB'
             ignore 'org.sweetchips.demo.main.TestConst$CheckInternal'
             notice 'org.sweetchips.demo.main.TestConst$CheckInternal#sNotice'
         }
@@ -46,7 +46,7 @@ if (gradle.ext.existsBuildTarget('plugin-gradle-java')) {
     if (gradle.ext.existsBuildTarget('recursive-tail')) {
         apply plugin: 'RecursiveTail'
         RecursiveTail {
-            attach 'B'
+            attach 'mainB'
             ignore '*'
             notice 'org.sweetchips.demo.main.TestTail#recursive'
         }
@@ -54,7 +54,7 @@ if (gradle.ext.existsBuildTarget('plugin-gradle-java')) {
     if (gradle.ext.existsBuildTarget('inline-tailor')) {
         apply plugin: 'InlineTailor'
         InlineTailor {
-            attach 'C'
+            attach 'mainC'
         }
     }
 }
