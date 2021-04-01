@@ -21,7 +21,7 @@ final class WorkflowActions {
         mBefore = before;
         mSweep = SweetChipsJavaGradlePlugin.INSTANCE.getProject().task(getName(SweetChipsJavaGradlePlugin.INSTANCE.getName()));
         after.dependsOn(mSweep);
-        mSweep.dependsOn(mBefore);
+        mSweep.dependsOn(before);
         mSweep.doLast(this::sweep);
     }
 

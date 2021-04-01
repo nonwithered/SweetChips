@@ -11,13 +11,14 @@ import com.android.build.api.transform.TransformInput;
 import com.android.build.api.transform.TransformInvocation;
 import com.android.build.gradle.internal.pipeline.TransformManager;
 
-import org.sweetchips.platform.jvm.JvmContext;
+import org.sweetchips.gradle.common.JvmContextCallbacks;
 import org.sweetchips.platform.common.AbstractUnit;
 import org.sweetchips.platform.common.FileUnit;
 import org.sweetchips.platform.common.PathUnit;
 import org.sweetchips.platform.common.RootUnit;
 import org.sweetchips.platform.common.Workflow;
 import org.sweetchips.platform.common.ZipUnit;
+import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
@@ -31,21 +32,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
 
-public class SweetChipsAndroidTransform extends Transform {
+final class SweetChipsAndroidTransform extends Transform {
 
     private final String mName;
     private TransformInvocation mTransformInvocation;
     private JvmContext mContext;
+    private JvmContextCallbacks mContextCallbacks;
 
     SweetChipsAndroidTransform(String name, JvmContext context) {
         mName = name;
         mContext = context;
+        mContextCallbacks = new JvmContextCallbacks(context);
     }
 
     @Override
@@ -86,6 +85,7 @@ public class SweetChipsAndroidTransform extends Transform {
             executorService.shutdown();
             executorService.awaitTermination(60, TimeUnit.SECONDS);
             mTransformInvocation = null;
+            mContextCallbacks = null;
             mContext = null;
         }
     }
@@ -119,7 +119,7 @@ public class SweetChipsAndroidTransform extends Transform {
         RootUnit.Status status = statusOf(jarInput.getStatus());
         Path input = jarInput.getFile().toPath();
         Path output = provideJarInput(jarInput);
-        ZipUnit zipUnit = new ZipUnit(input, output, mPrepareZip, mTransformZip);
+        ZipUnit zipUnit = new ZipUnit(input, output, mContextCallbacks.onPrepareZip(), mContextCallbacks.onTransformZip());
         return new RootUnit(status, zipUnit);
     }
 
@@ -128,7 +128,7 @@ public class SweetChipsAndroidTransform extends Transform {
             RootUnit.Status status = RootUnit.Status.ADDED;
             Path input = directoryInput.getFile().toPath();
             Path output = provideDirectoryInput(directoryInput);
-            PathUnit pathUnit = new PathUnit(input, output, mPreparePath, mTransformPath);
+            PathUnit pathUnit = new PathUnit(input, output, mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath());
             return Collections.singleton(new RootUnit(status, pathUnit));
         }
         Path from = directoryInput.getFile().toPath();
@@ -147,9 +147,9 @@ public class SweetChipsAndroidTransform extends Transform {
         RootUnit.Status status = statusOf(stat);
         AbstractUnit abstractUnit;
         if (FilesUtil.isDirectory(input)) {
-            abstractUnit = new PathUnit(input, output, mPreparePath, mTransformPath);
+            abstractUnit = new PathUnit(input, output, mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath());
         } else {
-            abstractUnit = new FileUnit(input, output, mPrepareFile, mTransformFile);
+            abstractUnit = new FileUnit(input, output, mContextCallbacks.onPrepareFile(), mContextCallbacks.onTransformFile());
         }
         return new RootUnit(status, abstractUnit);
     }
@@ -189,59 +189,5 @@ public class SweetChipsAndroidTransform extends Transform {
 
     private Path provideChangedFileInput(Path changedFile, Path from, Path to) {
         return to.resolve(from.relativize(changedFile));
-    }
-
-    private final List<Function<ZipEntry, Consumer<byte[]>>> mPrepareZip;
-
-    {
-        List<Function<ZipEntry, Consumer<byte[]>>> list = new ArrayList<>();
-        mPrepareZip = list;
-        list.add(it -> !it.getName().endsWith(".class") ? b -> {} : null);
-        list.add(it -> mContext.onPrepare());
-    }
-
-    private final List<Function<ZipEntry, Function<byte[], byte[]>>> mTransformZip;
-
-    {
-        List<Function<ZipEntry, Function<byte[], byte[]>>> list = new ArrayList<>();
-        mTransformZip = list;
-        list.add(it -> !it.getName().endsWith(".class") ? b -> b : null);
-        list.add(it -> mContext.onTransform());
-    }
-
-    private final List<Function<Path, Consumer<byte[]>>> mPrepareFile;
-
-    {
-        List<Function<Path, Consumer<byte[]>>> list = new ArrayList<>();
-        mPrepareFile = list;
-        list.add(it -> !FilesUtil.getFileName(it).endsWith(".class") ? b -> {} : null);
-        list.add(it -> mContext.onPrepare());
-    }
-
-    private final List<Function<Path, Function<byte[], byte[]>>> mTransformFile;
-
-    {
-        List<Function<Path, Function<byte[], byte[]>>> list = new ArrayList<>();
-        mTransformFile = list;
-        list.add(it -> !FilesUtil.getFileName(it).endsWith(".class") ? b -> b : null);
-        list.add(it -> mContext.onTransform());
-    }
-
-    private final List<BiFunction<Path, Path, AbstractUnit>> mPreparePath;
-
-    {
-        List<BiFunction<Path, Path, AbstractUnit>> list = new ArrayList<>();
-        mPreparePath = list;
-        list.add((f, t) -> FilesUtil.isDirectory(f) ? new PathUnit(f, t, mPreparePath, null) : null);
-        list.add((f, t) -> new FileUnit(f, t, mPrepareFile, null));
-    }
-
-    private final List<BiFunction<Path, Path, AbstractUnit>> mTransformPath;
-
-    {
-        List<BiFunction<Path, Path, AbstractUnit>> list = new ArrayList<>();
-        mTransformPath = list;
-        list.add((f, t) -> FilesUtil.isDirectory(f) ? new PathUnit(f, t, null, mTransformPath) : null);
-        list.add((f, t) -> new FileUnit(f, t, null, mTransformFile));
     }
 }
