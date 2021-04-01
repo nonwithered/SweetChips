@@ -19,7 +19,7 @@ final class WorkflowActions {
 
     WorkflowActions(Task before, Task after) {
         mBefore = before;
-        mSweep = SweetChipsJavaPlugin.INSTANCE.getProject().task(getName(SweetChipsJavaPlugin.INSTANCE.getName()));
+        mSweep = SweetChipsJavaGradlePlugin.INSTANCE.getProject().task(getName(SweetChipsJavaGradlePlugin.INSTANCE.getName()));
         after.dependsOn(mSweep);
         mSweep.dependsOn(mBefore);
         mSweep.doLast(this::sweep);
@@ -27,7 +27,7 @@ final class WorkflowActions {
 
     void registerTransform(SweetChipsJavaTransform transform) {
         String name = transform.getName();
-        Task task = SweetChipsJavaPlugin.INSTANCE.getProject().task(getName(name));
+        Task task = SweetChipsJavaGradlePlugin.INSTANCE.getProject().task(getName(name));
         mSweep.dependsOn(task);
         task.dependsOn(mActions.isEmpty() ? mBefore : mLast);
         mLast = task;
@@ -68,8 +68,8 @@ final class WorkflowActions {
         Path to = getMainDir();
         FilesUtil.deleteIfExists(to);
         JvmContext context = new JvmContext();
-        context.setApi(SweetChipsJavaPlugin.INSTANCE.getExtension().getAsmApi());
-        new SweetChipsJavaTransform(SweetChipsJavaPlugin.INSTANCE.getName(), context).transform(from, to);
+        context.setApi(SweetChipsJavaGradlePlugin.INSTANCE.getExtension().getAsmApi());
+        new SweetChipsJavaTransform(SweetChipsJavaGradlePlugin.INSTANCE.getName(), context).transform(from, to);
     }
 
     private static String getName(String name) {
@@ -83,12 +83,12 @@ final class WorkflowActions {
     private static final String PREFIX = "transformClassesWith";
 
     private static Path getMainDir() {
-        return SweetChipsJavaPlugin.INSTANCE.getProject().getBuildDir().toPath()
+        return SweetChipsJavaGradlePlugin.INSTANCE.getProject().getBuildDir().toPath()
                 .resolve("classes").resolve("java").resolve("main");
     }
 
     private static Path getTempDir(String name) {
-        return SweetChipsJavaPlugin.INSTANCE.getProject().getBuildDir().toPath()
+        return SweetChipsJavaGradlePlugin.INSTANCE.getProject().getBuildDir().toPath()
                 .resolve("intermediates").resolve("transforms").resolve(name);
     }
 }

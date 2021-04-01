@@ -11,5 +11,5 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-apply from: project.file('scripts/plugin.gradle')
-apply from: project.file('scripts/run.gradle')
+apply from: project.file('config/plugin.gradle')
+apply from: project.file('config/run.gradle')

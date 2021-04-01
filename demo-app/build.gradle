@@ -34,5 +34,5 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$gradle.ext.versions.espresso"
 }
 
-apply from: project.file('scripts/plugin.gradle')
-apply from: project.file('scripts/trace.gradle')
+apply from: project.file('config/plugin.gradle')
+apply from: project.file('config/trace.gradle')

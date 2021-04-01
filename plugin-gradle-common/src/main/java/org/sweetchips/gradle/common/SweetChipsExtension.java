@@ -7,9 +7,9 @@ import java.util.Map;
 
 public class SweetChipsExtension extends AbstractExtension {
 
-    private SweetChipsPlugin mPlugin;
+    private SweetChipsGradlePlugin mPlugin;
 
-    void setPlugin(SweetChipsPlugin plugin) {
+    void setPlugin(SweetChipsGradlePlugin plugin) {
         mPlugin = plugin;
     }
 
