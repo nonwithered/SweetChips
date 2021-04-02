@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.concurrent.Future;
 
-public class SweetchipsJavaMavenTransform {
+final class SweetchipsJavaMavenTransform {
 
     private JvmContext mContext;
     private JvmContextCallbacks mContextCallbacks;

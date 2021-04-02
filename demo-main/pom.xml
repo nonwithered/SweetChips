@@ -12,18 +12,40 @@
     <version>0.0.1-snapshot</version>
     <packaging>jar</packaging>
     <properties>
-        <versions-maven-jar-plugin>3.2.0</versions-maven-jar-plugin>
         <versions-maven-compiler-plugin>3.8.1</versions-maven-compiler-plugin>
+        <versions-maven-jar-plugin>3.2.0</versions-maven-jar-plugin>
     </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>annotations</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>const-sweeper-mvn</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>constsweeper</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <ignores>
+                        <ignore>org.sweetchips.demo.main.TestConst$CheckInternal</ignore>
+                    </ignores>
+                    <notices>
+                        <notice>org.sweetchips.demo.main.TestConst$CheckInternal#sNotice</notice>
+                    </notices>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

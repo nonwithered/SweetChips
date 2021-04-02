@@ -1,23 +1,35 @@
 package org.sweetchips.maven.common;
 
-import org.apache.maven.plugin.AbstractMojo;
+import org.sweetchips.platform.jvm.BasePluginContext;
 import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.platform.jvm.WorkflowSettings;
+import org.sweetchips.utility.ClassesUtil;
 import org.sweetchips.utility.FilesUtil;
 
+import java.io.File;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 
-public abstract class AbstractMavenPlugin extends AbstractMojo {
+public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
+
+    private final C mContext;
+    private final String mName;
+    private final int mAsmApi;
+    private final File mBasedir;
 
     protected abstract void onExecute(WorkflowSettings settings);
+    public final C getContext() {
+        return mContext;
+    }
 
-    protected abstract int getAsmApi();
+    public AbstractMavenPlugin(String name, int asmApi, File basedir) {
+        mContext = newContext();
+        mName = name;
+        mAsmApi = asmApi;
+        mBasedir = basedir;
+    }
 
-    protected abstract String getName();
-
-    protected abstract Path getBasedir();
-
-    @Override
     public final void execute() {
         JvmContext context = new JvmContext();
         onExecute(new WorkflowProfile(context));
@@ -25,11 +37,22 @@ public abstract class AbstractMavenPlugin extends AbstractMojo {
         sweep();
     }
 
+    private C newContext() {
+        Type type = getClass();
+        while (!(type instanceof ParameterizedType)) {
+            type = ((Class<?>) type).getGenericSuperclass();
+        }
+        ParameterizedType parameterizedType = (ParameterizedType) type;
+        @SuppressWarnings("unchecked")
+        Class<C> clazz = (Class<C>) parameterizedType.getActualTypeArguments()[0];
+        return ClassesUtil.newInstance(ClassesUtil.getDeclaredConstructor(clazz));
+    }
+
     private void work(JvmContext context) {
         Path from = getClassDir();
         Path to = getTempDir();
         FilesUtil.deleteIfExists(to);
-        context.setApi(getAsmApi());
+        context.setApi(mAsmApi);
         new SweetchipsJavaMavenTransform(context).transform(from, to);
     }
 
@@ -38,21 +61,21 @@ public abstract class AbstractMavenPlugin extends AbstractMojo {
         Path to = getClassDir();
         FilesUtil.deleteIfExists(to);
         JvmContext context = new JvmContext();
-        context.setApi(getAsmApi());
+        context.setApi(mAsmApi);
         new SweetchipsJavaMavenTransform(context).transform(from, to);
     }
 
     private Path getClassDir() {
-        return getBasedir()
+        return mBasedir.toPath()
                 .resolve("target")
                 .resolve("classes");
     }
 
     private Path getTempDir() {
-        return getBasedir()
+        return mBasedir.toPath()
                 .resolve("target")
                 .resolve("intermediates")
                 .resolve("transforms")
-                .resolve(getName());
+                .resolve(mName);
     }
 }

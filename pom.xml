@@ -6,8 +6,15 @@
     <artifactId>root</artifactId>
     <version>0.0.1-snapshot</version>
     <packaging>pom</packaging>
+    <properties>
+        <versions-maven-compiler-plugin>3.8.1</versions-maven-compiler-plugin>
+        <versions-maven-jar-plugin>3.2.0</versions-maven-jar-plugin>
+        <maven-plugin-api>3.6.0</maven-plugin-api>
+        <asm>5.1</asm>
+    </properties>
     <modules>
         <module>demo-main</module>
+        <module>const-sweeper-mvn</module>
     </modules>
     <repositories>
         <repository>
