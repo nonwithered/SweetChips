@@ -5,10 +5,10 @@ import org.objectweb.asm.Opcodes;
 
 final class TraceWeaverMethodVisitor extends MethodVisitor {
 
-    private TraceWeaverGradlePlugin mPlugin;
+    private TraceWeaverContext mContext;
 
-    TraceWeaverMethodVisitor withPlugin(TraceWeaverGradlePlugin plugin) {
-        mPlugin = plugin;
+    TraceWeaverMethodVisitor withContext(TraceWeaverContext context) {
+        mContext = context;
         return this;
     }
 
@@ -67,16 +67,16 @@ final class TraceWeaverMethodVisitor extends MethodVisitor {
     private void beginSection() {
         visitDepth();
         visitLdcInsn(mSectionName);
-        visitMethodInsn(Opcodes.INVOKESTATIC, Util.TRACE_WRAPPER_CLASS_NAME, Util.BEGIN_METHOD_NAME, Util.BEGIN_METHOD_DESC, false);
+        visitMethodInsn(Opcodes.INVOKESTATIC, TraceWeaverContext.TRACE_WRAPPER_CLASS_NAME, TraceWeaverContext.BEGIN_METHOD_NAME, TraceWeaverContext.BEGIN_METHOD_DESC, false);
     }
 
     private void endSection() {
         visitDepth();
-        visitMethodInsn(Opcodes.INVOKESTATIC, Util.TRACE_WRAPPER_CLASS_NAME, Util.END_METHOD_NAME, Util.END_METHOD_DESC, false);
+        visitMethodInsn(Opcodes.INVOKESTATIC, TraceWeaverContext.TRACE_WRAPPER_CLASS_NAME, TraceWeaverContext.END_METHOD_NAME, TraceWeaverContext.END_METHOD_DESC, false);
     }
 
     private void visitDepth() {
-        int maxDepth = mPlugin.getExtension().getDepth();
+        int maxDepth = mContext.getDepth();
         switch (maxDepth) {
             case 0:
                 visitInsn(Opcodes.ICONST_0);

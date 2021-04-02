@@ -26,11 +26,11 @@ final class InlineTailorManager {
         if (!checkMethod(mn, mFinal)) {
             return;
         }
-        InsnList insnList = Util.getInsnList(mn);
+        InsnList insnList = InlineTailorContext.getInsnList(mn);
         if (insnList == null) {
             return;
         }
-        mItems.put(Util.getItemId(mName, mn.name, mn.desc), new Item(insnList, mn.maxStack));
+        mItems.put(InlineTailorContext.getItemId(mName, mn.name, mn.desc), new Item(insnList, mn.maxStack));
     }
 
     void prepare() {
@@ -47,7 +47,7 @@ final class InlineTailorManager {
                 continue;
             }
             MethodInsnNode methodInsnNode = (MethodInsnNode) insn;
-            Item item = mItems.get(Util.getItemId(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc));
+            Item item = mItems.get(InlineTailorContext.getItemId(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc));
             if (item == null) {
                 continue;
             }
@@ -84,7 +84,7 @@ final class InlineTailorManager {
                 continue;
             }
             MethodInsnNode methodInsnNode = (MethodInsnNode) abstractInsnNode;
-            Item another = mItems.get(Util.getItemId(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc));
+            Item another = mItems.get(InlineTailorContext.getItemId(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc));
             if (another == null || another.mContains > 0) {
                 continue;
             }
@@ -96,18 +96,18 @@ final class InlineTailorManager {
 
     private static boolean checkMethod(MethodNode mn, boolean isFinal) {
         if (!isFinal
-                && !Util.checkAccess(mn.access, Opcodes.ACC_STATIC)
-                && !Util.checkAccess(mn.access, Opcodes.ACC_FINAL)
-                && !Util.checkAccess(mn.access, Opcodes.ACC_PRIVATE)
-                || Util.checkAccess(mn.access, Opcodes.ACC_ABSTRACT)
-                || Util.checkAccess(mn.access, Opcodes.ACC_NATIVE)
-                || Util.checkAccess(mn.access, Opcodes.ACC_SYNCHRONIZED)) {
+                && !InlineTailorContext.checkAccess(mn.access, Opcodes.ACC_STATIC)
+                && !InlineTailorContext.checkAccess(mn.access, Opcodes.ACC_FINAL)
+                && !InlineTailorContext.checkAccess(mn.access, Opcodes.ACC_PRIVATE)
+                || InlineTailorContext.checkAccess(mn.access, Opcodes.ACC_ABSTRACT)
+                || InlineTailorContext.checkAccess(mn.access, Opcodes.ACC_NATIVE)
+                || InlineTailorContext.checkAccess(mn.access, Opcodes.ACC_SYNCHRONIZED)) {
             return false;
         }
         if (mn.tryCatchBlocks.size() > 0) {
             return false;
         }
-        if (mn.localVariables.size() != Util.getArgsTypes(mn.desc, Util.checkAccess(mn.access, Opcodes.ACC_STATIC)).length) {
+        if (mn.localVariables.size() != InlineTailorContext.getArgsTypes(mn.desc, InlineTailorContext.checkAccess(mn.access, Opcodes.ACC_STATIC)).length) {
             return false;
         }
         return true;
@@ -136,7 +136,7 @@ final class InlineTailorManager {
                     continue;
                 }
                 MethodInsnNode invokeInsn = (MethodInsnNode) insn;
-                if (mItems.containsKey(Util.getItemId(invokeInsn.owner, invokeInsn.name, invokeInsn.desc))) {
+                if (mItems.containsKey(InlineTailorContext.getItemId(invokeInsn.owner, invokeInsn.name, invokeInsn.desc))) {
                     mContains++;
                 }
             }

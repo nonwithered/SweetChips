@@ -15,14 +15,19 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.sweetchips.platform.jvm.BasePluginContext;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-interface Util {
+public final class InlineTailorContext extends BasePluginContext {
 
-    String NAME = "InlineTailor";
+    public static final String NAME = "InlineTailor";
+
+    static String getItemId(String cls, String mtd, String desc) {
+        return cls + "->" + mtd + desc;
+    }
 
     static int[] getArgsTypes(String desc, boolean isStatic) {
         Type[] types = Type.getType(desc).getArgumentTypes();
@@ -39,10 +44,6 @@ interface Util {
 
     static boolean checkAccess(int access, int flag) {
         return (access & flag) != 0;
-    }
-
-    static String getItemId(String cls, String mtd, String desc) {
-        return cls + "->" + mtd + desc;
     }
 
     static InsnList getInsnList(MethodNode mn) {

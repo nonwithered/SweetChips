@@ -1,18 +1,18 @@
 package org.sweetchips.gradle.common;
 
+import org.objectweb.asm.Opcodes;
 import org.sweetchips.platform.jvm.JvmContext;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import jdk.internal.org.objectweb.asm.Opcodes;
-
-public class SweetChipsExtension extends AbstractExtension<SweetChipsGradlePlugin> {
+public class SweetChipsExtension {
 
     private int mAsmApi = Opcodes.ASM5;
+    private final SweetChipsGradlePlugin mPlugin;
 
     public SweetChipsExtension(SweetChipsGradlePlugin plugin) {
-        super(plugin);
+        mPlugin = plugin;
     }
 
     public void setAsmApi(int asmApi) {
@@ -29,7 +29,7 @@ public class SweetChipsExtension extends AbstractExtension<SweetChipsGradlePlugi
             mExtension = extension;
         }
         public void sameExtra(String name) {
-            WorkflowExtension extension = (WorkflowExtension) getPlugin().getProject().getExtensions().getByName(name);
+            WorkflowExtension extension = (WorkflowExtension) mPlugin.getProject().getExtensions().getByName(name);
             mExtension.setExtra(extension.getExtra());
         }
         public void setIncremental(boolean b) {
@@ -43,8 +43,8 @@ public class SweetChipsExtension extends AbstractExtension<SweetChipsGradlePlugi
     public TransformExt addTransform(String name) {
         JvmContext context = new JvmContext();
         context.setApi(mAsmApi);
-        getPlugin().registerTransform(name, context);
-        WorkflowExtension extension = getPlugin().getProject().getExtensions().create(name, WorkflowExtension.class, context);
+        mPlugin.registerTransform(name, context);
+        WorkflowExtension extension = mPlugin.getProject().getExtensions().create(name, WorkflowExtension.class, context);
         return new TransformExt(extension);
     }
 

@@ -4,7 +4,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
@@ -13,19 +12,13 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.sweetchips.platform.jvm.BaseClassNode;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public final class RecursiveTailClassNode extends ClassNode {
-
-    private RecursiveTailGradlePlugin mPlugin;
-
-    RecursiveTailClassNode withPlugin(RecursiveTailGradlePlugin plugin) {
-        mPlugin = plugin;
-        return this;
-    }
+public final class RecursiveTailClassNode extends BaseClassNode<RecursiveTailContext> {
 
     public RecursiveTailClassNode(int api) {
         super(api);
@@ -49,7 +42,7 @@ public final class RecursiveTailClassNode extends ClassNode {
         if (mn.name.equals("<init>") || mn.name.equals("<clinit>")) {
             return false;
         }
-        if (mPlugin.getExtension().isIgnored(name, mn.name)) {
+        if (getContext().isIgnored(name, mn.name)) {
             return false;
         }
         if (!checkAccess(access, Opcodes.ACC_FINAL)

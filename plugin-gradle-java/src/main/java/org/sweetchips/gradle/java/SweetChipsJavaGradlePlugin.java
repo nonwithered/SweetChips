@@ -9,12 +9,7 @@ public final class SweetChipsJavaGradlePlugin extends SweetChipsGradlePlugin {
     private WorkflowActions mActions;
 
     @Override
-    protected final void onApply(Project project) {
-        super.onApply(project);
-        init();
-    }
-
-    private void init() {
+    protected final void onApply() {
         mActions = new WorkflowActions(this, getProject().getTasks().getByName("classes"), getProject().getTasks().getByName("jar"));
     }
 

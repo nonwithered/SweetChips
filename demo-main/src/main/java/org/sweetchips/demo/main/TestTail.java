@@ -7,7 +7,11 @@ final class TestTail extends AbstractTest {
     @Override
     protected final void onTest() {
         new Thread(() -> {
-            log("checkTail", recursive(0) > sMax);
+            try {
+                log("checkTail", recursive(0) > sMax);
+            } catch (StackOverflowError e) {
+                log("checkTail", false);
+            }
             boolean ex = false;
             try {
                 over(0);

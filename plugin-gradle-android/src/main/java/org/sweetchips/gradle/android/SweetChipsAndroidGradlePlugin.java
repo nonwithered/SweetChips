@@ -12,12 +12,7 @@ public final class SweetChipsAndroidGradlePlugin extends SweetChipsGradlePlugin 
     private BaseExtension mAndroid;
 
     @Override
-    protected final void onApply(Project project) {
-        super.onApply(project);
-        init();
-    }
-
-    private void init() {
+    protected final void onApply() {
         if (getProject().getPlugins().findPlugin("com.android.application") == null
                 && getProject().getPlugins().findPlugin("com.android.library") == null) {
             throw new ProjectConfigurationException("android plugin should be enabled first",

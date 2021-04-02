@@ -1,21 +1,11 @@
 package org.sweetchips.sourcelineeraser;
 
 import org.objectweb.asm.ClassVisitor;
+import org.sweetchips.platform.jvm.BaseClassVisitor;
 
-public class EraseSourceTransformClassVisitor extends ClassVisitor {
-
-    private SourceLineEraserGradlePlugin mPlugin;
-
-    EraseSourceTransformClassVisitor withPlugin(SourceLineEraserGradlePlugin plugin) {
-        mPlugin = plugin;
-        return this;
-    }
+public final class EraseSourceTransformClassVisitor extends BaseClassVisitor<SourceLineEraserContext> {
 
     private String mName;
-
-    public EraseSourceTransformClassVisitor(int i) {
-        this(i, null);
-    }
 
     public EraseSourceTransformClassVisitor(int i, ClassVisitor cv) {
         super(i, cv);
@@ -29,7 +19,7 @@ public class EraseSourceTransformClassVisitor extends ClassVisitor {
 
     @Override
     public void visitSource(String source, String debug) {
-        if (!mPlugin.getExtension().isIgnored(mName, null)) {
+        if (!getContext().isIgnored(mName, null)) {
             return;
         }
         super.visitSource(source, debug);

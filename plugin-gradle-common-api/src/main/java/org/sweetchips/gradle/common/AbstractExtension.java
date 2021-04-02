@@ -1,60 +1,53 @@
 package org.sweetchips.gradle.common;
 
+import org.sweetchips.platform.jvm.BasePluginContext;
+import org.sweetchips.utility.ClassesUtil;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Consumer;
 
-public abstract class AbstractExtension<P extends AbstractGradlePlugin> {
+public abstract class AbstractExtension<C extends BasePluginContext> {
 
-    private final P mPlugin;
+    private Consumer<String> mAttach;
+    private final C mContext;
 
-    public AbstractExtension(P plugin) {
-        mPlugin = plugin;
+    public AbstractExtension() {
+        Type type = getClass();
+        while (!(type instanceof ParameterizedType)) {
+            type = ((Class<?>) type).getGenericSuperclass();
+        }
+        ParameterizedType parameterizedType = (ParameterizedType) type;
+        @SuppressWarnings("unchecked")
+        Class<C> clazz = (Class<C>) parameterizedType.getActualTypeArguments()[0];
+        mContext = ClassesUtil.newInstance(ClassesUtil.getDeclaredConstructor(clazz));
     }
 
-    protected final P getPlugin() {
-        return mPlugin;
+    public final C getContext() {
+        return mContext;
     }
 
-    protected static MemberScope newMemberScope() {
-        return new MemberScope();
+    public final void attach(String name) {
+        if (mAttach == null) {
+            throw new IllegalStateException();
+        }
+        mAttach.accept(name);
+        mAttach = null;
     }
 
-    protected final static class MemberScope {
+    public final void ignore(String... name) {
+        Arrays.asList(name).forEach(getContext()::addIgnore);
+    }
 
-        private final Set<String> mScope;
+    public final void notice(String... name) {
+        Arrays.asList(name).forEach(getContext()::addNotice);
+    }
 
-        MemberScope() {
-            mScope = new HashSet<>();
-        }
-
-        public void add(String member) {
-            mScope.add(member);
-        }
-
-        public boolean contains(String clazz, String member) {
-            if (mScope.size() <= 0) {
-                return false;
-            }
-            if (mScope.contains("*")) {
-                return true;
-            }
-            StringBuilder builder = new StringBuilder();
-            Iterator<String> itr = Arrays.asList(clazz.split("/")).iterator();
-            String str = itr.next();
-            while (itr.hasNext()) {
-                builder.append(str);
-                builder.append('.');
-                builder.append('*');
-                if (mScope.contains(builder.toString())) {
-                    return true;
-                }
-                builder.setLength(builder.length() - 1);
-                str = itr.next();
-            }
-            builder.append(str);
-            return mScope.contains(builder.toString()) || member != null && mScope.contains(builder + "#" + member);
-        }
+    final void setAttach(Consumer<String> attach) {
+        mAttach = attach;
     }
 }

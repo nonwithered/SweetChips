@@ -406,7 +406,7 @@ final class InlineTailorStackMirror {
     }
 
     private void invoke(String desc, boolean isStatic) {
-        pop(Util.getArgsTypes(desc, isStatic).length);
+        pop(InlineTailorContext.getArgsTypes(desc, isStatic).length);
         Type type = Type.getType(desc).getReturnType();
         if (type != Type.VOID_TYPE) {
             push(type);

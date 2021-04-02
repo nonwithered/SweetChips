@@ -3,15 +3,9 @@ package org.sweetchips.sourcelineeraser;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.sweetchips.platform.jvm.BaseClassVisitor;
 
-public class EraseLineNumberTransformVisitor extends ClassVisitor {
-
-    private SourceLineEraserGradlePlugin mPlugin;
-
-    EraseLineNumberTransformVisitor withPlugin(SourceLineEraserGradlePlugin plugin) {
-        mPlugin = plugin;
-        return this;
-    }
+public final class EraseLineNumberTransformVisitor extends BaseClassVisitor<SourceLineEraserContext> {
 
     private String mName;
 
@@ -30,7 +24,7 @@ public class EraseLineNumberTransformVisitor extends ClassVisitor {
         return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
             @Override
             public void visitLineNumber(int line, Label start) {
-                if (!mPlugin.getExtension().isIgnored(mName, name)) {
+                if (!getContext().isIgnored(mName, name)) {
                     return;
                 }
                 super.visitLineNumber(line, start);

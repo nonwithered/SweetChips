@@ -2,17 +2,11 @@ package org.sweetchips.traceweaver;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.sweetchips.platform.jvm.BaseClassVisitor;
 import org.sweetchips.traceweaver.ext.ClassInfo;
 import org.sweetchips.traceweaver.ext.MethodInfo;
 
-public final class TraceWeaverTransformClassVisitor extends ClassVisitor {
-
-    private TraceWeaverGradlePlugin mPlugin;
-
-    TraceWeaverTransformClassVisitor withPlugin(TraceWeaverGradlePlugin plugin) {
-        mPlugin = plugin;
-        return this;
-    }
+public final class TraceWeaverTransformClassVisitor extends BaseClassVisitor<TraceWeaverContext> {
 
     private ClassInfo mClassInfo;
 
@@ -32,11 +26,11 @@ public final class TraceWeaverTransformClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        if (mPlugin.getExtension().isIgnored(mClassInfo.name, name)) {
+        if (getContext().isIgnored(mClassInfo.name, name)) {
             return super.visitMethod(access, name, desc, signature, exceptions);
         }
         MethodInfo methodInfo = new MethodInfo(access, name, desc, signature, exceptions);
-        String sectionName = mPlugin.getExtension().getSectionName(mClassInfo, methodInfo);
-        return new TraceWeaverMethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions), sectionName).withPlugin(mPlugin);
+        String sectionName = getContext().getSectionName(mClassInfo, methodInfo);
+        return new TraceWeaverMethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions), sectionName).withContext(getContext());
     }
 }

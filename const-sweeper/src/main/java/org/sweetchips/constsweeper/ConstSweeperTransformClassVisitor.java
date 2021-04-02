@@ -4,21 +4,14 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.sweetchips.platform.jvm.BaseClassVisitor;
 
-import java.util.Map;
-
-public final class ConstSweeperTransformClassVisitor extends ClassVisitor {
-
-    private final Map<String, Object> mExtra;
+public final class ConstSweeperTransformClassVisitor extends BaseClassVisitor<ConstSweeperContext> {
 
     private String mName;
 
-    public ConstSweeperTransformClassVisitor(int api, ClassVisitor cv, Map<Object, Object> extra) {
+    public ConstSweeperTransformClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
-        @SuppressWarnings("unchecked")
-        Map<String, Object> map = extra == null
-                ? null : (Map<String, Object>) extra.get(Util.NAME);
-        mExtra = map != null ? map : Util.sConstantValues;
     }
 
     @Override
@@ -29,7 +22,7 @@ public final class ConstSweeperTransformClassVisitor extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        if (mExtra.containsKey(Util.getKey(mName, name, desc))) {
+        if (getContext().getConstants().containsKey(ConstSweeperContext.getKey(mName, name, desc))) {
             return null;
         }
         return super.visitField(access, name, desc, signature, value);
@@ -41,7 +34,7 @@ public final class ConstSweeperTransformClassVisitor extends ClassVisitor {
             @Override
             public void visitFieldInsn(int opcode, String owner, String name, String desc) {
                 if (opcode == Opcodes.GETSTATIC) {
-                    Object value = mExtra.get(Util.getKey(owner, name, desc));
+                    Object value = getContext().getConstants().get(ConstSweeperContext.getKey(owner, name, desc));
                     if (value != null) {
                         super.visitLdcInsn(value);
                         return;
