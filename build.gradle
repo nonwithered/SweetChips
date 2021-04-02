@@ -36,6 +36,14 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
+def cmdMvn = gradle.ext.isWindows()
+        ? 'mvn.cmd'
+        : 'mvn'
+
+task cleanMvn(type: Exec) {
+    commandLine "$cmdMvn", 'clean'
+}
+
+task clean(type: Delete, dependsOn: cleanMvn) {
     delete rootProject.buildDir
 }

@@ -1,5 +1,4 @@
-def cmdKotlin = System.getProperty('os.name')
-        .toLowerCase().contains('windows')
+def cmdKotlin = gradle.ext.isWindows()
         ? 'kotlin.bat'
         : 'kotlin'
 

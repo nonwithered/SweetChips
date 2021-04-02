@@ -23,6 +23,10 @@ include ':sourceline-eraser'
 include ':inline-tailor'
 include ':recursive-tail'
 
+gradle.ext.isWindows = {
+    org.gradle.internal.os.OperatingSystem.current().isWindows()
+}
+
 gradle.ext.existsBuildTarget = { it ->
     rootProject.projectDir.toPath()
             .resolve('build')
