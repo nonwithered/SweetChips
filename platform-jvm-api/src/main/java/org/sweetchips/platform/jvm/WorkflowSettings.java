@@ -1,7 +1,6 @@
 package org.sweetchips.platform.jvm;
 
 import org.objectweb.asm.tree.ClassNode;
-import org.sweetchips.platform.jvm.ClassVisitorFactory;
 
 import java.util.Map;
 import java.util.function.Consumer;
