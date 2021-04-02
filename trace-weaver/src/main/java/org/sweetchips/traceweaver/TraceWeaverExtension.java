@@ -7,9 +7,9 @@ import org.sweetchips.traceweaver.ext.MethodInfo;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
-public class TraceWeaverExtension extends AbstractExtension<TraceWeaverPlugin> {
+public class TraceWeaverExtension extends AbstractExtension<TraceWeaverGradlePlugin> {
 
-    public TraceWeaverExtension(TraceWeaverPlugin plugin) {
+    public TraceWeaverExtension(TraceWeaverGradlePlugin plugin) {
         super(plugin);
         ignore(Util.TRACE_WRAPPER_CLASS_NAME.replace("/", "."));
     }

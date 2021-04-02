@@ -3,7 +3,7 @@ package org.sweetchips.gradle.common;
 import org.gradle.api.Project;
 import org.sweetchips.platform.jvm.JvmContext;
 
-public abstract class SweetChipsGradlePlugin extends AbstractPlugin<SweetChipsExtension> {
+public abstract class SweetChipsGradlePlugin extends AbstractGradlePlugin<SweetChipsExtension> {
 
     @Override
     protected void onApply(Project project) {

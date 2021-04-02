@@ -19,7 +19,7 @@ final class WorkflowActions {
     private final Task mBefore;
     private final Task mSweep;
     private Task mLast;
-    private final Queue<Map.Entry<String, SweetChipsJavaTransform>> mActions = new ArrayDeque<>();
+    private final Queue<Map.Entry<String, SweetChipsJavaGradleTransform>> mActions = new ArrayDeque<>();
 
     WorkflowActions(SweetChipsJavaGradlePlugin plugin, Task before, Task after) {
         mPlugin = plugin;
@@ -30,7 +30,7 @@ final class WorkflowActions {
         mSweep.doLast(this::sweep);
     }
 
-    void registerTransform(SweetChipsJavaTransform transform) {
+    void registerTransform(SweetChipsJavaGradleTransform transform) {
         String name = transform.getName();
         Task task = mPlugin.getProject().task(getName(name));
         mSweep.dependsOn(task);
@@ -43,7 +43,7 @@ final class WorkflowActions {
     private void work(Task task) {
         String name = fromTask(task.getName());
         String last = null;
-        for (Map.Entry<String, SweetChipsJavaTransform> it : mActions) {
+        for (Map.Entry<String, SweetChipsJavaGradleTransform> it : mActions) {
             if (it.getKey().equals(name)) {
                 break;
             }
@@ -55,8 +55,8 @@ final class WorkflowActions {
         Collection<Path> paths = new ArrayList<>();
         FilesUtil.list(from).forEach(it -> paths.add(it.resolve("main")));
         Function<Path, Path> provider = it -> to.resolve(from.relativize(it));
-        SweetChipsJavaTransform transform = null;
-        for (Map.Entry<String, SweetChipsJavaTransform> it : mActions) {
+        SweetChipsJavaGradleTransform transform = null;
+        for (Map.Entry<String, SweetChipsJavaGradleTransform> it : mActions) {
             if (it.getKey().equals(name)) {
                 transform = it.getValue();
                 break;
@@ -80,7 +80,7 @@ final class WorkflowActions {
         Function<Path, Path> provider = it -> to.resolve(from.relativize(it));
         JvmContext context = new JvmContext();
         context.setApi(mPlugin.getExtension().getAsmApi());
-        new SweetChipsJavaTransform(mPlugin.getName(), context).transform(provider, from, paths);
+        new SweetChipsJavaGradleTransform(mPlugin.getName(), context).transform(provider, from, paths);
     }
 
     private Path getClassDir() {
@@ -90,7 +90,9 @@ final class WorkflowActions {
 
     private Path getTempDir(String name) {
         return mPlugin.getProject().getBuildDir().toPath()
-                .resolve("intermediates").resolve("transforms").resolve(name);
+                .resolve("intermediates")
+                .resolve("transforms")
+                .resolve(name);
     }
 
     private static String getName(String name) {

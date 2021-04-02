@@ -1,10 +1,10 @@
 package org.sweetchips.sourcelineeraser;
 
 import org.gradle.api.Project;
-import org.sweetchips.gradle.common.AbstractPlugin;
-import org.sweetchips.gradle.common.WorkflowSettings;
+import org.sweetchips.gradle.common.AbstractGradlePlugin;
+import org.sweetchips.platform.jvm.WorkflowSettings;
 
-public class SourceLineEraserPlugin extends AbstractPlugin<SourceLineEraserExtension> {
+public class SourceLineEraserGradlePlugin extends AbstractGradlePlugin<SourceLineEraserExtension> {
 
     @Override
     public final String getName() {

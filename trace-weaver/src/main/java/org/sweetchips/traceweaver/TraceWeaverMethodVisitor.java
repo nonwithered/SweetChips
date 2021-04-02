@@ -5,9 +5,9 @@ import org.objectweb.asm.Opcodes;
 
 final class TraceWeaverMethodVisitor extends MethodVisitor {
 
-    private TraceWeaverPlugin mPlugin;
+    private TraceWeaverGradlePlugin mPlugin;
 
-    TraceWeaverMethodVisitor withPlugin(TraceWeaverPlugin plugin) {
+    TraceWeaverMethodVisitor withPlugin(TraceWeaverGradlePlugin plugin) {
         mPlugin = plugin;
         return this;
     }

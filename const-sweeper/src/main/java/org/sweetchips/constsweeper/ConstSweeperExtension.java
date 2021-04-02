@@ -4,12 +4,12 @@ import org.sweetchips.gradle.common.AbstractExtension;
 
 import java.util.Arrays;
 
-public class ConstSweeperExtension extends AbstractExtension<ConstSweeperPlugin> {
+public class ConstSweeperExtension extends AbstractExtension<ConstSweeperGradlePlugin> {
 
     private final MemberScope mIgnore = newMemberScope();
     private final MemberScope mNotice = newMemberScope();
 
-    public ConstSweeperExtension(ConstSweeperPlugin plugin) {
+    public ConstSweeperExtension(ConstSweeperGradlePlugin plugin) {
         super(plugin);
     }
 

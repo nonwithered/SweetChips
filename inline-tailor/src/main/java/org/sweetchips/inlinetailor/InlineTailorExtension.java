@@ -4,12 +4,12 @@ import org.sweetchips.gradle.common.AbstractExtension;
 
 import java.util.Arrays;
 
-public class InlineTailorExtension extends AbstractExtension<InlineTailorPlugin> {
+public class InlineTailorExtension extends AbstractExtension<InlineTailorGradlePlugin> {
 
     private final MemberScope mIgnore = newMemberScope();
     private final MemberScope mNotice = newMemberScope();
 
-    public InlineTailorExtension(InlineTailorPlugin plugin) {
+    public InlineTailorExtension(InlineTailorGradlePlugin plugin) {
         super(plugin);
     }
 

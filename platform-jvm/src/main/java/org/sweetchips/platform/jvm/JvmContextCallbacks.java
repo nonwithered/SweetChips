@@ -1,4 +1,4 @@
-package org.sweetchips.gradle.common;
+package org.sweetchips.platform.jvm;
 
 import org.sweetchips.platform.common.AbstractUnit;
 import org.sweetchips.platform.common.FileUnit;

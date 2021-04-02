@@ -9,9 +9,9 @@ import java.util.List;
 
 public final class InlineTailorTransformClassNode extends ClassNode {
 
-    private InlineTailorPlugin mPlugin;
+    private InlineTailorGradlePlugin mPlugin;
 
-    InlineTailorTransformClassNode withPlugin(InlineTailorPlugin plugin) {
+    InlineTailorTransformClassNode withPlugin(InlineTailorGradlePlugin plugin) {
         mPlugin = plugin;
         return this;
     }

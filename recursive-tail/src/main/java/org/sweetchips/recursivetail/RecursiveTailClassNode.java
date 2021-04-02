@@ -20,9 +20,9 @@ import java.util.ListIterator;
 
 public final class RecursiveTailClassNode extends ClassNode {
 
-    private RecursiveTailPlugin mPlugin;
+    private RecursiveTailGradlePlugin mPlugin;
 
-    RecursiveTailClassNode withPlugin(RecursiveTailPlugin plugin) {
+    RecursiveTailClassNode withPlugin(RecursiveTailGradlePlugin plugin) {
         mPlugin = plugin;
         return this;
     }

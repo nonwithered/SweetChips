@@ -5,9 +5,11 @@ import org.sweetchips.platform.jvm.JvmContext;
 import java.util.HashMap;
 import java.util.Map;
 
+import jdk.internal.org.objectweb.asm.Opcodes;
+
 public class SweetChipsExtension extends AbstractExtension<SweetChipsGradlePlugin> {
 
-    private int mAsmApi;
+    private int mAsmApi = Opcodes.ASM5;
 
     public SweetChipsExtension(SweetChipsGradlePlugin plugin) {
         super(plugin);

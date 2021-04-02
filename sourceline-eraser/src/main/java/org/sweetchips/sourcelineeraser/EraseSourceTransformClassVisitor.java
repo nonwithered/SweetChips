@@ -4,9 +4,9 @@ import org.objectweb.asm.ClassVisitor;
 
 public class EraseSourceTransformClassVisitor extends ClassVisitor {
 
-    private SourceLineEraserPlugin mPlugin;
+    private SourceLineEraserGradlePlugin mPlugin;
 
-    EraseSourceTransformClassVisitor withPlugin(SourceLineEraserPlugin plugin) {
+    EraseSourceTransformClassVisitor withPlugin(SourceLineEraserGradlePlugin plugin) {
         mPlugin = plugin;
         return this;
     }

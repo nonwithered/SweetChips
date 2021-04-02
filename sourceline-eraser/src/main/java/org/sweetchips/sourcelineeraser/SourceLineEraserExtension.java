@@ -4,12 +4,12 @@ import org.sweetchips.gradle.common.AbstractExtension;
 
 import java.util.Arrays;
 
-public class SourceLineEraserExtension extends AbstractExtension<SourceLineEraserPlugin> {
+public class SourceLineEraserExtension extends AbstractExtension<SourceLineEraserGradlePlugin> {
 
     private final MemberScope mIgnore = newMemberScope();
     private final MemberScope mNotice = newMemberScope();
 
-    public SourceLineEraserExtension(SourceLineEraserPlugin plugin) {
+    public SourceLineEraserExtension(SourceLineEraserGradlePlugin plugin) {
         super(plugin);
     }
 

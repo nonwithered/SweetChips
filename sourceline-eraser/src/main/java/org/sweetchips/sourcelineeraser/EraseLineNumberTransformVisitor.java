@@ -6,9 +6,9 @@ import org.objectweb.asm.MethodVisitor;
 
 public class EraseLineNumberTransformVisitor extends ClassVisitor {
 
-    private SourceLineEraserPlugin mPlugin;
+    private SourceLineEraserGradlePlugin mPlugin;
 
-    EraseLineNumberTransformVisitor withPlugin(SourceLineEraserPlugin plugin) {
+    EraseLineNumberTransformVisitor withPlugin(SourceLineEraserGradlePlugin plugin) {
         mPlugin = plugin;
         return this;
     }

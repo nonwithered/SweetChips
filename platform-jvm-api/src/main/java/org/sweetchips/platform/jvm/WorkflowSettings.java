@@ -1,4 +1,4 @@
-package org.sweetchips.gradle.common;
+package org.sweetchips.platform.jvm;
 
 import org.objectweb.asm.tree.ClassNode;
 import org.sweetchips.platform.jvm.ClassVisitorFactory;

@@ -1,6 +1,6 @@
 package org.sweetchips.gradle.java;
 
-import org.sweetchips.gradle.common.JvmContextCallbacks;
+import org.sweetchips.platform.jvm.JvmContextCallbacks;
 import org.sweetchips.platform.common.PathUnit;
 import org.sweetchips.platform.common.RootUnit;
 import org.sweetchips.platform.common.Workflow;
@@ -11,19 +11,16 @@ import org.sweetchips.utility.FilesUtil;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-final class SweetChipsJavaTransform {
+final class SweetChipsJavaGradleTransform {
 
     private final String mName;
     private JvmContext mContext;
     private JvmContextCallbacks mContextCallbacks;
 
-    SweetChipsJavaTransform(String name, JvmContext context) {
+    SweetChipsJavaGradleTransform(String name, JvmContext context) {
         mName = name;
         mContext = context;
         mContextCallbacks = new JvmContextCallbacks(context);

@@ -11,7 +11,7 @@ import com.android.build.api.transform.TransformInput;
 import com.android.build.api.transform.TransformInvocation;
 import com.android.build.gradle.internal.pipeline.TransformManager;
 
-import org.sweetchips.gradle.common.JvmContextCallbacks;
+import org.sweetchips.platform.jvm.JvmContextCallbacks;
 import org.sweetchips.platform.common.AbstractUnit;
 import org.sweetchips.platform.common.FileUnit;
 import org.sweetchips.platform.common.PathUnit;
@@ -28,20 +28,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-final class SweetChipsAndroidTransform extends Transform {
+final class SweetChipsAndroidGradleTransform extends Transform {
 
     private final String mName;
     private TransformInvocation mTransformInvocation;
     private JvmContext mContext;
     private JvmContextCallbacks mContextCallbacks;
 
-    SweetChipsAndroidTransform(String name, JvmContext context) {
+    SweetChipsAndroidGradleTransform(String name, JvmContext context) {
         mName = name;
         mContext = context;
         mContextCallbacks = new JvmContextCallbacks(context);

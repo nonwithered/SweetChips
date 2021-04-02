@@ -4,12 +4,12 @@ import org.sweetchips.gradle.common.AbstractExtension;
 
 import java.util.Arrays;
 
-public class RecursiveTailExtension extends AbstractExtension<RecursiveTailPlugin> {
+public class RecursiveTailExtension extends AbstractExtension<RecursiveTailGradlePlugin> {
 
     private final MemberScope mIgnore = newMemberScope();
     private final MemberScope mNotice = newMemberScope();
 
-    public RecursiveTailExtension(RecursiveTailPlugin plugin) {
+    public RecursiveTailExtension(RecursiveTailGradlePlugin plugin) {
         super(plugin);
     }
 

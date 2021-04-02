@@ -1,11 +1,11 @@
 package org.sweetchips.inlinetailor;
 
 import org.gradle.api.Project;
-import org.sweetchips.gradle.common.AbstractPlugin;
-import org.sweetchips.gradle.common.WorkflowSettings;
+import org.sweetchips.gradle.common.AbstractGradlePlugin;
+import org.sweetchips.platform.jvm.WorkflowSettings;
 import org.sweetchips.platform.jvm.ClassNodeAdaptor;
 
-public final class InlineTailorPlugin extends AbstractPlugin<InlineTailorExtension> {
+public final class InlineTailorGradlePlugin extends AbstractGradlePlugin<InlineTailorExtension> {
 
     @Override
     public final String getName() {

@@ -1,10 +1,10 @@
 package org.sweetchips.traceweaver;
 
 import org.gradle.api.Project;
-import org.sweetchips.gradle.common.AbstractPlugin;
-import org.sweetchips.gradle.common.WorkflowSettings;
+import org.sweetchips.gradle.common.AbstractGradlePlugin;
+import org.sweetchips.platform.jvm.WorkflowSettings;
 
-public final class TraceWeaverPlugin extends AbstractPlugin<TraceWeaverExtension> {
+public final class TraceWeaverGradlePlugin extends AbstractGradlePlugin<TraceWeaverExtension> {
 
     @Override
     public final String getName() {

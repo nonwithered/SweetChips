@@ -4,6 +4,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.tree.ClassNode;
 import org.sweetchips.platform.jvm.ClassVisitorFactory;
 import org.sweetchips.platform.jvm.JvmContext;
+import org.sweetchips.platform.jvm.WorkflowSettings;
 import org.sweetchips.utility.ClassesUtil;
 
 import java.lang.ref.WeakReference;

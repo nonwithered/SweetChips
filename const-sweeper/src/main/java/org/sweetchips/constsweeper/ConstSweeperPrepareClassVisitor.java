@@ -7,9 +7,9 @@ import java.util.Map;
 
 public final class ConstSweeperPrepareClassVisitor extends ClassVisitor {
 
-    private ConstSweeperPlugin mPlugin;
+    private ConstSweeperGradlePlugin mPlugin;
 
-    ConstSweeperPrepareClassVisitor withPlugin(ConstSweeperPlugin plugin) {
+    ConstSweeperPrepareClassVisitor withPlugin(ConstSweeperGradlePlugin plugin) {
         mPlugin = plugin;
         return this;
     }

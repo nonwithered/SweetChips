@@ -7,9 +7,9 @@ import org.sweetchips.traceweaver.ext.MethodInfo;
 
 public final class TraceWeaverTransformClassVisitor extends ClassVisitor {
 
-    private TraceWeaverPlugin mPlugin;
+    private TraceWeaverGradlePlugin mPlugin;
 
-    TraceWeaverTransformClassVisitor withPlugin(TraceWeaverPlugin plugin) {
+    TraceWeaverTransformClassVisitor withPlugin(TraceWeaverGradlePlugin plugin) {
         mPlugin = plugin;
         return this;
     }

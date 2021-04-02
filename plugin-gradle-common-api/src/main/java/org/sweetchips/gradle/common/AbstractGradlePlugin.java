@@ -2,12 +2,12 @@ package org.sweetchips.gradle.common;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.sweetchips.platform.jvm.WorkflowSettings;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public abstract class AbstractPlugin<E extends AbstractExtension> implements Plugin<Project> {
+public abstract class AbstractGradlePlugin<E extends AbstractExtension> implements Plugin<Project> {
 
     private Project mProject;
     private E mExtension;
