@@ -14,7 +14,7 @@ public final class SweetChipsJavaGradlePlugin extends SweetChipsGradlePlugin {
     }
 
     @Override
-    public void registerTransform(String name, JvmContext context) {
+    protected final void registerTransform(String name, JvmContext context) {
         mActions.registerTransform(new SweetChipsJavaGradleTransform(name, context));
     }
 }

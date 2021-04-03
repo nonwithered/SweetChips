@@ -30,5 +30,5 @@ public abstract class SweetChipsGradlePlugin implements Plugin<Project> {
 
     protected abstract void onApply();
 
-    public abstract void registerTransform(String name, JvmContext context);
+    protected abstract void registerTransform(String name, JvmContext context);
 }
