@@ -8,19 +8,24 @@
         <version>0.0.1-snapshot</version>
     </parent>
     <groupId>org.sweetchips</groupId>
-    <artifactId>sourceline-eraser-mvn</artifactId>
+    <artifactId>annotations-visitors-mvn</artifactId>
     <version>0.0.1-snapshot</version>
     <packaging>maven-plugin</packaging>
     <properties>
-        <excludeGradleDir>org/sweetchips/sourcelineeraser/gradle/*</excludeGradleDir>
+        <excludeDir>org/sweetchips/annotationsvisitors/*</excludeDir>
         <versionsMavenCompilerPlugin>3.8.1</versionsMavenCompilerPlugin>
-        <versionsMavenJarPlugin>3.2.0</versionsMavenJarPlugin>
         <versionsMavenPluginPlugin>3.6.0</versionsMavenPluginPlugin>
         <versionsMavenPluginApi>3.6.3</versionsMavenPluginApi>
         <versionsMavenPluginAnnotations>3.6.0</versionsMavenPluginAnnotations>
         <versionsAsm>5.1</versionsAsm>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>annotations-visitors</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>plugin-maven-java</artifactId>
@@ -38,12 +43,6 @@
             <artifactId>asm-tree</artifactId>
             <version>${versionsAsm}</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>plugin-gradle-common-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -68,18 +67,7 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <excludes>
-                        <exclude>${excludeGradleDir}</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${versionsMavenJarPlugin}</version>
-                <configuration>
-                    <excludes>
-                        <exclude>META-INF/gradle-plugins/*</exclude>
-                        <exclude>META-INF/gradle-plugins</exclude>
+                        <exclude>${excludeDir}</exclude>
                     </excludes>
                 </configuration>
             </plugin>

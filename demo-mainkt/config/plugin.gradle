@@ -6,7 +6,7 @@ if (gradle.ext.existsBuildTarget('plugin-gradle-java')) {
     }
     mainktA {
         transform {
-            first adapt('org.sweetchips.visitors.UncheckcastTransformClassNode')
+            first adapt('org.sweetchips.annotationsvisitors.UncheckcastTransformClassNode')
         }
     }
 }

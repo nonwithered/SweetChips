@@ -1,4 +1,4 @@
-package org.sweetchips.visitors;
+package org.sweetchips.annotationsvisitors;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;

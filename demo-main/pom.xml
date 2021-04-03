@@ -94,6 +94,19 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>annotations-visitors-mvn</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>annotationsvisitors</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${versionsMavenCompilerPlugin}</version>

@@ -8,8 +8,8 @@ if (gradle.ext.existsBuildTarget('plugin-gradle-android')) {
     }
     mainappA {
         transform {
-            first adapt('org.sweetchips.visitors.HideTransformClassNode')
-            first adapt('org.sweetchips.visitors.UncheckcastTransformClassNode')
+            first adapt('org.sweetchips.annotationsvisitors.HideTransformClassNode')
+            first adapt('org.sweetchips.annotationsvisitors.UncheckcastTransformClassNode')
         }
         prepare {
             before {

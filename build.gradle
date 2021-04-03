@@ -12,7 +12,7 @@ buildscript {
         [
                 'plugin-gradle-android',
                 'plugin-gradle-java',
-                'visitors',
+                'annotations-visitors',
                 'trace-weaver',
                 'const-sweeper',
                 'sourceline-eraser',

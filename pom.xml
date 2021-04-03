@@ -9,11 +9,14 @@
     <properties>
         <versionsMavenCompilerPlugin>3.8.1</versionsMavenCompilerPlugin>
         <versionsMavenJarPlugin>3.2.0</versionsMavenJarPlugin>
-        <versionsMavenPluginApi>3.6.0</versionsMavenPluginApi>
+        <versionsMavenPluginPlugin>3.6.0</versionsMavenPluginPlugin>
+        <versionsMavenPluginApi>3.6.3</versionsMavenPluginApi>
+        <versionsMavenPluginAnnotations>3.6.0</versionsMavenPluginAnnotations>
         <versionsAsm>5.1</versionsAsm>
     </properties>
     <modules>
         <module>demo-main</module>
+        <module>annotations-visitors</module>
         <module>const-sweeper</module>
         <module>inline-tailor</module>
         <module>recursive-tail</module>

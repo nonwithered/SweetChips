@@ -7,6 +7,7 @@ def jarPath = project.buildDir.toPath()
         .resolve("${project.name}.jar")
 
 task testDemo(type: Exec) {
+    dependsOn project(':demo-main').tasks.testDemoMvn
     dependsOn project(':demo-mainkt').tasks.assemble
     commandLine "$cmdKotlin",
             '-cp', "${jarPath.toAbsolutePath()}",
