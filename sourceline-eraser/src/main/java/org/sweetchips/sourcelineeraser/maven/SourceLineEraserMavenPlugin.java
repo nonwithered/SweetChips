@@ -1,6 +1,6 @@
 package org.sweetchips.sourcelineeraser.maven;
 
-import org.sweetchips.maven.common.AbstractMavenPlugin;
+import org.sweetchips.maven.java.AbstractMavenPlugin;
 import org.sweetchips.sourcelineeraser.SourceLineEraserContext;
 
 import java.io.File;

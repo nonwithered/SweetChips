@@ -17,7 +17,7 @@ public abstract class SweetChipsGradlePlugin implements Plugin<Project> {
     }
 
     public final String getName() {
-        return Util.NAME;
+        return "SweetChips";
     }
 
     public final SweetChipsExtension getExtension() {

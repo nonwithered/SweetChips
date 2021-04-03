@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>plugin-maven-common</artifactId>
+            <artifactId>plugin-maven-java</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>

@@ -1,10 +1,18 @@
 apply plugin: 'java-library'
 apply from: rootProject.file('config/publish.gradle')
 
+sourceSets {
+    main {
+        java {
+            exclude "$gradle.ext.groupId.${project.name.replaceAll('-', '')}.maven.**".replaceAll('\\.', '/')
+        }
+    }
+}
+
 dependencies {
     compileOnly project(':platform-jvm-api')
     compileOnly project(':plugin-gradle-common-api')
-    compileOnly project(':plugin-maven-common')
+    compileOnly project(':plugin-maven-java')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
     compileOnly "org.ow2.asm:asm:$gradle.ext.versions.asm"

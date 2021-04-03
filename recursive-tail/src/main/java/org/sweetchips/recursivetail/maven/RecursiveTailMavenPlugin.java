@@ -1,6 +1,6 @@
 package org.sweetchips.recursivetail.maven;
 
-import org.sweetchips.maven.common.AbstractMavenPlugin;
+import org.sweetchips.maven.java.AbstractMavenPlugin;
 import org.sweetchips.recursivetail.RecursiveTailContext;
 
 import java.io.File;

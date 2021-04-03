@@ -1,7 +1,7 @@
 package org.sweetchips.constsweeper.maven;
 
 import org.sweetchips.constsweeper.ConstSweeperContext;
-import org.sweetchips.maven.common.AbstractMavenPlugin;
+import org.sweetchips.maven.java.AbstractMavenPlugin;
 
 import java.io.File;
 

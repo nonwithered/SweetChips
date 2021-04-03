@@ -1,6 +1,14 @@
 apply plugin: 'java-library'
 apply from: rootProject.file('config/publish.gradle')
 
+sourceSets {
+    main {
+        java {
+            exclude "$gradle.ext.groupId.${project.name.replaceAll('-', '')}.maven.**".replaceAll('\\.', '/')
+        }
+    }
+}
+
 dependencies {
     implementation project(':utility')
     compileOnly project(':platform-jvm-api')

@@ -1,4 +1,4 @@
-package org.sweetchips.maven.common;
+package org.sweetchips.maven.java;
 
 import org.sweetchips.platform.common.PathUnit;
 import org.sweetchips.platform.common.RootUnit;

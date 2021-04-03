@@ -1,4 +1,4 @@
-package org.sweetchips.maven.common;
+package org.sweetchips.maven.java;
 
 import org.objectweb.asm.tree.ClassNode;
 import org.sweetchips.platform.jvm.ClassVisitorFactory;

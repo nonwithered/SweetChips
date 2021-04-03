@@ -14,10 +14,3 @@ publishing {
         }
     }
 }
-sourceSets {
-    main {
-        java {
-            exclude "$gradle.ext.groupId.${project.name.replaceAll('-', '')}.maven.**".replaceAll('\\.', '/')
-        }
-    }
-}

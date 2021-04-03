@@ -1,7 +1,7 @@
 package org.sweetchips.inlinetailor.maven;
 
 import org.sweetchips.inlinetailor.InlineTailorContext;
-import org.sweetchips.maven.common.AbstractMavenPlugin;
+import org.sweetchips.maven.java.AbstractMavenPlugin;
 
 import java.io.File;
 
