@@ -12,8 +12,8 @@
     <version>0.0.1-snapshot</version>
     <packaging>jar</packaging>
     <properties>
-        <versions-maven-compiler-plugin>3.8.1</versions-maven-compiler-plugin>
-        <versions-maven-jar-plugin>3.2.0</versions-maven-jar-plugin>
+        <versionsMavenCompilerPlugin>3.8.1</versionsMavenCompilerPlugin>
+        <versionsMavenJarPlugin>3.2.0</versionsMavenJarPlugin>
     </properties>
     <dependencies>
         <dependency>
@@ -96,7 +96,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${versions-maven-compiler-plugin}</version>
+                <version>${versionsMavenCompilerPlugin}</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -105,7 +105,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>${versions-maven-jar-plugin}</version>
+                <version>${versionsMavenJarPlugin}</version>
                 <configuration>
                     <archive>
                         <manifest>

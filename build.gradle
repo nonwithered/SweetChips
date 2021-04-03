@@ -51,11 +51,3 @@ task cleanMvn(type: Exec) {
 task clean(type: Delete, dependsOn: cleanMvn) {
     delete rootProject.buildDir
 }
-
-task deployMvn(type: Exec) {
-    commandLine "$cmdMvn", 'deploy'
-    doFirst {
-        standardOutput = System.out
-        errorOutput = System.err
-    }
-}
