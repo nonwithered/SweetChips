@@ -26,19 +26,19 @@ def apkFile = project.buildDir.toPath()
         .resolve('outputs')
         .resolve('apk')
         .resolve('debug')
-        .resolve('demo-app-debug.apk')
+        .resolve("$project.name-debug.apk")
 
 
 task testDepends() {
     if (!apkFile.toFile().exists()) {
-        dependsOn ':demo-app:installDebug'
+        dependsOn ":$project.name:installDebug"
     }
 }
 
 task testAtrace(type: Exec, dependsOn: testDepends) {
     commandLine 'adb', 'shell', 'atrace',
             '-t', "$time",
-            '-a', 'org.sweetchips.demo.app',
+            '-a', "${gradle.ext.groupId}.demo.app",
             '-o', atraceSdcard
     doFirst {
         standardOutput = System.out
