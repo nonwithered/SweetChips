@@ -6,7 +6,7 @@ import org.sweetchips.recursivetail.RecursiveTailContext;
 public final class RecursiveTailGradlePlugin extends AbstractGradlePlugin<RecursiveTailExtension> {
 
     @Override
-    public final String getName() {
+    protected final String getName() {
         return RecursiveTailContext.NAME;
     }
 }

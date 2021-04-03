@@ -1,14 +1,6 @@
 apply plugin: 'java-library'
 apply from: rootProject.file('config/publish.gradle')
 
-sourceSets {
-    main {
-        java {
-            exclude 'org/sweetchips/constsweeper/maven/**'
-        }
-    }
-}
-
 dependencies {
     compileOnly project(':platform-jvm-api')
     compileOnly project(':plugin-gradle-common-api')

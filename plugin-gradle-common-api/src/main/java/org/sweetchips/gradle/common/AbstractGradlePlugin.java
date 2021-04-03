@@ -21,7 +21,7 @@ public abstract class AbstractGradlePlugin<E extends AbstractExtension<? extends
         return mExtension;
     }
 
-    public abstract String getName();
+    protected abstract String getName();
 
     protected void onApply() {
     }

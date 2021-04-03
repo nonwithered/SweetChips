@@ -6,7 +6,7 @@ import org.sweetchips.sourcelineeraser.SourceLineEraserContext;
 public class SourceLineEraserGradlePlugin extends AbstractGradlePlugin<SourceLineEraserExtension> {
 
     @Override
-    public final String getName() {
+    protected final String getName() {
         return SourceLineEraserContext.NAME;
     }
 }

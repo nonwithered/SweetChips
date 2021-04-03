@@ -8,7 +8,7 @@
         <version>0.0.1-snapshot</version>
     </parent>
     <groupId>org.sweetchips</groupId>
-    <artifactId>demo-main</artifactId>
+    <artifactId>demo-main-mvn</artifactId>
     <version>0.0.1-snapshot</version>
     <packaging>jar</packaging>
     <properties>
@@ -45,6 +45,53 @@
                         <notice>org.sweetchips.demo.main.TestConst$CheckInternal#sNotice</notice>
                     </notices>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>inline-tailor-mvn</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>inlinetailor</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>recursive-tail-mvn</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>recursivetail</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <ignores>
+                        <ignore>*</ignore>
+                    </ignores>
+                    <notices>
+                        <notice>org.sweetchips.demo.main.TestTail#recursive</notice>
+                    </notices>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sourceline-eraser-mvn</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>sourcelineeraser</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

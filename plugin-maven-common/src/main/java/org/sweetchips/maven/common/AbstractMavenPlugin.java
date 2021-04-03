@@ -2,7 +2,6 @@ package org.sweetchips.maven.common;
 
 import org.sweetchips.platform.jvm.BasePluginContext;
 import org.sweetchips.platform.jvm.JvmContext;
-import org.sweetchips.platform.jvm.WorkflowSettings;
 import org.sweetchips.utility.ClassesUtil;
 import org.sweetchips.utility.FilesUtil;
 
@@ -14,17 +13,17 @@ import java.nio.file.Path;
 public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
 
     private final C mContext;
-    private final String mName;
     private final int mAsmApi;
     private final File mBasedir;
+
+    protected abstract String getName();
 
     public final C getContext() {
         return mContext;
     }
 
-    public AbstractMavenPlugin(String name, int asmApi, File basedir) {
+    public AbstractMavenPlugin(int asmApi, File basedir) {
         mContext = newContext();
-        mName = name;
         mAsmApi = asmApi;
         mBasedir = basedir;
     }
@@ -75,6 +74,6 @@ public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
                 .resolve("target")
                 .resolve("intermediates")
                 .resolve("transforms")
-                .resolve(mName);
+                .resolve(getName());
     }
 }

@@ -1,4 +1,4 @@
-package org.sweetchips.constsweeper.maven;
+package org.sweetchips.recursivetail.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -9,8 +9,8 @@ import org.objectweb.asm.Opcodes;
 import java.io.File;
 import java.util.Arrays;
 
-@Mojo(name = "constsweeper", defaultPhase = LifecyclePhase.COMPILE)
-public final class ConstSweeperMavenMojo extends AbstractMojo {
+@Mojo(name = "recursivetail", defaultPhase = LifecyclePhase.COMPILE)
+public class RecursiveTailMavenMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "" + Opcodes.ASM5)
     private int asmApi;
@@ -26,7 +26,7 @@ public final class ConstSweeperMavenMojo extends AbstractMojo {
 
     @Override
     public void execute() {
-        ConstSweeperMavenPlugin plugin = new ConstSweeperMavenPlugin(asmApi, basedir);
+        RecursiveTailMavenPlugin plugin = new RecursiveTailMavenPlugin(asmApi, basedir);
         if (ignores != null) {
             Arrays.stream(ignores).forEach(plugin.getContext()::addIgnore);
         }

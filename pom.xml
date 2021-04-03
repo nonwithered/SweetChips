@@ -15,6 +15,9 @@
     <modules>
         <module>demo-main</module>
         <module>const-sweeper</module>
+        <module>inline-tailor</module>
+        <module>recursive-tail</module>
+        <module>sourceline-eraser</module>
     </modules>
     <repositories>
         <repository>

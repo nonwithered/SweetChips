@@ -6,7 +6,7 @@ import org.sweetchips.inlinetailor.InlineTailorContext;
 public final class InlineTailorGradlePlugin extends AbstractGradlePlugin<InlineTailorExtension> {
 
     @Override
-    public final String getName() {
+    protected final String getName() {
         return InlineTailorContext.NAME;
     }
 }

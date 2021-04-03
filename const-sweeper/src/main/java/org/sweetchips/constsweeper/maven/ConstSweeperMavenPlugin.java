@@ -7,7 +7,12 @@ import java.io.File;
 
 final class ConstSweeperMavenPlugin extends AbstractMavenPlugin<ConstSweeperContext> {
 
-    public ConstSweeperMavenPlugin(String name, int asmApi, File basedir) {
-        super(name, asmApi, basedir);
+    @Override
+    protected final String getName() {
+        return ConstSweeperContext.NAME;
+    }
+
+    public ConstSweeperMavenPlugin(int asmApi, File basedir) {
+        super(asmApi, basedir);
     }
 }

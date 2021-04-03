@@ -11,3 +11,16 @@ task testDemo(type: Exec) {
         errorOutput = System.err
     }
 }
+
+def mainPath = project.buildDir.toPath().parent.resolve('target')
+        .resolve("$project.name-mvn-${gradle.ext.versions.root}.jar")
+
+task testDemoMvn(type: Exec) {
+    dependsOn ':deployMvn'
+    commandLine 'java',
+            '-jar', "${mainPath.toAbsolutePath()}"
+    doFirst {
+        standardOutput = System.out
+        errorOutput = System.err
+    }
+}

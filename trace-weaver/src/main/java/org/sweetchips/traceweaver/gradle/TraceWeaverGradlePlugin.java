@@ -6,7 +6,7 @@ import org.sweetchips.traceweaver.TraceWeaverContext;
 public final class TraceWeaverGradlePlugin extends AbstractGradlePlugin<TraceWeaverExtension> {
 
     @Override
-    public final String getName() {
+    protected final String getName() {
         return TraceWeaverContext.NAME;
     }
 }

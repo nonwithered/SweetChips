@@ -6,7 +6,7 @@ import org.sweetchips.gradle.common.AbstractGradlePlugin;
 public final class ConstSweeperGradlePlugin extends AbstractGradlePlugin<ConstSweeperExtension> {
 
     @Override
-    public final String getName() {
+    protected final String getName() {
         return ConstSweeperContext.NAME;
     }
 }
