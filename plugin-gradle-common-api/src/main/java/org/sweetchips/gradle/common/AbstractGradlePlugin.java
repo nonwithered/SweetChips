@@ -42,10 +42,10 @@ public abstract class AbstractGradlePlugin<E extends AbstractExtension<? extends
         @SuppressWarnings("unchecked")
         Class<E> clazz = (Class<E>) parameterizedType.getActualTypeArguments()[0];
         mExtension = project.getExtensions().create(getName(), clazz);
-        mExtension.setAttach(it -> mExtension.getContext().onAttach(getWorkflowSettings(it)));
+        mExtension.setSettings(this::getWorkflowSettings);
     }
 
-    private WorkflowSettings getWorkflowSettings(String name) {
+    private final WorkflowSettings getWorkflowSettings(String name) {
         return (WorkflowSettings) getProject().getExtensions().findByName(name);
     }
 }

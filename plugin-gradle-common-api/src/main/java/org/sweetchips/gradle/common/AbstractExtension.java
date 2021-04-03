@@ -1,19 +1,17 @@
 package org.sweetchips.gradle.common;
 
 import org.sweetchips.platform.jvm.BasePluginContext;
+import org.sweetchips.platform.jvm.WorkflowSettings;
 import org.sweetchips.utility.ClassesUtil;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class AbstractExtension<C extends BasePluginContext> {
 
-    private Consumer<String> mAttach;
+    private Function<String, WorkflowSettings> mSettings;
     private final C mContext;
 
     public AbstractExtension() {
@@ -32,11 +30,11 @@ public abstract class AbstractExtension<C extends BasePluginContext> {
     }
 
     public final void attach(String name) {
-        if (mAttach == null) {
+        if (mSettings == null) {
             throw new IllegalStateException();
         }
-        mAttach.accept(name);
-        mAttach = null;
+        getContext().onAttach(mSettings.apply(name));
+        mSettings = null;
     }
 
     public final void ignore(String... name) {
@@ -47,7 +45,7 @@ public abstract class AbstractExtension<C extends BasePluginContext> {
         Arrays.asList(name).forEach(getContext()::addNotice);
     }
 
-    final void setAttach(Consumer<String> attach) {
-        mAttach = attach;
+    final void setSettings(Function<String, WorkflowSettings> settings) {
+        mSettings = settings;
     }
 }
