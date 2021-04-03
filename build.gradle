@@ -42,8 +42,20 @@ def cmdMvn = gradle.ext.isWindows()
 
 task cleanMvn(type: Exec) {
     commandLine "$cmdMvn", 'clean'
+    doFirst {
+        standardOutput = System.out
+        errorOutput = System.err
+    }
 }
 
 task clean(type: Delete, dependsOn: cleanMvn) {
     delete rootProject.buildDir
+}
+
+task deploy(type: Exec) {
+    commandLine "$cmdMvn", 'deploy'
+    doFirst {
+        standardOutput = System.out
+        errorOutput = System.err
+    }
 }
