@@ -3,7 +3,7 @@ apply from: rootProject.file('config/publish.gradle')
 
 dependencies {
     implementation project(':utility')
-    implementation project(':platform-common')
+    compileOnly project(':platform-common')
     api project(':platform-jvm-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly "org.ow2.asm:asm:$gradle.ext.versions.asm"

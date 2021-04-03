@@ -10,8 +10,8 @@ sourceSets {
 }
 
 dependencies {
-    implementation project(':platform-jvm-api')
-    implementation project(':plugin-gradle-common-api')
+    compileOnly project(':platform-jvm-api')
+    compileOnly project(':plugin-gradle-common-api')
     compileOnly project(':plugin-maven-common')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()

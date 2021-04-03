@@ -12,17 +12,13 @@
     <version>0.0.1-snapshot</version>
     <packaging>maven-plugin</packaging>
     <properties>
+        <exclude-gradle-dir>org/sweetchips/constsweeper/gradle/*</exclude-gradle-dir>
         <versions-maven-compiler-plugin>3.8.1</versions-maven-compiler-plugin>
+        <versions-maven-jar-plugin>3.2.0</versions-maven-jar-plugin>
         <maven-plugin-api>3.6.0</maven-plugin-api>
         <asm>5.1</asm>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>const-sweeper</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>plugin-maven-common</artifactId>
@@ -70,7 +66,18 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <excludes>
-                        <exclude>org/sweetchips/constsweeper/gradle/*</exclude>
+                        <exclude>${exclude-gradle-dir}</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${versions-maven-jar-plugin}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>META-INF/gradle-plugins/*</exclude>
+                        <exclude>META-INF/gradle-plugins</exclude>
                     </excludes>
                 </configuration>
             </plugin>

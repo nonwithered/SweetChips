@@ -3,8 +3,8 @@ apply from: rootProject.file('config/publish.gradle')
 
 dependencies {
     implementation project(':utility')
-    implementation project(':platform-common')
-    implementation project(':platform-jvm')
+    compileOnly project(':platform-common')
+    compileOnly project(':platform-jvm')
     api project(':plugin-gradle-common-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
