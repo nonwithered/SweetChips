@@ -1,12 +1,19 @@
 package org.sweetchips.traceweaver;
 
 import org.sweetchips.platform.jvm.BasePluginContext;
+import org.sweetchips.platform.jvm.WorkflowSettings;
 import org.sweetchips.traceweaver.ext.ClassInfo;
 import org.sweetchips.traceweaver.ext.MethodInfo;
 
 import java.util.function.BiFunction;
 
 public final class TraceWeaverContext extends BasePluginContext {
+
+    @Override
+    public final void onAttach(WorkflowSettings settings) {
+        settings.addTransformLast((api, cv, ext) -> new TraceWeaverTransformClassVisitor(api, cv).setContext(this));
+        settings.addClass(() -> new TraceWrapperClassNode(settings.getAsmApi()));
+    }
 
     public static final String NAME = "TraceWeaver";
 

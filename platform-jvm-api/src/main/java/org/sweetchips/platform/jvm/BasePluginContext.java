@@ -5,10 +5,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class BasePluginContext {
+public abstract class BasePluginContext {
 
     private final MemberScope mIgnore = BasePluginContext.newMemberScope();
     private final MemberScope mNotice = BasePluginContext.newMemberScope();
+
+    public abstract void onAttach(WorkflowSettings settings);
 
     public boolean isIgnored(String clazz, String member) {
         return mIgnore.contains(clazz, member) && !mNotice.contains(clazz, member);

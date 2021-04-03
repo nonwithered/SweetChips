@@ -18,7 +18,6 @@ public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
     private final int mAsmApi;
     private final File mBasedir;
 
-    protected abstract void onExecute(WorkflowSettings settings);
     public final C getContext() {
         return mContext;
     }
@@ -32,7 +31,7 @@ public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
 
     public final void execute() {
         JvmContext context = new JvmContext();
-        onExecute(new WorkflowProfile(context));
+        mContext.onAttach(new WorkflowProfile(context));
         work(context);
         sweep();
     }

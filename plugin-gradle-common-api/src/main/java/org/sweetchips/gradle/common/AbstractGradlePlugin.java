@@ -7,7 +7,6 @@ import org.sweetchips.platform.jvm.WorkflowSettings;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.function.Consumer;
 
 public abstract class AbstractGradlePlugin<E extends AbstractExtension<? extends BasePluginContext>> implements Plugin<Project> {
 
@@ -27,12 +26,6 @@ public abstract class AbstractGradlePlugin<E extends AbstractExtension<? extends
     protected void onApply() {
     }
 
-    protected abstract void onAttach(String name);
-
-    protected final WorkflowSettings getWorkflowSettings(String name) {
-        return (WorkflowSettings) getProject().getExtensions().findByName(name);
-    }
-
     @Override
     public final void apply(Project project) {
         init(project);
@@ -49,6 +42,10 @@ public abstract class AbstractGradlePlugin<E extends AbstractExtension<? extends
         @SuppressWarnings("unchecked")
         Class<E> clazz = (Class<E>) parameterizedType.getActualTypeArguments()[0];
         mExtension = project.getExtensions().create(getName(), clazz);
-        mExtension.setAttach((Consumer<String>) this::onAttach);
+        mExtension.setAttach(it -> mExtension.getContext().onAttach(getWorkflowSettings(it)));
+    }
+
+    private WorkflowSettings getWorkflowSettings(String name) {
+        return (WorkflowSettings) getProject().getExtensions().findByName(name);
     }
 }
