@@ -1,5 +1,6 @@
 package org.sweetchips.maven.java;
 
+import org.apache.maven.plugin.logging.Log;
 import org.sweetchips.platform.jvm.BasePluginContext;
 import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.utility.ClassesUtil;
@@ -12,6 +13,9 @@ import java.nio.file.Path;
 
 public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
 
+    private static final String TAG = "AbstractMavenPlugin";
+
+    private final SweetChipsMavenContextLogger mLogger;
     private final C mContext;
     private final int mAsmApi;
     private final File mBasedir;
@@ -22,17 +26,20 @@ public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
         return mContext;
     }
 
-    public AbstractMavenPlugin(int asmApi, File basedir) {
+    public AbstractMavenPlugin(Log log, int asmApi, File basedir) {
+        mLogger = new SweetChipsMavenContextLogger(log);
         mContext = newContext();
         mAsmApi = asmApi;
         mBasedir = basedir;
     }
 
     public final void execute() {
-        JvmContext context = new JvmContext();
+        mLogger.d(TAG, getName() + ": execute: begin");
+        JvmContext context = new JvmContext(mLogger);
         mContext.onAttach(new WorkflowProfile(context));
         work(context);
         sweep();
+        mLogger.d(TAG, getName() + ": execute: end");
     }
 
     private C newContext() {
@@ -47,20 +54,24 @@ public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
     }
 
     private void work(JvmContext context) {
+        mLogger.d(TAG, getName() + ": work: begin");
         Path from = getClassDir();
         Path to = getTempDir();
         FilesUtil.deleteIfExists(to);
         context.setApi(mAsmApi);
-        new SweetchipsJavaMavenTransform(context).transform(from, to);
+        new SweetchipsJavaMavenTransform(mLogger, context).transform(from, to);
+        mLogger.d(TAG, getName() + ": work: end");
     }
 
     private void sweep() {
+        mLogger.d(TAG, getName() + ": sweep: begin");
         Path from = getTempDir();
         Path to = getClassDir();
         FilesUtil.deleteIfExists(to);
-        JvmContext context = new JvmContext();
+        JvmContext context = new JvmContext(mLogger);
         context.setApi(mAsmApi);
-        new SweetchipsJavaMavenTransform(context).transform(from, to);
+        new SweetchipsJavaMavenTransform(mLogger, context).transform(from, to);
+        mLogger.d(TAG, getName() + ": sweep: end");
     }
 
     private Path getClassDir() {

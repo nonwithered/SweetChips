@@ -41,7 +41,7 @@ public class SweetChipsExtension {
     }
 
     public TransformExt addTransform(String name) {
-        JvmContext context = new JvmContext();
+        JvmContext context = new JvmContext(mPlugin.getLogger());
         context.setApi(mAsmApi);
         mPlugin.registerTransform(name, context);
         WorkflowExtension extension = mPlugin.getProject().getExtensions().create(name, WorkflowExtension.class, context);

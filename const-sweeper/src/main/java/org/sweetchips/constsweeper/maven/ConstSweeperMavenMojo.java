@@ -26,7 +26,7 @@ public final class ConstSweeperMavenMojo extends AbstractMojo {
 
     @Override
     public void execute() {
-        ConstSweeperMavenPlugin plugin = new ConstSweeperMavenPlugin(asmApi, basedir);
+        ConstSweeperMavenPlugin plugin = new ConstSweeperMavenPlugin(getLog(), asmApi, basedir);
         if (ignores != null) {
             Arrays.stream(ignores).forEach(plugin.getContext()::addIgnore);
         }

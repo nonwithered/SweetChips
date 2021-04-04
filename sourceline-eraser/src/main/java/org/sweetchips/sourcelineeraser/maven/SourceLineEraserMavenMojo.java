@@ -26,7 +26,7 @@ public class SourceLineEraserMavenMojo extends AbstractMojo {
 
     @Override
     public void execute() {
-        SourceLineEraserMavenPlugin plugin = new SourceLineEraserMavenPlugin(asmApi, basedir);
+        SourceLineEraserMavenPlugin plugin = new SourceLineEraserMavenPlugin(getLog(), asmApi, basedir);
         if (ignores != null) {
             Arrays.stream(ignores).forEach(plugin.getContext()::addIgnore);
         }

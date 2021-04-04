@@ -19,7 +19,7 @@ public class AnnotationsVisitorsMavenMojo extends AbstractMojo {
 
     @Override
     public void execute() {
-        AnnotationsVisitorsMavenPlugin plugin = new AnnotationsVisitorsMavenPlugin(asmApi, basedir);
+        AnnotationsVisitorsMavenPlugin plugin = new AnnotationsVisitorsMavenPlugin(getLog(), asmApi, basedir);
         plugin.execute();
     }
 }

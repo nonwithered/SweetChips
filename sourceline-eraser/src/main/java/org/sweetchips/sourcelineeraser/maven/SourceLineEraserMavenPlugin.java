@@ -1,5 +1,6 @@
 package org.sweetchips.sourcelineeraser.maven;
 
+import org.apache.maven.plugin.logging.Log;
 import org.sweetchips.maven.java.AbstractMavenPlugin;
 import org.sweetchips.sourcelineeraser.SourceLineEraserContext;
 
@@ -12,7 +13,7 @@ public class SourceLineEraserMavenPlugin extends AbstractMavenPlugin<SourceLineE
         return SourceLineEraserContext.NAME;
     }
 
-    public SourceLineEraserMavenPlugin(int asmApi, File basedir) {
-        super(asmApi, basedir);
+    public SourceLineEraserMavenPlugin(Log log, int asmApi, File basedir) {
+        super(log, asmApi, basedir);
     }
 }

@@ -4,6 +4,7 @@ import com.android.build.gradle.BaseExtension;
 
 import org.gradle.api.Project;
 import org.gradle.api.ProjectConfigurationException;
+import org.sweetchips.gradle.common.SweetChipsGradleContextLogger;
 import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.gradle.common.SweetChipsGradlePlugin;
 
@@ -23,6 +24,6 @@ public final class SweetChipsAndroidGradlePlugin extends SweetChipsGradlePlugin 
 
     @Override
     protected final void registerTransform(String name, JvmContext context) {
-        mAndroid.registerTransform(new SweetChipsAndroidGradleTransform(name, context));
+        mAndroid.registerTransform(new SweetChipsAndroidGradleTransform(getLogger(), name, context));
     }
 }

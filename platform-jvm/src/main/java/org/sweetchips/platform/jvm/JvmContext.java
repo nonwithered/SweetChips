@@ -4,6 +4,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
+import org.sweetchips.platform.common.ContextLogger;
 import org.sweetchips.platform.common.PlatformContext;
 import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.ItemsUtil;
@@ -23,6 +24,14 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class JvmContext implements PlatformContext {
+
+    private static final String TAG = "JvmContext";
+
+    private final ContextLogger mLogger;
+
+    public JvmContext(ContextLogger logger) {
+        mLogger = logger;
+    }
 
     private boolean mIncremental;
     private int mApi;
@@ -130,8 +139,10 @@ public final class JvmContext implements PlatformContext {
     }
 
     private void doPrepareBefore() {
+        mLogger.d(TAG, "doPrepareBefore: begin");
         AsyncUtil.with(mPrepareBefore.stream()).forkJoin(it -> it.accept(mExtra));
         mPrepareBefore = null;
+        mLogger.d(TAG, "doPrepareBefore: end");
     }
 
     private void doPrepare(byte[] bytes) {
@@ -148,13 +159,16 @@ public final class JvmContext implements PlatformContext {
     }
 
     private void doPrepareAdditions() {
+        mLogger.d(TAG, "doPrepareAdditions: begin");
         Collection<ClassVisitorFactory> collection = mPrepare;
         mPrepare = null;
         Queue<ClassNode> queue = new ConcurrentLinkedQueue<>();
         mClasses = queue;
         AsyncUtil.with(mAdditions.stream()).forkJoin(it -> {
+            ClassNode addition = it.get();
+            mLogger.i(TAG, "doPrepareAdditions: create " + addition.name);
             if (collection.size() == 0) {
-                queue.add(it.get());
+                queue.add(addition);
                 return;
             }
             ClassNode cn = new ClassNode(mApi);
@@ -162,25 +176,31 @@ public final class JvmContext implements PlatformContext {
             for (ClassVisitorFactory factory : collection) {
                 cv = factory.newInstance(mApi, cv, mExtra);
             }
-            it.get().accept(cv);
+            addition.accept(cv);
             queue.add(cn);
         });
         mAdditions = null;
+        mLogger.d(TAG, "doPrepareAdditions: end");
     }
 
     private void doPrepareAfter() {
         doPrepareAdditions();
+        mLogger.d(TAG, "doPrepareAfter: begin");
         AsyncUtil.with(mPrepareAfter.stream()).forkJoin(it -> it.accept(mExtra));
         mPrepareAfter = null;
+        mLogger.d(TAG, "doPrepareAfter: end");
     }
 
     private void doTransformBefore() {
+        mLogger.d(TAG, "doTransformBefore: begin");
         AsyncUtil.with(mTransformBefore.stream()).forkJoin(it -> it.accept(mExtra));
-        doTransformAdditions();
         mTransformBefore = null;
+        mLogger.d(TAG, "doTransformBefore: end");
+        doTransformAdditions();
     }
 
     private void doTransformAdditions() {
+        mLogger.d(TAG, "doTransformAdditions: begin");
         Collection<ClassVisitorFactory> collection = mTransform;
         Collection<ClassNode> classes = mClasses;
         mClasses = null;
@@ -197,11 +217,13 @@ public final class JvmContext implements PlatformContext {
             ClassesSetting.resetDeleteFlag();
             it.accept(cv);
             if (ClassesSetting.checkDeleteFlag()) {
+                mLogger.i(TAG, "doTransformAdditions: delete " + cn.name);
                 return;
             }
             checkAndWriteBytes(cn);
         });
         mBytesWriter = null;
+        mLogger.d(TAG, "doTransformAdditions: end");
     }
 
     private byte[] doTransform(byte[] bytes) {
@@ -218,16 +240,19 @@ public final class JvmContext implements PlatformContext {
         ClassesSetting.resetDeleteFlag();
         cr.accept(cv, ClassReader.EXPAND_FRAMES);
         if (ClassesSetting.checkDeleteFlag()) {
+            mLogger.i(TAG, "doTransform: delete a class");
             return null;
         }
         return cw.toByteArray();
     }
 
     private void doTransformAfter() {
+        mLogger.d(TAG, "doTransformAfter: begin");
         mTransform = null;
         AsyncUtil.with(mTransformAfter.stream()).forkJoin(it -> it.accept(mExtra));
         mTransformAfter = null;
         mExtra = null;
+        mLogger.d(TAG, "doTransformAfter: end");
     }
 
     private void checkAndWriteBytes(ClassNode cn) {

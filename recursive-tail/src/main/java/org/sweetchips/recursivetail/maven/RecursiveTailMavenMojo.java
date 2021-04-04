@@ -26,7 +26,7 @@ public class RecursiveTailMavenMojo extends AbstractMojo {
 
     @Override
     public void execute() {
-        RecursiveTailMavenPlugin plugin = new RecursiveTailMavenPlugin(asmApi, basedir);
+        RecursiveTailMavenPlugin plugin = new RecursiveTailMavenPlugin(getLog(), asmApi, basedir);
         if (ignores != null) {
             Arrays.stream(ignores).forEach(plugin.getContext()::addIgnore);
         }

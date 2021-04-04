@@ -5,17 +5,22 @@ import org.sweetchips.utility.StageWorker;
 
 import java.util.Collection;
 
-public final class Transformer {
+final class Transformer {
 
+    private static final String TAG = "Transformer";
+
+    private final ContextLogger mLogger;
     private final StageWorker mBarrier;
     private final Collection<RootUnit> mUnits;
 
-    public Transformer(StageWorker barrier, Collection<RootUnit> units) {
+    public Transformer(ContextLogger logger, StageWorker barrier, Collection<RootUnit> units) {
+        mLogger = logger;
         mBarrier = barrier;
         mUnits = units;
     }
 
     public void doWork() {
+        mLogger.d(TAG, "doWork: begin");
         AsyncUtil.managedBlock(() -> {
             mBarrier.await();
             doPrepare();
@@ -23,9 +28,11 @@ public final class Transformer {
             doTransform();
             mBarrier.await();
         });
+        mLogger.d(TAG, "doWork: end");
     }
 
     private void doPrepare() {
+        mLogger.d(TAG, "doPrepare: begin");
         AsyncUtil.with(mUnits.stream())
                 .forkJoin(it -> {
                     switch (it.getStatus()) {
@@ -40,9 +47,11 @@ public final class Transformer {
                             throw new IllegalArgumentException(it.toString());
                     }
                 });
+        mLogger.d(TAG, "doPrepare: end");
     }
 
     private void doTransform() {
+        mLogger.d(TAG, "doTransform: begin");
         AsyncUtil.with(mUnits.stream())
                 .forkJoin(it -> {
                     switch (it.getStatus()) {
@@ -59,5 +68,6 @@ public final class Transformer {
                             throw new IllegalArgumentException(it.toString());
                     }
                 });
+        mLogger.d(TAG, "doTransform: end");
     }
 }

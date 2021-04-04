@@ -1,5 +1,6 @@
 package org.sweetchips.recursivetail.maven;
 
+import org.apache.maven.plugin.logging.Log;
 import org.sweetchips.maven.java.AbstractMavenPlugin;
 import org.sweetchips.recursivetail.RecursiveTailContext;
 
@@ -12,7 +13,7 @@ public class RecursiveTailMavenPlugin extends AbstractMavenPlugin<RecursiveTailC
         return RecursiveTailContext.NAME;
     }
 
-    public RecursiveTailMavenPlugin(int asmApi, File basedir) {
-        super(asmApi, basedir);
+    public RecursiveTailMavenPlugin(Log log, int asmApi, File basedir) {
+        super(log, asmApi, basedir);
     }
 }

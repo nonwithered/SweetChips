@@ -26,7 +26,7 @@ public class InlineTailorMavenMojo extends AbstractMojo {
 
     @Override
     public void execute() {
-        InlineTailorMavenPlugin plugin = new InlineTailorMavenPlugin(asmApi, basedir);
+        InlineTailorMavenPlugin plugin = new InlineTailorMavenPlugin(getLog(), asmApi, basedir);
         if (ignores != null) {
             Arrays.stream(ignores).forEach(plugin.getContext()::addIgnore);
         }

@@ -11,6 +11,7 @@ import com.android.build.api.transform.TransformInput;
 import com.android.build.api.transform.TransformInvocation;
 import com.android.build.gradle.internal.pipeline.TransformManager;
 
+import org.sweetchips.platform.common.ContextLogger;
 import org.sweetchips.platform.jvm.JvmContextCallbacks;
 import org.sweetchips.platform.common.AbstractUnit;
 import org.sweetchips.platform.common.FileUnit;
@@ -28,17 +29,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 final class SweetChipsAndroidGradleTransform extends Transform {
 
+    private static final String TAG = "SweetChipsAndroidGradleTransform";
+
+    private final ContextLogger mLogger;
     private final String mName;
     private TransformInvocation mTransformInvocation;
     private JvmContext mContext;
     private JvmContextCallbacks mContextCallbacks;
 
-    SweetChipsAndroidGradleTransform(String name, JvmContext context) {
+    SweetChipsAndroidGradleTransform(ContextLogger logger, String name, JvmContext context) {
+        mLogger = logger;
         mName = name;
         mContext = context;
         mContextCallbacks = new JvmContextCallbacks(context);
@@ -66,7 +72,8 @@ final class SweetChipsAndroidGradleTransform extends Transform {
 
     @Override
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
-        Workflow workflow = new Workflow();
+        mLogger.d(TAG, mName + ": transform: begin");
+        Workflow workflow = new Workflow(mLogger);
         workflow.apply(mContext);
         mTransformInvocation = transformInvocation;
         initBytesWriter();
@@ -74,7 +81,10 @@ final class SweetChipsAndroidGradleTransform extends Transform {
                 .map(this::forEachTransformInput)
                 .forEach(workflow::addWork);
         try {
-            workflow.start(Runnable::run).get();
+            Future<?> future = workflow.start(Runnable::run);
+            mLogger.d(TAG, mName + ": wait: begin");
+            future.get();
+            mLogger.d(TAG, mName + ": wait: end");
         } catch (ExecutionException e) {
             throw new TransformException(e);
         } finally {
@@ -82,6 +92,7 @@ final class SweetChipsAndroidGradleTransform extends Transform {
             mContextCallbacks = null;
             mContext = null;
         }
+        mLogger.d(TAG, mName + ": transform: end");
     }
 
     private void initBytesWriter() {
@@ -96,10 +107,14 @@ final class SweetChipsAndroidGradleTransform extends Transform {
                 }
             }
             if (directoryInput != null) {
-                Path path = provideDirectoryInput(directoryInput);
-                list.add((str, bytes) -> FilesUtil.writeTo(path.resolve(str + ".class"), bytes));
+                Path bytesPath = provideDirectoryInput(directoryInput);
+                list.add((str, bytes) -> FilesUtil.writeTo(bytesPath.resolve(str + ".class"), bytes));
+                mLogger.i(TAG, mName + ": initBytesWriter: " + bytesPath.toAbsolutePath());
             }
         });
+        if (list.isEmpty()) {
+            mLogger.w(TAG, mName + ": initBytesWriter: none");
+        }
     }
 
     private Collection<RootUnit> forEachTransformInput(TransformInput transformInput) {
@@ -113,15 +128,19 @@ final class SweetChipsAndroidGradleTransform extends Transform {
         RootUnit.Status status = statusOf(jarInput.getStatus());
         Path input = jarInput.getFile().toPath();
         Path output = provideJarInput(jarInput);
+        mLogger.d(TAG, mName + "jarInput: zip: " + input.toAbsolutePath());
         ZipUnit zipUnit = new ZipUnit(input, output, mContextCallbacks.onPrepareZip(), mContextCallbacks.onTransformZip());
         return new RootUnit(status, zipUnit);
     }
 
     private Collection<RootUnit> forEachDirectoryInput(DirectoryInput directoryInput) {
-        if (!mTransformInvocation.isIncremental()) {
+        boolean isIncremental = mTransformInvocation.isIncremental();
+        mLogger.i(TAG, mName + "isIncremental: " + isIncremental);
+        if (!isIncremental) {
             RootUnit.Status status = RootUnit.Status.ADDED;
             Path input = directoryInput.getFile().toPath();
             Path output = provideDirectoryInput(directoryInput);
+            mLogger.d(TAG, mName + "directoryInput: path: " + input.toAbsolutePath());
             PathUnit pathUnit = new PathUnit(input, output, mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath());
             return Collections.singleton(new RootUnit(status, pathUnit));
         }
@@ -141,8 +160,10 @@ final class SweetChipsAndroidGradleTransform extends Transform {
         RootUnit.Status status = statusOf(stat);
         AbstractUnit abstractUnit;
         if (FilesUtil.isDirectory(input)) {
+            mLogger.d(TAG, mName + "changedFile: path: " + input.toAbsolutePath());
             abstractUnit = new PathUnit(input, output, mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath());
         } else {
+            mLogger.d(TAG, mName + "changedFile: file: " + input.toAbsolutePath());
             abstractUnit = new FileUnit(input, output, mContextCallbacks.onPrepareFile(), mContextCallbacks.onTransformFile());
         }
         return new RootUnit(status, abstractUnit);

@@ -7,6 +7,7 @@
     <version>0.0.1-snapshot</version>
     <packaging>pom</packaging>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <versionsMavenCompilerPlugin>3.8.1</versionsMavenCompilerPlugin>
         <versionsMavenJarPlugin>3.2.0</versionsMavenJarPlugin>
         <versionsMavenPluginPlugin>3.6.0</versionsMavenPluginPlugin>

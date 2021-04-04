@@ -1,5 +1,6 @@
 package org.sweetchips.constsweeper.maven;
 
+import org.apache.maven.plugin.logging.Log;
 import org.sweetchips.constsweeper.ConstSweeperContext;
 import org.sweetchips.maven.java.AbstractMavenPlugin;
 
@@ -12,7 +13,7 @@ final class ConstSweeperMavenPlugin extends AbstractMavenPlugin<ConstSweeperCont
         return ConstSweeperContext.NAME;
     }
 
-    public ConstSweeperMavenPlugin(int asmApi, File basedir) {
-        super(asmApi, basedir);
+    public ConstSweeperMavenPlugin(Log log, int asmApi, File basedir) {
+        super(log, asmApi, basedir);
     }
 }
