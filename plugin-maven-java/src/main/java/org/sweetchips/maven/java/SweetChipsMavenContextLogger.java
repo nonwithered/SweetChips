@@ -3,7 +3,7 @@ package org.sweetchips.maven.java;
 import org.apache.maven.plugin.logging.Log;
 import org.sweetchips.platform.common.ContextLogger;
 
-public final class SweetChipsMavenContextLogger extends ContextLogger {
+final class SweetChipsMavenContextLogger extends ContextLogger {
 
     private final Log mLog;
 

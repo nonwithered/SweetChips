@@ -1,7 +1,7 @@
 package org.sweetchips.inlinetailor;
 
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.sweetchips.platform.jvm.BaseClassNode;
 
@@ -14,18 +14,13 @@ public final class InlineTailorTransformClassNode extends BaseClassNode<InlineTa
     }
 
     @Override
-    public void accept(ClassVisitor cv) {
-        onAccept();
-        super.accept(cv);
-    }
-
-    private void onAccept() {
+    protected final void onAccept() {
         if (getContext().isIgnored(name, null)) {
             return;
         }
         @SuppressWarnings("unchecked")
         List<MethodNode> methods = this.methods;
-        InlineTailorManager manager = new InlineTailorManager(name, InlineTailorContext.checkAccess(access, Opcodes.ACC_FINAL));
+        InlineTailorManager manager = new InlineTailorManager(this, getContext());
         methods.stream().filter(it ->
                 !getContext().isIgnored(name, it.name)
                         && !it.name.equals("<init>") && !it.name.equals("<clinit>")

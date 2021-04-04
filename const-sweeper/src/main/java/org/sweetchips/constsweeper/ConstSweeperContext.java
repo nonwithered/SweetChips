@@ -23,10 +23,6 @@ public final class ConstSweeperContext extends BasePluginContext {
 
     public static final String NAME = "ConstSweeper";
 
-    static String getKey(String className, String fieldName, String fieldType) {
-        return className + "->" + fieldName + ":" + fieldType;
-    }
-
     private final Map<String, Object> mConstants = new ConcurrentHashMap<>();
 
     Map<String, Object> getConstants() {

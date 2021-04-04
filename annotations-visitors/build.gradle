@@ -10,6 +10,7 @@ sourceSets {
 }
 
 dependencies {
+    implementation project(':utility')
     implementation project(':annotations')
     compileOnly project(':platform-jvm-api')
     compileOnly project(':plugin-maven-java')

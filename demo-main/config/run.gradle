@@ -5,10 +5,6 @@ def jarPath = project.buildDir.toPath()
 def mainPath = project.buildDir.toPath().parent.resolve('target')
         .resolve("$project.name-mvn-${gradle.ext.versions.root}.jar")
 
-def cmdMvn = gradle.ext.isWindows()
-        ? 'mvn.cmd'
-        : 'mvn'
-
 task testDemo(type: Exec) {
     dependsOn project(':demo-main').tasks.assemble
     commandLine 'java',
@@ -19,16 +15,8 @@ task testDemo(type: Exec) {
     }
 }
 
-task deployMvn(type: Exec, dependsOn: testDemo) {
-    workingDir rootDir
-    commandLine "$cmdMvn", 'deploy'
-    doFirst {
-        standardOutput = System.out
-        errorOutput = System.err
-    }
-}
-
-task testDemoMvn(type: Exec, dependsOn: deployMvn) {
+task testDemoMvn(type: Exec, dependsOn: testDemo) {
+    dependsOn ':deployMvn'
     commandLine 'java',
             '-jar', "${mainPath.toAbsolutePath()}"
     doFirst {

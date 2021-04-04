@@ -18,10 +18,6 @@ public abstract class BaseClassVisitor<C extends BasePluginContext> extends Clas
         return mContext;
     }
 
-    public BaseClassVisitor(int api) {
-        this(api, null);
-    }
-
     public BaseClassVisitor(int api, ClassVisitor cv) {
         super(api, cv);
     }

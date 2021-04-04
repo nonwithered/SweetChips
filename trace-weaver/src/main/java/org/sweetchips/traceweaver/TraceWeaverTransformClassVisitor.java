@@ -31,6 +31,6 @@ public final class TraceWeaverTransformClassVisitor extends BaseClassVisitor<Tra
         }
         MethodInfo methodInfo = new MethodInfo(access, name, desc, signature, exceptions);
         String sectionName = getContext().getSectionName(mClassInfo, methodInfo);
-        return new TraceWeaverMethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions), sectionName).withContext(getContext());
+        return new TraceWeaverTransformMethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions), sectionName).withContext(getContext());
     }
 }

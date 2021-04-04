@@ -2,9 +2,7 @@ package org.sweetchips.gradle.android;
 
 import com.android.build.gradle.BaseExtension;
 
-import org.gradle.api.Project;
 import org.gradle.api.ProjectConfigurationException;
-import org.sweetchips.gradle.common.SweetChipsGradleContextLogger;
 import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.gradle.common.SweetChipsGradlePlugin;
 

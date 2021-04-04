@@ -7,8 +7,6 @@ import org.sweetchips.utility.ClassesUtil;
 import org.sweetchips.utility.FilesUtil;
 
 import java.io.File;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.nio.file.Path;
 
 public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
@@ -43,13 +41,8 @@ public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
     }
 
     private C newContext() {
-        Type type = getClass();
-        while (!(type instanceof ParameterizedType)) {
-            type = ((Class<?>) type).getGenericSuperclass();
-        }
-        ParameterizedType parameterizedType = (ParameterizedType) type;
         @SuppressWarnings("unchecked")
-        Class<C> clazz = (Class<C>) parameterizedType.getActualTypeArguments()[0];
+        Class<C> clazz = (Class<C>) ClassesUtil.getTypeArgs(getClass())[0];
         return ClassesUtil.newInstance(ClassesUtil.getDeclaredConstructor(clazz));
     }
 

@@ -12,7 +12,7 @@ public final class TraceWeaverContext extends BasePluginContext {
     @Override
     public final void onAttach(WorkflowSettings settings) {
         settings.addTransformLast((api, cv, ext) -> new TraceWeaverTransformClassVisitor(api, cv).setContext(this));
-        settings.addClass(() -> new TraceWrapperClassNode(settings.getAsmApi()));
+        settings.addClass(() -> new TraceWrapperClassNode(settings.getAsmApi(), this));
     }
 
     public static final String NAME = "TraceWeaver";
@@ -36,11 +36,11 @@ public final class TraceWeaverContext extends BasePluginContext {
                     + "#"
                     + methodInfo.name;
 
-    public String getSectionName(ClassInfo classInfo, MethodInfo methodInfo) {
+    String getSectionName(ClassInfo classInfo, MethodInfo methodInfo) {
         return mSectionName.apply(classInfo, methodInfo);
     }
 
-    public int getDepth() {
+    int getDepth() {
         return mDepth;
     }
 

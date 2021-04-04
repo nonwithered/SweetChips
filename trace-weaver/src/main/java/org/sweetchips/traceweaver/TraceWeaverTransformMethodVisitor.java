@@ -2,19 +2,24 @@ package org.sweetchips.traceweaver;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.sweetchips.traceweaver.ext.ClassInfo;
+import org.sweetchips.traceweaver.ext.MethodInfo;
+import org.sweetchips.utility.ClassesUtil;
 
-final class TraceWeaverMethodVisitor extends MethodVisitor {
+final class TraceWeaverTransformMethodVisitor extends MethodVisitor {
+
+    private static final String TAG = "TraceWeaverTransformMethodVisitor";
 
     private TraceWeaverContext mContext;
 
-    TraceWeaverMethodVisitor withContext(TraceWeaverContext context) {
+    TraceWeaverTransformMethodVisitor withContext(TraceWeaverContext context) {
         mContext = context;
         return this;
     }
 
     private final String mSectionName;
 
-    TraceWeaverMethodVisitor(int api, MethodVisitor mv, String sectionName) {
+    TraceWeaverTransformMethodVisitor(int api, MethodVisitor mv, String sectionName) {
         super(api, mv);
         mSectionName = sectionName(sectionName);
     }

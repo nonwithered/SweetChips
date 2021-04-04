@@ -1,5 +1,6 @@
 package org.sweetchips.platform.jvm;
 
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.tree.ClassNode;
 
 public abstract class BaseClassNode<C extends BasePluginContext> extends ClassNode {
@@ -21,4 +22,12 @@ public abstract class BaseClassNode<C extends BasePluginContext> extends ClassNo
     public BaseClassNode(int api) {
         super(api);
     }
+
+    @Override
+    public final void accept(ClassVisitor cv) {
+        onAccept();
+        super.accept(cv);
+    }
+
+    protected abstract void onAccept();
 }

@@ -3,7 +3,7 @@ package org.sweetchips.gradle.common;
 import org.gradle.api.logging.Logger;
 import org.sweetchips.platform.common.ContextLogger;
 
-public final class SweetChipsGradleContextLogger extends ContextLogger {
+final class SweetChipsGradleContextLogger extends ContextLogger {
 
     private final Logger mLogger;
 

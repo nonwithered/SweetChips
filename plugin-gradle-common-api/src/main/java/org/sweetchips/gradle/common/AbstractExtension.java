@@ -15,13 +15,8 @@ public abstract class AbstractExtension<C extends BasePluginContext> {
     private final C mContext;
 
     public AbstractExtension() {
-        Type type = getClass();
-        while (!(type instanceof ParameterizedType)) {
-            type = ((Class<?>) type).getGenericSuperclass();
-        }
-        ParameterizedType parameterizedType = (ParameterizedType) type;
         @SuppressWarnings("unchecked")
-        Class<C> clazz = (Class<C>) parameterizedType.getActualTypeArguments()[0];
+        Class<C> clazz = (Class<C>) ClassesUtil.getTypeArgs(getClass())[0];
         mContext = ClassesUtil.newInstance(ClassesUtil.getDeclaredConstructor(clazz));
     }
 

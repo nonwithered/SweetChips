@@ -2,35 +2,39 @@ package org.sweetchips.inlinetailor;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.sweetchips.utility.ClassesUtil;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 final class InlineTailorManager {
+    
+    private static final String TAG = "InlineTailorManager";
 
     private final Map<String, Item> mItems = new HashMap<>();
-    private final String mName;
-    private final boolean mFinal;
+    private final ClassNode mClassNode;
+    private final InlineTailorContext mContext;
 
-    InlineTailorManager(String name, boolean isFinal) {
-        mName = name;
-        mFinal = isFinal;
+    InlineTailorManager(ClassNode cn, InlineTailorContext context) {
+        mClassNode = cn;
+        mContext = context;
     }
 
     void register(MethodNode mn) {
-        if (!checkMethod(mn, mFinal)) {
+        if (!checkMethod(mn, InlineTailorContext.checkAccess(mClassNode.access, Opcodes.ACC_FINAL))) {
             return;
         }
         InsnList insnList = InlineTailorContext.getInsnList(mn);
         if (insnList == null) {
             return;
         }
-        mItems.put(InlineTailorContext.getItemId(mName, mn.name, mn.desc), new Item(insnList, mn.maxStack));
+        mItems.put(ClassesUtil.toStringMethod(mClassNode.name, mn.name, mn.desc), new Item(insnList, mn.maxStack));
     }
 
     void prepare() {
@@ -47,13 +51,15 @@ final class InlineTailorManager {
                 continue;
             }
             MethodInsnNode methodInsnNode = (MethodInsnNode) insn;
-            Item item = mItems.get(InlineTailorContext.getItemId(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc));
+            String str = ClassesUtil.toStringMethod(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc);
+            Item item = mItems.get(str);
             if (item == null) {
                 continue;
             }
             mn.instructions.insertBefore(methodInsnNode, item.cloneInsn());
             itr.remove();
             mn.maxStack += item.mStackSize;
+            mContext.getLogger().i(TAG, ClassesUtil.toStringMethod(mClassNode.name, mn.name, mn.desc) + " inline invoke " + str);
         }
     }
 
@@ -84,7 +90,7 @@ final class InlineTailorManager {
                 continue;
             }
             MethodInsnNode methodInsnNode = (MethodInsnNode) abstractInsnNode;
-            Item another = mItems.get(InlineTailorContext.getItemId(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc));
+            Item another = mItems.get(ClassesUtil.toStringMethod(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc));
             if (another == null || another.mContains > 0) {
                 continue;
             }
@@ -136,7 +142,7 @@ final class InlineTailorManager {
                     continue;
                 }
                 MethodInsnNode invokeInsn = (MethodInsnNode) insn;
-                if (mItems.containsKey(InlineTailorContext.getItemId(invokeInsn.owner, invokeInsn.name, invokeInsn.desc))) {
+                if (mItems.containsKey(ClassesUtil.toStringMethod(invokeInsn.owner, invokeInsn.name, invokeInsn.desc))) {
                     mContains++;
                 }
             }

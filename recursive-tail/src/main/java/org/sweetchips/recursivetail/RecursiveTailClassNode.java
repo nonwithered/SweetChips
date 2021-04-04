@@ -1,6 +1,5 @@
 package org.sweetchips.recursivetail;
 
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -13,6 +12,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.sweetchips.platform.jvm.BaseClassNode;
+import org.sweetchips.utility.ClassesUtil;
 
 import java.util.Iterator;
 import java.util.List;
@@ -20,17 +20,14 @@ import java.util.ListIterator;
 
 public final class RecursiveTailClassNode extends BaseClassNode<RecursiveTailContext> {
 
+    private static final String TAG = "RecursiveTailClassNode";
+
     public RecursiveTailClassNode(int api) {
         super(api);
     }
 
     @Override
-    public void accept(ClassVisitor cv) {
-        onAccept();
-        super.accept(cv);
-    }
-
-    private void onAccept() {
+    protected final void onAccept() {
         @SuppressWarnings("unchecked")
         List<MethodNode> methods = this.methods;
         methods.stream()
@@ -95,6 +92,7 @@ public final class RecursiveTailClassNode extends BaseClassNode<RecursiveTailCon
                     methodNode.instructions.insertBefore(abstractInsnNode, new JumpInsnNode(Opcodes.GOTO, labelNode));
                     iterator.remove();
                     methodNode.instructions.remove(methodInsnNode);
+                    getContext().getLogger().i(TAG, ClassesUtil.toStringMethod(name, methodNode.name, methodNode.desc));
                     break;
             }
         }

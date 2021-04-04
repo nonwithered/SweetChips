@@ -4,9 +4,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.sweetchips.platform.jvm.BasePluginContext;
 import org.sweetchips.platform.jvm.WorkflowSettings;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import org.sweetchips.utility.ClassesUtil;
 
 public abstract class AbstractGradlePlugin<E extends AbstractExtension<? extends BasePluginContext>> implements Plugin<Project> {
 
@@ -34,18 +32,15 @@ public abstract class AbstractGradlePlugin<E extends AbstractExtension<? extends
 
     private void init(Project project) {
         mProject = project;
-        Type type = getClass();
-        while (!(type instanceof ParameterizedType)) {
-            type = ((Class<?>) type).getGenericSuperclass();
-        }
-        ParameterizedType parameterizedType = (ParameterizedType) type;
         @SuppressWarnings("unchecked")
-        Class<E> clazz = (Class<E>) parameterizedType.getActualTypeArguments()[0];
-        mExtension = project.getExtensions().create(getName(), clazz);
-        mExtension.setSettings(this::getWorkflowSettings);
+        Class<E> clazz = (Class<E>) ClassesUtil.getTypeArgs(getClass())[0];
+        E extension = project.getExtensions().create(getName(), clazz);
+        mExtension = extension;
+        extension.getContext().setLogger(new SweetChipsGradleContextLogger(project.getLogger()));
+        extension.setSettings(this::getWorkflowSettings);
     }
 
-    private final WorkflowSettings getWorkflowSettings(String name) {
+    private WorkflowSettings getWorkflowSettings(String name) {
         return (WorkflowSettings) getProject().getExtensions().findByName(name);
     }
 }

@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.Collections;
 import java.util.function.Supplier;
@@ -19,6 +21,25 @@ import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 
 public interface ClassesUtil {
+
+    static String toStringMethod(String owner, String name, String desc) {
+        return owner + "->" + name + desc;
+    }
+
+    static String toStringField(String owner, String name, String desc) {
+        return owner + "->" + name + ":" + desc;
+    }
+
+    static Type[] getTypeArgs(Class<?> clazz) {
+        Type type = clazz;
+        while (!(type instanceof ParameterizedType)) {
+            if (type == null) {
+                return new Type[0];
+            }
+            type = ((Class<?>) type).getGenericSuperclass();
+        }
+        return ((ParameterizedType) type).getActualTypeArguments();
+    }
 
     @SuppressWarnings("unchecked")
     static <T> Class<T> forName(String name) {

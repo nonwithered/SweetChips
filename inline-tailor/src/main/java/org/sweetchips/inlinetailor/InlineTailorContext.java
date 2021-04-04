@@ -32,10 +32,6 @@ public final class InlineTailorContext extends BasePluginContext {
 
     public static final String NAME = "InlineTailor";
 
-    static String getItemId(String cls, String mtd, String desc) {
-        return cls + "->" + mtd + desc;
-    }
-
     static int[] getArgsTypes(String desc, boolean isStatic) {
         Type[] types = Type.getType(desc).getArgumentTypes();
         int[] argsTypes = new int[types.length + (isStatic ? 0 : 1)];

@@ -10,11 +10,16 @@ import org.sweetchips.utility.FilesUtil;
 
 public final class TraceWrapperClassNode extends ClassNode {
 
-    public TraceWrapperClassNode(int api) {
+    private static final String TAG = "TraceWrapperClassNode";
+
+    private final TraceWeaverContext mContext;
+
+    public TraceWrapperClassNode(int api, TraceWeaverContext context) {
         super(api);
+        mContext = context;
         new ClassReader(ClassesUtil.compile(TraceWeaverContext.TRACE_WRAPPER_CLASS_NAME,
                 () -> new String(FilesUtil.readFrom(getClass().getResourceAsStream(TraceWeaverContext.TRACE_WRAPPER_SOURCE))),
-                System.err::println)).accept(this, ClassReader.EXPAND_FRAMES);
+                it -> mContext.getLogger().e(TAG, it.toString()))).accept(this, ClassReader.EXPAND_FRAMES);
     }
 
     @Override

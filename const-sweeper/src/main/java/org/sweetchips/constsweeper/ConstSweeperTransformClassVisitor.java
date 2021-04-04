@@ -5,8 +5,11 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.sweetchips.platform.jvm.BaseClassVisitor;
+import org.sweetchips.utility.ClassesUtil;
 
 public final class ConstSweeperTransformClassVisitor extends BaseClassVisitor<ConstSweeperContext> {
+
+    private static final String TAG = "ConstSweeperTransformClassVisitor";
 
     private String mName;
 
@@ -22,7 +25,8 @@ public final class ConstSweeperTransformClassVisitor extends BaseClassVisitor<Co
 
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        if (getContext().getConstants().containsKey(ConstSweeperContext.getKey(mName, name, desc))) {
+        if (getContext().getConstants().containsKey(ClassesUtil.toStringField(mName, name, desc))) {
+            getContext().getLogger().i(TAG, "remove " + ClassesUtil.toStringField(mName, name, desc));
             return null;
         }
         return super.visitField(access, name, desc, signature, value);
@@ -31,12 +35,15 @@ public final class ConstSweeperTransformClassVisitor extends BaseClassVisitor<Co
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         return new MethodVisitor(api, super.visitMethod(access, name, desc, signature, exceptions)) {
+            private final String mStr = ClassesUtil.toStringMethod(mName, name, desc);
             @Override
             public void visitFieldInsn(int opcode, String owner, String name, String desc) {
                 if (opcode == Opcodes.GETSTATIC) {
-                    Object value = getContext().getConstants().get(ConstSweeperContext.getKey(owner, name, desc));
+                    String str = ClassesUtil.toStringField(owner, name, desc);
+                    Object value = getContext().getConstants().get(str);
                     if (value != null) {
                         super.visitLdcInsn(value);
+                        getContext().getLogger().i(TAG, mStr + " inline constant " + str);
                         return;
                     }
                 }

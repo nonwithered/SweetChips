@@ -1,7 +1,6 @@
 package org.sweetchips.gradle.java;
 
 import org.gradle.api.Task;
-import org.sweetchips.gradle.common.SweetChipsGradleContextLogger;
 import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.utility.FilesUtil;
 import org.sweetchips.utility.ItemsUtil;
@@ -79,7 +78,7 @@ final class WorkflowActions {
         Collection<Path> paths = new ArrayList<>();
         FilesUtil.list(from).forEach(it -> paths.add(it.resolve("main")));
         Function<Path, Path> provider = it -> to.resolve(from.relativize(it));
-        JvmContext context = new JvmContext(new SweetChipsGradleContextLogger(mPlugin.getProject().getLogger()));
+        JvmContext context = new JvmContext(mPlugin.getLogger());
         context.setApi(mPlugin.getExtension().getAsmApi());
         new SweetChipsJavaGradleTransform(mPlugin.getLogger(), mPlugin.getName(), context).transform(provider, from, paths);
     }

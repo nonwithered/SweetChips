@@ -10,6 +10,7 @@ sourceSets {
 }
 
 dependencies {
+    implementation project(':utility')
     compileOnly project(':platform-jvm-api')
     compileOnly project(':plugin-gradle-common-api')
     compileOnly project(':plugin-maven-java')

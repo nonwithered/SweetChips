@@ -1,11 +1,23 @@
 package org.sweetchips.platform.jvm;
 
+import org.sweetchips.platform.common.ContextLogger;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 public abstract class BasePluginContext {
+
+    private ContextLogger mLogger = ContextLogger.getDefault();
+
+    public final void setLogger(ContextLogger logger) {
+        mLogger = logger;
+    }
+
+    public final ContextLogger getLogger() {
+        return mLogger;
+    }
 
     private final MemberScope mIgnore = BasePluginContext.newMemberScope();
     private final MemberScope mNotice = BasePluginContext.newMemberScope();
