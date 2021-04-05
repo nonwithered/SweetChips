@@ -30,15 +30,19 @@ public interface ClassesUtil {
         return owner + "->" + name + ":" + desc;
     }
 
-    static Type[] getTypeArgs(Class<?> clazz) {
-        Type type = clazz;
-        while (!(type instanceof ParameterizedType)) {
-            if (type == null) {
-                return new Type[0];
+    static Type[] getSuperTypeArgs(Class<?> clazz, Class<?> superClazz) {
+        while (true) {
+            Class<?> temp = clazz.getSuperclass();
+            if (temp != superClazz) {
+                clazz = temp;
+                continue;
             }
-            type = ((Class<?>) type).getGenericSuperclass();
+            Type type = clazz.getGenericSuperclass();
+            if (type instanceof ParameterizedType) {
+                return ((ParameterizedType) type).getActualTypeArguments();
+            }
+            throw new IllegalArgumentException(superClazz.getName());
         }
-        return ((ParameterizedType) type).getActualTypeArguments();
     }
 
     @SuppressWarnings("unchecked")

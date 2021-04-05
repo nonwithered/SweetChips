@@ -42,7 +42,7 @@ public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
 
     private C newContext() {
         @SuppressWarnings("unchecked")
-        Class<C> clazz = (Class<C>) ClassesUtil.getTypeArgs(getClass())[0];
+        Class<C> clazz = (Class<C>) ClassesUtil.getSuperTypeArgs(getClass(), AbstractMavenPlugin.class)[0];
         return ClassesUtil.newInstance(ClassesUtil.getDeclaredConstructor(clazz));
     }
 

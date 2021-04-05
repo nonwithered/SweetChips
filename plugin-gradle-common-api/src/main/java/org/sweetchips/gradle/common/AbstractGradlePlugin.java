@@ -33,7 +33,7 @@ public abstract class AbstractGradlePlugin<E extends AbstractExtension<? extends
     private void init(Project project) {
         mProject = project;
         @SuppressWarnings("unchecked")
-        Class<E> clazz = (Class<E>) ClassesUtil.getTypeArgs(getClass())[0];
+        Class<E> clazz = (Class<E>) ClassesUtil.getSuperTypeArgs(getClass(), AbstractGradlePlugin.class)[0];
         E extension = project.getExtensions().create(getName(), clazz);
         mExtension = extension;
         extension.getContext().setLogger(new SweetChipsGradleContextLogger(project.getLogger()));
