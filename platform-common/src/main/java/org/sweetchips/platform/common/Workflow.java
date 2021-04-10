@@ -45,9 +45,10 @@ public final class Workflow {
     public Future<?> start(Executor executor) {
         mLogger.d(TAG, "start: begin");
         List<Collection<RootUnit>> list = mWorkSet;
-        if (mWorkSet == null) {
+        if (list == null) {
             throw new IllegalStateException();
         }
+        mWorkSet = null;
         Runnable[] runnables = new Runnable[]{
                 this::prepareBefore,
                 () -> {
