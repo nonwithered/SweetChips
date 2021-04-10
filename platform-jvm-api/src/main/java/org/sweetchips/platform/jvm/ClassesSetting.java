@@ -8,13 +8,13 @@ public final class ClassesSetting {
 
     private static final ThreadLocal<Boolean> sDeleteFlag = new ThreadLocal<>();
 
-    public static void resetDeleteFlag() {
+    static void resetDeleteFlag() {
         if (sDeleteFlag.get() != Boolean.FALSE) {
             sDeleteFlag.set(Boolean.FALSE);
         }
     }
 
-    public static boolean checkDeleteFlag() {
+    static boolean checkDeleteFlag() {
         return sDeleteFlag.get() == Boolean.TRUE;
     }
 
