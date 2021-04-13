@@ -5,7 +5,7 @@ dependencies {
     implementation project(':utility')
     implementation project(':platform-common')
     implementation project(':platform-jvm')
-    implementation project(':plugin-gradle-common')
+    implementation project(':gradle-common')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
 }

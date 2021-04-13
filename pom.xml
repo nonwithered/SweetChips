@@ -17,11 +17,11 @@
     </properties>
     <modules>
         <module>demo-main</module>
-        <module>annotations-visitors</module>
-        <module>const-sweeper</module>
-        <module>inline-tailor</module>
-        <module>recursive-tail</module>
-        <module>sourceline-eraser</module>
+        <module>plugin-annotations-visitors</module>
+        <module>plugin-const-sweeper</module>
+        <module>plugin-inline-tailor</module>
+        <module>plugin-recursive-tail</module>
+        <module>plugin-sourceline-eraser</module>
     </modules>
     <repositories>
         <repository>

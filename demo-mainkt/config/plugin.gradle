@@ -1,4 +1,4 @@
-if (gradle.ext.existsBuildTarget('plugin-gradle-java')) {
+if (gradle.ext.existsBuildTarget('gradle-java')) {
     apply plugin: 'SweetChips-java'
     SweetChips {
         asmApi = 5 << 16
