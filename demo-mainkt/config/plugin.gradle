@@ -6,7 +6,29 @@ if (gradle.ext.existsBuildTarget('gradle-java')) {
     }
     mainktA {
         transform {
+            first adapt('org.sweetchips.annotationsvisitors.HideTransformClassNode')
             first adapt('org.sweetchips.annotationsvisitors.UncheckcastTransformClassNode')
+        }
+    }
+    if (gradle.ext.existsBuildTarget('plugin-sourceline-eraser')) {
+        apply plugin: 'SourceLineEraser'
+        SourceLineEraser {
+            attach 'mainktA'
+        }
+    }
+    if (gradle.ext.existsBuildTarget('plugin-recursive-tail')) {
+        apply plugin: 'RecursiveTail'
+        RecursiveTail {
+            attach 'mainktA'
+            ignore '*'
+            notice 'org.sweetchips.demo.mainkt.MainKt#recursive'
+        }
+    }
+    if (gradle.ext.existsBuildTarget('plugin-const-sweeper')) {
+        apply plugin: 'ConstSweeper'
+        ConstSweeper {
+            attach 'mainktA'
+            ignore 'org.sweetchips.demo.mainkt.MainKt#SYNTHETIC'
         }
     }
 }
