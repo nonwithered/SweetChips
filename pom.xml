@@ -8,6 +8,7 @@
     <packaging>pom</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <versionsKotlin>1.4.20</versionsKotlin>
         <versionsMavenCompilerPlugin>3.8.1</versionsMavenCompilerPlugin>
         <versionsMavenJarPlugin>3.2.0</versionsMavenJarPlugin>
         <versionsMavenPluginPlugin>3.6.0</versionsMavenPluginPlugin>
@@ -17,6 +18,7 @@
     </properties>
     <modules>
         <module>demo-main</module>
+        <module>demo-mainkt</module>
         <module>plugin-annotations-visitors</module>
         <module>plugin-const-sweeper</module>
         <module>plugin-inline-tailor</module>
