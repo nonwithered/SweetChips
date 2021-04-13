@@ -1,10 +1,10 @@
 apply plugin: 'kotlin'
 
-project.ext.mainClass = 'org.sweetchips.demo.mainkt.MainKt'
+project.ext.nameMainClass = 'org.sweetchips.demo.mainkt.MainKt'
 
 jar {
     manifest {
-        attributes 'Main-Class': "$mainClass"
+        attributes 'Main-Class': "$project.ext.nameMainClass"
     }
 }
 

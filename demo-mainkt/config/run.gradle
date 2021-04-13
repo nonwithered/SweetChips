@@ -6,12 +6,27 @@ def jarPath = project.buildDir.toPath()
         .resolve('libs')
         .resolve("${project.name}.jar")
 
+def jarPathMvn = project.buildDir.toPath()
+        .resolve('..')
+        .resolve('target')
+        .resolve("${project.name}-mvn-${gradle.ext.versions.root}.jar")
+
 task testDemo(type: Exec) {
     dependsOn project(':demo-main').tasks.testDemoMvn
     dependsOn project(':demo-mainkt').tasks.assemble
     commandLine "$cmdKotlin",
             '-cp', "${jarPath.toAbsolutePath()}",
-            "$project.ext.mainClass"
+            "$project.ext.nameMainClass"
+    doFirst {
+        standardOutput = System.out
+        errorOutput = System.err
+    }
+}
+
+task testDemoMvn(type: Exec, dependsOn: testDemo) {
+    commandLine "$cmdKotlin",
+            '-cp', "${jarPathMvn.toAbsolutePath()}",
+            "$project.ext.nameMainClass"
     doFirst {
         standardOutput = System.out
         errorOutput = System.err
