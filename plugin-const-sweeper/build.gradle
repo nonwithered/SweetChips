@@ -11,11 +11,13 @@ sourceSets {
 
 dependencies {
     implementation project(':utility')
-    implementation project(':utility')
     compileOnly project(':platform-jvm-api')
-    compileOnly project(':plugin-gradle-common-api')
+    compileOnly project(':gradle-common-api')
+    compileOnly project(':maven-java')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
     compileOnly "org.ow2.asm:asm:$gradle.ext.versions.asm"
     compileOnly "org.ow2.asm:asm-tree:$gradle.ext.versions.asm"
+    compileOnly "org.apache.maven:maven-plugin-api:$gradle.ext.versions.mavenApi"
+    compileOnly "org.apache.maven.plugin-tools:maven-plugin-annotations:$gradle.ext.versions.mavenApi"
 }

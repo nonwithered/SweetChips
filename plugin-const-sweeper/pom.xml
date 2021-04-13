@@ -8,11 +8,11 @@
         <version>0.0.1-snapshot</version>
     </parent>
     <groupId>org.sweetchips</groupId>
-    <artifactId>recursive-tail-mvn</artifactId>
+    <artifactId>plugin-const-sweeper-mvn</artifactId>
     <version>0.0.1-snapshot</version>
     <packaging>maven-plugin</packaging>
     <properties>
-        <excludeGradleDir>org/sweetchips/recursivetail/gradle/*</excludeGradleDir>
+        <excludeGradleDir>org/sweetchips/constsweeper/gradle/*</excludeGradleDir>
         <versionsMavenCompilerPlugin>3.8.1</versionsMavenCompilerPlugin>
         <versionsMavenJarPlugin>3.2.0</versionsMavenJarPlugin>
         <versionsMavenPluginPlugin>3.6.0</versionsMavenPluginPlugin>
@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>plugin-maven-java</artifactId>
+            <artifactId>maven-java</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -47,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>plugin-gradle-common-api</artifactId>
+            <artifactId>gradle-common-api</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

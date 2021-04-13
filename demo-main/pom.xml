@@ -27,7 +27,7 @@
         <plugins>
             <plugin>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>const-sweeper-mvn</artifactId>
+                <artifactId>plugin-const-sweeper-mvn</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
@@ -48,7 +48,7 @@
             </plugin>
             <plugin>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>inline-tailor-mvn</artifactId>
+                <artifactId>plugin-inline-tailor-mvn</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
@@ -61,7 +61,7 @@
             </plugin>
             <plugin>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>recursive-tail-mvn</artifactId>
+                <artifactId>plugin-recursive-tail-mvn</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
@@ -82,7 +82,7 @@
             </plugin>
             <plugin>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>sourceline-eraser-mvn</artifactId>
+                <artifactId>plugin-sourceline-eraser-mvn</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
@@ -95,7 +95,7 @@
             </plugin>
             <plugin>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>annotations-visitors-mvn</artifactId>
+                <artifactId>plugin-annotations-visitors-mvn</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
