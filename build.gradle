@@ -10,14 +10,14 @@ buildscript {
         classpath "com.android.tools.build:gradle:$gradle.ext.versions.gradleApi"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$gradle.ext.versions.kotlin"
         [
-                'plugin-gradle-android',
-                'plugin-gradle-java',
-                'annotations-visitors',
-                'trace-weaver',
-                'const-sweeper',
-                'sourceline-eraser',
-                'inline-tailor',
-                'recursive-tail',
+                'gradle-android',
+                'gradle-java',
+                'plugin-annotations-visitors',
+                'plugin-trace-weaver',
+                'plugin-const-sweeper',
+                'plugin-sourceline-eraser',
+                'plugin-inline-tailor',
+                'plugin-recursive-tail',
         ].forEach {
             if (gradle.existsBuildTarget(it)) {
                 classpath "$gradle.ext.groupId:$it:$gradle.ext.versions.root"
@@ -53,7 +53,7 @@ task clean(type: Delete, dependsOn: cleanMvn) {
 }
 
 task deployMvn(type: Exec) {
-    commandLine "$cmdMvn", 'deploy', '-X'
+    commandLine "$cmdMvn", 'deploy'
     doFirst {
         standardOutput = System.out
         errorOutput = System.err

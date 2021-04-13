@@ -12,8 +12,8 @@ sourceSets {
 dependencies {
     implementation project(':utility')
     compileOnly project(':platform-jvm-api')
-    compileOnly project(':plugin-gradle-common-api')
-    compileOnly project(':plugin-maven-java')
+    compileOnly project(':gradle-common-api')
+    compileOnly project(':maven-java')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
     compileOnly "org.ow2.asm:asm:$gradle.ext.versions.asm"
