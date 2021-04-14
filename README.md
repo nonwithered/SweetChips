@@ -6,7 +6,7 @@
 
 - [使用Gradle构建的Android项目](gradle-android/README.md)
 - [使用Gradle构建的Java项目、Kotlin项目](gradle-java/README.md)
-- [使用Maven构建的Java项目、Kotlin项目](maven-java/README.md)
+- 使用Maven构建的Java项目、Kotlin项目
 
 在以上部分的基础上，以下插件已被实现：
 
@@ -19,6 +19,6 @@
 
 如果您希望以此为基础开发自己的JVM字节码插件，请阅读以下开发指南：
 
-- [JVM字节码插件开发手册](docs/developer-manual-jvm-plugin.md) 
+- [JVM字节码插件开发手册](docs/developer-manual-jvm-plugin.md)
 
 LLVM等其他平台的开发工具尚未完善，敬请期待！
