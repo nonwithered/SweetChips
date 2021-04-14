@@ -1,1 +1,1 @@
-# plugin-sourceline-eraser
+# SourceLineEraser
