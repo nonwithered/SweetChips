@@ -1,1 +1,1 @@
-# plugin-recursive-tail
+# RecursiveTail
