@@ -11,6 +11,7 @@ public final class TraceWeaverContext extends BasePluginContext {
 
     @Override
     public final void onAttach(WorkflowSettings settings) {
+        addIgnore(TraceWrapper.class.getName());
         settings.addTransformLast((api, cv, ext) -> new TraceWeaverTransformClassVisitor(api, cv).setContext(this));
         settings.addClass(() -> new TraceWrapperClassNode(settings.getAsmApi(), this));
     }
