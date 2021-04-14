@@ -1,7 +1,5 @@
 package org.sweetchips.platform.common;
 
-import org.sweetchips.utility.FilesUtil;
-
 import java.nio.file.Path;
 
 public abstract class AbstractUnit {
@@ -20,10 +18,6 @@ public abstract class AbstractUnit {
 
     public final Path getOutput() {
         return mOutput;
-    }
-
-    protected void onDelete() {
-        FilesUtil.deleteIfExists(mOutput);
     }
 
     protected abstract void onPrepare();
