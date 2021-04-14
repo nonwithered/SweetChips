@@ -1,1 +1,1 @@
-# plugin-const-sweeper
+# ConstSweeper

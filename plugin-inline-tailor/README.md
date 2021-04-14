@@ -1,1 +1,1 @@
-# plugin-inline-tailor
+# InlineTailor

@@ -1,1 +1,1 @@
-# plugin-trace-weaver
+# TraceWeaver

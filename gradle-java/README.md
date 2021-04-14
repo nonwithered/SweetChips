@@ -1,4 +1,4 @@
-# gradle-java
+# SweetChips-java
 
 这一插件可以作为相关插件的基础插件，要接入本插件，首先要在项目根目录的build.gradle中添加以下依赖：
 
