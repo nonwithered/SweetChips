@@ -53,7 +53,7 @@ task clean(type: Delete, dependsOn: cleanMvn) {
 }
 
 task deployMvn(type: Exec) {
-    commandLine "$cmdMvn", 'deploy'
+    commandLine "$cmdMvn", 'deploy', '-e'
     doFirst {
         standardOutput = System.out
         errorOutput = System.err
