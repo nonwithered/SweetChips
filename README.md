@@ -10,12 +10,12 @@
 
 在以上部分的基础上，以下插件已被实现：
 
-- [AnnotationsVisitors](plugin-annotations-visitors/README.md)
 - [TraceWeaver](plugin-trace-weaver/README.md)
 - [ConstSweeper](plugin-const-sweeper/README.md)
 - [SourceLineEraser](plugin-sourceline-eraser/README.md)
 - [InlineTailor](plugin-inline-tailor/README.md)
 - [RecursiveTail](plugin-recursive-tail/README.md)
+- [AnnotationsVisitors](plugin-annotations-visitors/README.md)
 
 如果您希望以此为基础开发自己的JVM字节码插件，请阅读以下开发指南：
 

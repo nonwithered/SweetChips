@@ -9,7 +9,7 @@ jar {
 }
 
 dependencies {
-    implementation project(':annotations')
+    compileOnly project(':annotations')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
