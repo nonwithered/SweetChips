@@ -33,8 +33,6 @@ if (gradle.ext.existsBuildTarget('gradle-android')) {
         TraceWeaver {
             attach 'mainappB'
             maxDepth 10
-            ignore '*'
-            notice 'org.sweetchips.demo.main.TestTrace'
             sectionName { classInfo, methodInfo ->
                 classInfo.name.replaceAll('/', '.') + '#' + methodInfo.name
             }

@@ -376,17 +376,30 @@ final class InlineTailorStackMirror {
 
     private void pop(int n) {
         sweepTop();
-        mTop -= n;
+        while (n-- > 0) {
+            if (mTop >= mBegin && top() == mStack[mEnd]) {
+                if (mTop == 0 || mStack[mTop - 1] != mStack[mEnd]) {
+                    mEnd--;
+                }
+            }
+            mTop--;
+        }
     }
 
     private void push1() {
         sweepTop();
         mStack[++mTop] = -1;
+        if (mTop == mBegin) {
+            mBegin++;
+        }
     }
 
     private void push2() {
         sweepTop();
         mStack[++mTop] = -2;
+        if (mTop == mBegin) {
+            mBegin++;
+        }
     }
 
     private void push(String desc) {
