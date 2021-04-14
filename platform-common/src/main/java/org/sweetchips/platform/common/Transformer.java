@@ -1,6 +1,7 @@
 package org.sweetchips.platform.common;
 
 import org.sweetchips.utility.AsyncUtil;
+import org.sweetchips.utility.FilesUtil;
 import org.sweetchips.utility.StageWorker;
 
 import java.util.Collection;
@@ -56,7 +57,7 @@ final class Transformer {
                 .forkJoin(it -> {
                     switch (it.getStatus()) {
                         case REMOVED:
-                            it.onDelete();
+                            FilesUtil.deleteIfExists(it.getOutput());
                             return;
                         case NOTCHANGED:
                             return;
