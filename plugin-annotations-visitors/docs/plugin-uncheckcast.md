@@ -66,7 +66,7 @@ apply plugin: 'SweetChips-android'
 // apply plugin: 'SweetChips-java'
 ```
 
-这两个插件的相关文档：
+这些插件的相关文档：
 
 - [使用Gradle构建的Android项目](../../gradle-android/README.md)
 - [使用Gradle构建的Java项目、Kotlin项目](../../gradle-java/README.md)
