@@ -39,12 +39,20 @@ SweetChips {
 apply plugin: 'TraceWeaver'
 TraceWeaver {
     attach 'foobar'
+    ignore 'foo.*'
+    ignore 'bar.Bar'
+    notice 'foo.Foo'
+    notice 'bar.Bar#test'
     maxDepth 10
     sectionName { classInfo, methodInfo ->
         classInfo.name.replaceAll('/', '.') + '#' + methodInfo.name
     }
 }
 ```
+
+`attach`是必要选项且只能设定一次，在以上示例中，经过`attach`可以将本插件绑定到`SweetChips`的`foobar`流程中。
+
+`ignore`和`notice`是可选项且可以设定多次，在以上示例中，`foo`包下除`foo.Foo`类外其余所有类的所有成员都会被忽略，`bar.Bar`类中除`bar.Bar#test`外的其余所有成员都会被忽略。
 
 通过`sectionName`可以自定义每段函数的tag，这是一个可选项，以上示例是默认的实现方式。但是tag的长度不能够超过`127`，这是由于`android.os.Trace#MAX_SECTION_NAME_LEN`所施加的限制，若超出范围则会抛出`java.lang.IllegalArgumentException`。在本插件下不必担心crash，若超过`127`则将截取最后的`127`个字符。
 
