@@ -34,14 +34,6 @@ if (gradle.ext.existsBuildTarget('gradle-java')) {
             attach 'mainB'
         }
     }
-    if (gradle.ext.existsBuildTarget('plugin-const-sweeper')) {
-        apply plugin: 'ConstSweeper'
-        ConstSweeper {
-            attach 'mainB'
-            ignore 'org.sweetchips.demo.main.TestConst$CheckInternal'
-            notice 'org.sweetchips.demo.main.TestConst$CheckInternal#sNotice'
-        }
-    }
     if (gradle.ext.existsBuildTarget('plugin-recursive-tail')) {
         apply plugin: 'RecursiveTail'
         RecursiveTail {
@@ -49,16 +41,24 @@ if (gradle.ext.existsBuildTarget('gradle-java')) {
             ignore 'org.sweetchips.demo.main.TestTail#over'
         }
     }
+    if (gradle.ext.existsBuildTarget('plugin-const-sweeper')) {
+        apply plugin: 'ConstSweeper'
+        ConstSweeper {
+            attach 'mainC'
+            ignore 'org.sweetchips.demo.main.TestConst$CheckInternal'
+            notice 'org.sweetchips.demo.main.TestConst$CheckInternal#sNotice'
+        }
+    }
     if (gradle.ext.existsBuildTarget('plugin-inline-tailor')) {
         apply plugin: 'InlineTailor'
         InlineTailor {
-            attach 'mainB'
+            attach 'mainC'
         }
     }
     if (gradle.ext.existsBuildTarget('plugin-inline-tailor-plus')) {
         apply plugin: 'InlineTailor-plus'
         InlineTailorPlus {
-            attach 'mainC'
+            attach 'mainD'
         }
     }
 }
