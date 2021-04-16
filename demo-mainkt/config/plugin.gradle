@@ -20,8 +20,7 @@ if (gradle.ext.existsBuildTarget('gradle-java')) {
         apply plugin: 'RecursiveTail'
         RecursiveTail {
             attach 'mainktA'
-            ignore '*'
-            notice 'org.sweetchips.demo.mainkt.MainKt#recursive'
+            ignore 'org.sweetchips.demo.mainkt.MainKt#over'
         }
     }
     if (gradle.ext.existsBuildTarget('plugin-const-sweeper')) {
