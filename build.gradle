@@ -17,6 +17,7 @@ buildscript {
                 'plugin-const-sweeper',
                 'plugin-sourceline-eraser',
                 'plugin-inline-tailor',
+                'plugin-inline-tailor-plus',
                 'plugin-recursive-tail',
         ].forEach {
             if (gradle.existsBuildTarget(it)) {

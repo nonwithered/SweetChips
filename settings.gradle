@@ -19,6 +19,7 @@ include ':plugin-trace-weaver'
 include ':plugin-const-sweeper'
 include ':plugin-sourceline-eraser'
 include ':plugin-inline-tailor'
+include ':plugin-inline-tailor-plus'
 include ':plugin-recursive-tail'
 
 gradle.ext.isWindows = {

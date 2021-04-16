@@ -53,7 +53,7 @@ final class TestInline extends AbstractTest {
         }
 
         private static void print(Object object) {
-//        System.out.println(object);
+//            System.out.println(object);
         }
     }
 }

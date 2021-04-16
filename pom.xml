@@ -22,6 +22,7 @@
         <module>plugin-annotations-visitors</module>
         <module>plugin-const-sweeper</module>
         <module>plugin-inline-tailor</module>
+        <module>plugin-inline-tailor-plus</module>
         <module>plugin-recursive-tail</module>
         <module>plugin-sourceline-eraser</module>
     </modules>
