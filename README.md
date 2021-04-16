@@ -14,6 +14,7 @@
 - [ConstSweeper](plugin-const-sweeper/README.md)
 - [SourceLineEraser](plugin-sourceline-eraser/README.md)
 - [InlineTailor](plugin-inline-tailor/README.md)
+- [InlineTailorPlus](plugin-inline-tailor-plus/README.md)
 - [RecursiveTail](plugin-recursive-tail/README.md)
 - [AnnotationsVisitors](plugin-annotations-visitors/README.md)
 

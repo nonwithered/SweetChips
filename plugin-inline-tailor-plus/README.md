@@ -1,50 +1,39 @@
-# InlineTailor
+# InlineTailorPlus
 
 ## 背景
 
-在Java代码被编译的过程中，几乎不会被处理任何可能的优化，而对于kotlin、C++等语言来说，都具有内联的能力，从而降低部分运行开销，但是Java中并没有这种功能，本插件就试图解决这个问题。
+在此之前，为了在同一个类中展开被调用的方法，下面这个插件先一步被实现：
 
-一个增强版的插件可以和这个插件一起使用，从而实现更大范围的内联：
+- [InlineTailor](../plugin-inline-tailor/README.md)
 
-[InlineTailorPlus](../plugin-inline-tailor-plus/README.md)
+本插件的作用就是，要实现类与类之间的内联。
+
+应该令InlineTailor在InlineTailorPlus前生效，从而增大影响范围。
 
 ## 特性
 
-本插件的作用是，可以为部分方法提供在其所在类内的内联能力。比如以下示例：
+有以下示例：
 
 ``` java
-class Foobar {
+import org.sweetchips.annotations.Inline;
+class Main {
     public static void main(String[] args) {
-        new Foobar().foo(123);
+        new Foobar().foobar(2, 3, 4);
     }
-    public final int foo(int n) {
-        return bar(n, n);
-    }
-    private int bar(int a, int b) {
-        return a + b;
+}
+class Foobar {
+    @Inline
+    public final int foobar(int a, int b, int c) {
+        return a + (c + c);
     }
 }
 ```
 
-在上面这个示例中，`Foobar#foo(int)`并不会调用`Foobar#bar(int, int)`，而`Foobar#main(String[])`也不会调用这两个函数，这两个调用点都将彻底被展开。
+在上面的例子中，`Foobar#foobar(int, int, int)`将会在`Main#main(String[])`中被展开。
 
-在本插件中，如果某次调用可以被展开，那么调用者与被调用者必须在同一个类中，并且被调用者必须满足以下条件之一：
+但是，必须要注意，无论InlineTailor还是InlineTailorPlus，都只是改变方法中的指令，而不会修改任何的访问权限，因此假如上例中`Foobar#foobar(int, int, int)`调用了未被展开的`private`方法，那么就会导致`java.lang.VerifyError`被抛出。
 
-- 这个方法不是`synchronized`方法
-- 这个方法是`static`方法
-- 这个方法是`private`方法
-- 这个方法是`final`方法
-- 这个类是`final`类
-
-除此之外，这个方法还必须满足以下所有条件；
-
-- 这个方法中没有任何分支
-- 这个方法中除参数外没有任何局部变量
-- 这个方法不会对任何参数做写操作
-
-除了以上所有条件之外，还有最后一个要求，对于包含`this`在内的所有参数，其访问时机必须可以限制在栈顶。
-
-假如以上所有条件都得到了满足，那么这个函数就可以被本插件展开。
+`org.sweetchips.annotations.Inline`的目标只能是函数，被标记过的函数不一定真的会被展开，判断的条件与InlineTailor一致。
 
 ## 接入Gradle
 
@@ -63,7 +52,7 @@ apply plugin: 'SweetChips-android'
 然后在项目根目录的build.gradle中添加以下依赖：
 
 ``` groovy
-classpath "org.sweetchips:plugin-inline-tailor:$version_sweetchips"
+classpath "org.sweetchips:plugin-inline-tailor-plus:$version_sweetchips"
 ```
 
 然后添加以下配置项：
@@ -72,8 +61,8 @@ classpath "org.sweetchips:plugin-inline-tailor:$version_sweetchips"
 SweetChips {
     addTransform 'foobar'
 }
-apply plugin: 'InlineTailor'
-InlineTailor {
+apply plugin: 'InlineTailor-plus'
+InlineTailorPlus {
     attach 'foobar'
     ignore 'foo.*'
     ignore 'bar.Bar'
@@ -98,13 +87,13 @@ InlineTailor {
 ``` xml
 <plugin>
     <groupId>org.sweetchips</groupId>
-    <artifactId>plugin-inline-tailor-mvn</artifactId>
+    <artifactId>plugin-inline-tailor-plus-mvn</artifactId>
     <version>${version_sweetchips}</version>
     <executions>
         <execution>
             <phase>compile</phase>
             <goals>
-                <goal>inlinetailor</goal>
+                <goal>inlinetailorplus</goal>
             </goals>
         </execution>
     </executions>
