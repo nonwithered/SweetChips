@@ -12,7 +12,6 @@ sourceSets {
 dependencies {
     implementation project(':utility')
     implementation project(':annotations')
-    compileOnly project(':platform-jvm-api')
     compileOnly project(':maven-java')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
