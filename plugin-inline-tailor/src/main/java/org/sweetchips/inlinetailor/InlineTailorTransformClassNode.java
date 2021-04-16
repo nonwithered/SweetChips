@@ -1,7 +1,5 @@
 package org.sweetchips.inlinetailor;
 
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.sweetchips.platform.jvm.BaseClassNode;
 
