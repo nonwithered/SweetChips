@@ -12,6 +12,7 @@ sourceSets {
 dependencies {
     implementation project(':utility')
     implementation project(':annotations')
+    implementation project(':plugin-inline-tailor')
     compileOnly project(':maven-java')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()

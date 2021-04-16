@@ -151,7 +151,7 @@ public final class JvmContext implements PlatformContext {
             return;
         }
         ClassReader cr = new ClassReader(bytes);
-        ClassVisitor cv = null;
+        ClassVisitor cv = new ClassVisitor(mApi) {};
         for (ClassVisitorFactory factory : collection) {
             cv = factory.newInstance(mApi, cv, mExtra);
         }

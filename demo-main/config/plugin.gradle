@@ -1,3 +1,5 @@
+import java.util.concurrent.ConcurrentHashMap
+
 if (gradle.ext.existsBuildTarget('gradle-java')) {
     apply plugin: 'SweetChips-java'
     SweetChips {
@@ -28,6 +30,20 @@ if (gradle.ext.existsBuildTarget('gradle-java')) {
             }
         }
     }
+    mainC {
+        prepare {
+            before {
+                it.put('org.sweetchips.annotations.Inline', new ConcurrentHashMap<>())
+            }
+            last adapt('org.sweetchips.annotationsvisitors.InlinePrepareClassNode')
+        }
+        transform {
+            last adapt('org.sweetchips.annotationsvisitors.InlineTransformClassNode')
+            after {
+                it.remove('org.sweetchips.annotations.Inline')
+            }
+        }
+    }
     if (gradle.ext.existsBuildTarget('plugin-sourceline-eraser')) {
         apply plugin: 'SourceLineEraser'
         SourceLineEraser {
@@ -52,7 +68,7 @@ if (gradle.ext.existsBuildTarget('gradle-java')) {
     if (gradle.ext.existsBuildTarget('plugin-inline-tailor')) {
         apply plugin: 'InlineTailor'
         InlineTailor {
-            attach 'mainC'
+            attach 'mainB'
         }
     }
 }

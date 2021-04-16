@@ -26,7 +26,7 @@ public class UncheckcastTransformClassNode extends ClassNode {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void accept(ClassVisitor cv) {
+    public final void accept(ClassVisitor cv) {
         Collection<Type> types = getTypes(invisibleAnnotations);
         for (MethodNode mtd : (List<MethodNode>) methods) {
             Collection<Type> collection = getTypes(mtd.invisibleAnnotations);
