@@ -1,10 +1,16 @@
 package org.sweetchips.demo.main;
 
+import org.sweetchips.annotations.Inline;
+
 final class TestInline extends AbstractTest {
+
+    private static boolean sCheckAnnotation = false;
 
     @Override
     protected final void onTest() {
         log("checkReturn", getClass().getName().equals(toString()));
+        sCheckAnnotation = true;
+        CheckAnnotation.clinit();
     }
 
     @Override
@@ -21,22 +27,33 @@ final class TestInline extends AbstractTest {
     }
 
     private static String toStringStatic(Object before, TestInline self, Object after) {
-        checkInline('0', "1", 2, 3.0f, "4", 5, 6L);
+        CheckAnnotation.checkInline('0', "1", 2, 3.0f, "4", 5, 6L);
         return self.getClass().getName();
     }
 
-    private static void checkInline(char v0, String v1, int v2, float v3, String v4, int v5, long v6) {
-        print(v4, v5, v5);
-        print(v1, v2, v2);
-    }
+    private static class CheckAnnotation {
 
-    private static void print(String a, int b, double c) {
-        print(c);
-        print(b);
-        print(a);
-    }
+        static {
+            LogDelegate.log(TestInline.class.getSimpleName(), "checkAnnotation" + ": " + sCheckAnnotation);
+        }
 
-    private static void print(Object object) {
+        private static void clinit() {
+        }
+
+        @Inline
+        static void checkInline(char v0, String v1, int v2, float v3, String v4, int v5, long v6) {
+            print(v4, v5, v5);
+            print(v1, v2, v2);
+        }
+
+        private static void print(String a, int b, double c) {
+            print(c);
+            print(b);
+            print(a);
+        }
+
+        private static void print(Object object) {
 //        System.out.println(object);
+        }
     }
 }

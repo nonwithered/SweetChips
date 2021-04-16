@@ -36,8 +36,22 @@ public final class InlineTailorHelper {
     }
 
     public static void replaceInvokeInsnList(InsnList instructions, Iterator<AbstractInsnNode> itr, MethodInsnNode methodInsnNode, InsnList insnList) {
-        instructions.insertBefore(methodInsnNode, insnList);
+        instructions.insertBefore(methodInsnNode, cloneInsnList(insnList));
         itr.remove();
+    }
+
+    private static InsnList cloneInsnList(InsnList insnList) {
+        InsnList clone = new InsnList();
+        Map<LabelNode, LabelNode> labels = new HashMap<>();
+        @SuppressWarnings("unchecked")
+        Iterator<AbstractInsnNode> itr = insnList.iterator();
+        itr.forEachRemaining(it -> {
+            if (it.getType() == AbstractInsnNode.LABEL) {
+                labels.put((LabelNode) it, new LabelNode());
+            }
+            clone.add(it.clone(labels));
+        });
+        return clone;
     }
 
     static int[] getArgsTypes(String desc, boolean isStatic) {
@@ -170,6 +184,10 @@ public final class InlineTailorHelper {
             mStackSize = stackSize;
         }
 
+        InsnList getInsnList() {
+            return mInsnList;
+        }
+
         void prepare() {
             if (mContains != 0) {
                 throw new IllegalStateException();
@@ -188,22 +206,8 @@ public final class InlineTailorHelper {
             }
         }
 
-        InsnList cloneInsn() {
-            InsnList clone = new InsnList();
-            Map<LabelNode, LabelNode> labels = new HashMap<>();
-            @SuppressWarnings("unchecked")
-            Iterator<AbstractInsnNode> itr = mInsnList.iterator();
-            itr.forEachRemaining(it -> {
-                if (it.getType() == AbstractInsnNode.LABEL) {
-                    labels.put((LabelNode) it, new LabelNode());
-                }
-                clone.add(it.clone(labels));
-            });
-            return clone;
-        }
-
         void replaceInvoke(Iterator<AbstractInsnNode> itr, MethodInsnNode methodInsn, InsnListItem item) {
-            replaceInvokeInsnList(mInsnList, itr, methodInsn, item.cloneInsn());
+            replaceInvokeInsnList(mInsnList, itr, methodInsn, item.getInsnList());
             mStackSize += item.mStackSize;
             mContains--;
         }

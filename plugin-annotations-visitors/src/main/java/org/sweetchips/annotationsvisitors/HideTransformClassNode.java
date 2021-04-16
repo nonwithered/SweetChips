@@ -18,7 +18,7 @@ public class HideTransformClassNode extends ClassNode {
     }
 
     @Override
-    public void accept(ClassVisitor cv) {
+    public final void accept(ClassVisitor cv) {
         acceptClass();
         acceptField();
         acceptMethod();
@@ -32,7 +32,7 @@ public class HideTransformClassNode extends ClassNode {
         boolean hide = false;
         @SuppressWarnings("unchecked")
         Iterator<AnnotationNode> itr = invisibleAnnotations.iterator();
-        while ((itr.hasNext())) {
+        while (itr.hasNext()) {
             AnnotationNode an = itr.next();
             if (an.desc.equals("L" + Hide .class.getName().replace(".", "/") + ";")) {
                 itr.remove();
