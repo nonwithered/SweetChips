@@ -65,11 +65,8 @@
                 </executions>
                 <configuration>
                     <ignores>
-                        <ignore>*</ignore>
+                        <ignore>org.sweetchips.demo.mainkt.MainKt#over</ignore>
                     </ignores>
-                    <notices>
-                        <notice>org.sweetchips.demo.mainkt.MainKt#recursive</notice>
-                    </notices>
                 </configuration>
             </plugin>
             <plugin>

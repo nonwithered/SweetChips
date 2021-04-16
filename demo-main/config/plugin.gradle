@@ -46,8 +46,7 @@ if (gradle.ext.existsBuildTarget('gradle-java')) {
         apply plugin: 'RecursiveTail'
         RecursiveTail {
             attach 'mainB'
-            ignore '*'
-            notice 'org.sweetchips.demo.main.TestTail#recursive'
+            ignore 'org.sweetchips.demo.main.TestTail#over'
         }
     }
     if (gradle.ext.existsBuildTarget('plugin-inline-tailor')) {
