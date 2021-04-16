@@ -14,6 +14,7 @@ dependencies {
     implementation project(':annotations')
     compileOnly project(':gradle-common')
     compileOnly project(':maven-java')
+    implementation project(':plugin-inline-tailor')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly gradleApi()
     compileOnly "org.ow2.asm:asm:$gradle.ext.versions.asm"

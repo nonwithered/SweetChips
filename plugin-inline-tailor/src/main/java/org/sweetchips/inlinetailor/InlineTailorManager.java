@@ -51,7 +51,7 @@ final class InlineTailorManager {
             if (item == null) {
                 continue;
             }
-            InlineTailorHelper.replaceInvokeInsnList(mn.instructions, itr, methodInsnNode, item.cloneInsn());
+            InlineTailorHelper.replaceInvokeInsnList(mn.instructions, itr, methodInsnNode, item.getInsnList());
             mn.maxStack += item.mStackSize;
             mContext.getLogger().i(TAG, ClassesUtil.toStringMethod(mClassNode.name, mn.name, mn.desc) + " inline invoke " + str);
         }

@@ -17,6 +17,7 @@ buildscript {
                 'plugin-const-sweeper',
                 'plugin-sourceline-eraser',
                 'plugin-inline-tailor',
+                'plugin-inline-tailor-plus',
                 'plugin-recursive-tail',
         ].forEach {
             if (gradle.existsBuildTarget(it)) {
@@ -53,7 +54,7 @@ task clean(type: Delete, dependsOn: cleanMvn) {
 }
 
 task deployMvn(type: Exec) {
-    commandLine "$cmdMvn", 'deploy'
+    commandLine "$cmdMvn", 'deploy', '-e'
     doFirst {
         standardOutput = System.out
         errorOutput = System.err

@@ -2,9 +2,9 @@ package org.sweetchips.demo.main;
 
 final class TestTrace extends AbstractTest {
 
-    private static final int sDepth = 20;
+    private static final int sDepth = 40;
 
-    private static final long sTime = 200;
+    private static final long sTime = 100;
 
     private int mDepth;
 
