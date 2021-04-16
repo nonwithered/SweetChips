@@ -19,8 +19,8 @@ apply plugin: 'SweetChips-android'
 
 这些插件的相关文档：
 
-- [使用Gradle构建的Android项目](../gradle-android/README.md)
-- [使用Gradle构建的Java项目、Kotlin项目](../gradle-java/README.md)
+- [SweetChips-android](../gradle-android/README.md)
+- [SweetChips-java](../gradle-java/README.md)
 
 然后在项目根目录的build.gradle中添加以下依赖：
 
