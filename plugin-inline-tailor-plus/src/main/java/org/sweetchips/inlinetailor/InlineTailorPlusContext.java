@@ -14,6 +14,7 @@ public class InlineTailorPlusContext extends BasePluginContext {
     public void onAttach(WorkflowSettings settings) {
         settings.addPrepareLast((api, cv, ext) -> new ClassNodeAdaptor(api, cv, new InlineTailorPlusPrepareClassNode(api).setContext(this)));
         settings.addTransformLast((api, cv, ext) -> new ClassNodeAdaptor(api, cv, new InlineTailorPlusTransformClassNode(api).setContext(this)));
+        settings.addTransformAfter(it -> mItems.clear());
     }
 
     public static final String NAME = "InlineTailorPlus";
