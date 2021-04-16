@@ -30,11 +30,11 @@ public abstract class AbstractExtension<C extends BasePluginContext> {
         mSettings = null;
     }
 
-    public final void ignore(String... name) {
+    public void ignore(String... name) {
         Arrays.asList(name).forEach(getContext()::addIgnore);
     }
 
-    public final void notice(String... name) {
+    public void notice(String... name) {
         Arrays.asList(name).forEach(getContext()::addNotice);
     }
 

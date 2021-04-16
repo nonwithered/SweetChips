@@ -22,20 +22,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class InlineTailorHelper {
+final class InlineTailorHelper {
 
     private InlineTailorHelper() {
         throw new UnsupportedOperationException();
     }
 
-    public static InsnList tryAndGetInsnList(ClassNode cn, MethodNode mn) {
+    static InsnList tryAndGetInsnList(ClassNode cn, MethodNode mn) {
         if (!InlineTailorHelper.checkMethod(mn, InlineTailorHelper.checkAccess(cn.access, Opcodes.ACC_FINAL))) {
             return null;
         }
         return InlineTailorHelper.getInsnList(mn);
     }
 
-    public static void replaceInvokeInsnList(InsnList instructions, Iterator<AbstractInsnNode> itr, MethodInsnNode methodInsnNode, InsnList insnList) {
+    static void replaceInvokeInsnList(InsnList instructions, Iterator<AbstractInsnNode> itr, MethodInsnNode methodInsnNode, InsnList insnList) {
         instructions.insertBefore(methodInsnNode, cloneInsnList(insnList));
         itr.remove();
     }

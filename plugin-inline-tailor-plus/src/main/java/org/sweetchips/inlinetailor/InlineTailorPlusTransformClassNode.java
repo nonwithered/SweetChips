@@ -1,45 +1,29 @@
-package org.sweetchips.annotationsvisitors;
+package org.sweetchips.inlinetailor;
 
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.sweetchips.annotations.Inline;
-import org.sweetchips.inlinetailor.InlineTailorHelper;
+import org.sweetchips.platform.jvm.BaseClassNode;
 import org.sweetchips.utility.ClassesUtil;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class InlineTransformClassNode extends ClassNode {
+public final class InlineTailorPlusTransformClassNode extends BaseClassNode<InlineTailorPlusContext> {
 
-    private final Map<String, Map.Entry<InsnList, Integer>> mItems;
+    private static final String TAG = "InlineTailorPlusTransformClassNode";
 
-    public InlineTransformClassNode(int api, Map<Object, Object> extra) {
+    public InlineTailorPlusTransformClassNode(int api) {
         super(api);
-        Object obj = extra.get(Inline.class.getName());
-        @SuppressWarnings("unchecked")
-        Map<String, Map.Entry<InsnList, Integer>> items = obj instanceof Map
-                ? (Map<String, Map.Entry<InsnList, Integer>>) obj
-                : null;
-        mItems = items;
     }
 
     @Override
-    public final void accept(ClassVisitor cv) {
-        onAccept();
-        super.accept(cv);
-    }
-
     @SuppressWarnings("unchecked")
-    private void onAccept() {
-        if (mItems == null) {
-            return;
-        }
+    protected final void onAccept() {
         for (MethodNode mn : (List<MethodNode>) methods) {
             List<AnnotationNode> invisibleAnnotations = mn.invisibleAnnotations;
             if (invisibleAnnotations != null) {
@@ -52,6 +36,9 @@ public class InlineTransformClassNode extends ClassNode {
                     }
                 }
             }
+            if (getContext().isIgnored(name, mn.name)) {
+                continue;
+            }
             Iterator<AbstractInsnNode> itr = mn.instructions.iterator();
             while (itr.hasNext()) {
                 AbstractInsnNode insn = itr.next();
@@ -60,12 +47,13 @@ public class InlineTransformClassNode extends ClassNode {
                 }
                 MethodInsnNode methodInsnNode = (MethodInsnNode) insn;
                 String str = ClassesUtil.toStringMethod(methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc);
-                Map.Entry<InsnList, Integer> item = mItems.get(str);
+                Map.Entry<InsnList, Integer> item = getContext().getItems().get(str);
                 if (item == null) {
                     continue;
                 }
                 InlineTailorHelper.replaceInvokeInsnList(mn.instructions, itr, methodInsnNode, item.getKey());
                 mn.maxStack += item.getValue();
+                getContext().getLogger().i(TAG, ClassesUtil.toStringMethod(name, mn.name, mn.desc) + " inline invoke " + str);
             }
         }
     }

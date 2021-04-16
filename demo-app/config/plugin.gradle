@@ -56,6 +56,12 @@ if (gradle.ext.existsBuildTarget('gradle-android')) {
     if (gradle.ext.existsBuildTarget('plugin-inline-tailor')) {
         apply plugin: 'InlineTailor'
         InlineTailor {
+            attach 'mainappB'
+        }
+    }
+    if (gradle.ext.existsBuildTarget('plugin-inline-tailor-plus')) {
+        apply plugin: 'InlineTailor-plus'
+        InlineTailorPlus {
             attach 'mainappC'
         }
     }
