@@ -3,6 +3,5 @@ apply from: rootProject.file('config/publish.gradle')
 
 dependencies {
     implementation project(':utility')
-    api project(':platform-common-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
