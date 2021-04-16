@@ -72,7 +72,7 @@ public final class RecursiveTailClassNode extends BaseClassNode<RecursiveTailCon
                         break;
                     }
                     abstractInsnNode = insnNode.getPrevious();
-                    if (abstractInsnNode.getType() != AbstractInsnNode.METHOD_INSN) {
+                    if (abstractInsnNode == null || abstractInsnNode.getType() != AbstractInsnNode.METHOD_INSN) {
                         break;
                     }
                     MethodInsnNode methodInsnNode = (MethodInsnNode) abstractInsnNode;
