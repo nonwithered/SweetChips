@@ -57,7 +57,9 @@ foo {
 }
 ```
 
-每个阶段都有`prepare`和`transform`先后两个部分，可以为它们分别注册多个`before`任务与`after`任务。在`prepare`和`transform`的`before`和`after`之间，则是`prepare`和`transform`的主要任务。`prepare`会对所有目标文件进行一次完整的扫描，`transform`则会对所有目标文件经过再一次扫描后写入文件系统并作为下一个阶段的输入。
+每个阶段都有`prepare`和`transform`先后两个部分，可以为它们分别注册多个`before`任务与`after`任务，这些回调函数可以接受一个`Map<Object, Object>`类型的参数，也就是上面提到的`extra`。
+
+在`prepare`和`transform`的`before`和`after`之间，则是`prepare`和`transform`的主要任务。`prepare`会对所有目标文件进行一次完整的扫描，`transform`则会对所有目标文件经过再一次扫描后写入文件系统并作为下一个阶段的输入。
 
 `prepare`和`transform`两一部分中各有一个由`ClassVisitor`组成的任务队列，可以使用`first`或`last`向队首或队尾添加新的任务，这里的参数可以是`ClassVisitor`的类名，如果希望使用`ClassNode`那么可以用`adapt`做转换。
 
