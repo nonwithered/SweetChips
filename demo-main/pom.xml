@@ -74,11 +74,8 @@
                 </executions>
                 <configuration>
                     <ignores>
-                        <ignore>*</ignore>
+                        <ignore>org.sweetchips.demo.main.TestTail#over</ignore>
                     </ignores>
-                    <notices>
-                        <notice>org.sweetchips.demo.main.TestTail#recursive</notice>
-                    </notices>
                 </configuration>
             </plugin>
             <plugin>
