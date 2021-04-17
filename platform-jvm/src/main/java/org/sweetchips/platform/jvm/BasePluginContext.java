@@ -59,6 +59,9 @@ public abstract class BasePluginContext {
             if (mScope.contains("*")) {
                 return true;
             }
+            if (member != null && mScope.contains("#" + member)) {
+                return true;
+            }
             StringBuilder builder = new StringBuilder();
             Iterator<String> itr = Arrays.asList(clazz.split("/")).iterator();
             String str = itr.next();

@@ -46,6 +46,7 @@ if (gradle.ext.existsBuildTarget('gradle-java')) {
         apply plugin: 'ConstSweeper'
         ConstSweeper {
             attach 'mainC'
+            ignore '#serialVersionUID'
             ignore 'org.sweetchips.demo.main.TestConst$CheckInternal'
             notice 'org.sweetchips.demo.main.TestConst$CheckInternal#sNotice'
         }
