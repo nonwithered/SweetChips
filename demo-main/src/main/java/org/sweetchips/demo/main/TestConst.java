@@ -4,17 +4,17 @@ import java.lang.reflect.Field;
 
 final class TestConst extends AbstractTest {
 
-    private static final String sConstant = "constant";
+    private static final long serialVersionUID = -1;
 
     @Override
     protected final void onTest() {
-        checkConstant();
+        checkSave();
         checkIgnore();
         checkNotice();
     }
 
-    private void checkConstant() {
-        log("checkConstant", RuntimeException.class == getField(TestConst.class, "sConstant").getClass());
+    private void checkSave() {
+        log("checkSave", getField(TestConst.class, "serialVersionUID").equals(serialVersionUID));
     }
 
     private void checkIgnore() {
