@@ -37,7 +37,15 @@ class Foobar {
 
 ## 接入Gradle
 
-首先需要先接入以下插件之一：
+首先在build.gradle中添加以下依赖：
+
+``` groovy
+compileOnly "org.sweetchips:annotations:$version_sweetchips"
+```
+
+加入以上依赖项后，即可开始使用`org.sweetchips.annotations.Inline`这个注解。
+
+然后需要接入以下插件之一：
 
 ``` groovy
 apply plugin: 'SweetChips-android'
@@ -82,7 +90,20 @@ InlineTailorPlus {
 
 ## 接入Maven
 
-在pom.xml中添加以下插件：
+首先在pom.xml中添加以下依赖：
+
+``` xml
+<dependency>
+    <groupId>org.sweetchips</groupId>
+    <artifactId>annotations</artifactId>
+    <version>${version_sweetchips}</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+加入以上依赖项后，即可开始使用`org.sweetchips.annotations.Inline`这个注解。
+
+然后添加以下插件：
 
 ``` xml
 <plugin>
