@@ -79,12 +79,13 @@ InlineTailor {
     ignore 'bar.Bar'
     notice 'foo.Foo'
     notice 'bar.Bar#test'
+    ignore '#foobar'
 }
 ```
 
 `attach`是必要选项且只能设定一次，在以上示例中，经过`attach`可以将本插件绑定到`SweetChips`的`foobar`流程中。
 
-`ignore`和`notice`是可选项且可以设定多次，在以上示例中，`foo`包下除`foo.Foo`类外其余所有类的所有成员都会被忽略，`bar.Bar`类中除`bar.Bar#test`外的其余所有成员都会被忽略。
+`ignore`和`notice`是可选项且可以设定多次，在以上示例中，`foo`包下除`foo.Foo`类外其余所有类的所有成员都会被忽略，`bar.Bar`类中除`bar.Bar#test`外的其余所有成员都会被忽略, 以及所有类的`foobar`成员都会被忽略。
 
 相关示例：
 
@@ -112,6 +113,7 @@ InlineTailor {
         <ignores>
             <ignore>foo.*</ignore>
             <ignore>bar.Bar</ignore>
+            <ignore>#foobar</ignore>
         </ignores>
         <notices>
             <notice>foo.Foo</notice>
@@ -121,7 +123,7 @@ InlineTailor {
 </plugin>
 ```
 
-`ignore`和`notice`是可选项且可以设定多次，在以上示例中，`foo`包下除`foo.Foo`类外其余所有类的所有成员都会被忽略，`bar.Bar`类中除`bar.Bar#test`外的其余所有成员都会被忽略。
+`ignore`和`notice`是可选项且可以设定多次，在以上示例中，`foo`包下除`foo.Foo`类外其余所有类的所有成员都会被忽略，`bar.Bar`类中除`bar.Bar#test`外的其余所有成员都会被忽略, 以及所有类的`foobar`成员都会被忽略。
 
 相关示例：
 
