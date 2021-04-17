@@ -40,6 +40,7 @@
                 </executions>
                 <configuration>
                     <ignores>
+                        <ignore>#serialVersionUID</ignore>
                         <ignore>org.sweetchips.demo.main.TestConst$CheckInternal</ignore>
                     </ignores>
                     <notices>
