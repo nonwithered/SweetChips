@@ -1,14 +1,13 @@
 package org.sweetchips.annotationsvisitors.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.objectweb.asm.Opcodes;
 
 import java.io.File;
 
-@Mojo(name = "annotationsvisitors", defaultPhase = LifecyclePhase.COMPILE)
+@Mojo(name = "annotationsvisitors")
 public class AnnotationsVisitorsMavenMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "" + Opcodes.ASM5)
