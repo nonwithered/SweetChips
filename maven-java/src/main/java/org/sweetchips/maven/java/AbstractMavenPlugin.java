@@ -34,6 +34,7 @@ public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
     public final void execute() {
         mLogger.d(TAG, getName() + ": execute: begin");
         JvmContext context = new JvmContext(mLogger);
+        mContext.setLogger(mLogger);
         mContext.onAttach(new WorkflowProfile(context));
         work(context);
         sweep();
