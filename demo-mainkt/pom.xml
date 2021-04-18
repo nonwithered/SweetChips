@@ -5,11 +5,11 @@
     <parent>
         <groupId>org.sweetchips</groupId>
         <artifactId>root</artifactId>
-        <version>0.0.1-snapshot</version>
+        <version>0.0.1</version>
     </parent>
     <groupId>org.sweetchips</groupId>
     <artifactId>demo-mainkt-mvn</artifactId>
-    <version>0.0.1-snapshot</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
     <properties>
         <nameMainClass>org.sweetchips.demo.mainkt.MainKt</nameMainClass>

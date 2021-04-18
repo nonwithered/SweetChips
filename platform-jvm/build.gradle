@@ -5,6 +5,6 @@ dependencies {
     implementation project(':utility')
     compileOnly project(':platform-common')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly "org.ow2.asm:asm:$gradle.ext.versions.asm"
-    compileOnly "org.ow2.asm:asm-tree:$gradle.ext.versions.asm"
+    implementation "org.ow2.asm:asm:$gradle.ext.versions.asm"
+    implementation "org.ow2.asm:asm-tree:$gradle.ext.versions.asm"
 }
