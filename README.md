@@ -2,6 +2,10 @@
 
 本框架为高效便捷地开发各种平台的编译插件而设计，这个项目可以作为相关插件的基础框架。
 
+如果您希望尝试在自己的项目中使用本项目所实现的插件，那么您可以在repositories添加https://raw.githubusercontent.com/nonwithered/SweetChips-repo/master/mvn。
+
+这里是[版本日志](docs/versions-log.md)，目前最新版本为`0.0.1`。
+
 本框架的目标是为JVM、LLVM等平台下各种项目的插件开发提供帮助，目前已经支持以下三类项目的插件：
 
 - [使用Gradle构建的Android项目](gradle-android/README.md)
