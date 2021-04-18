@@ -4,7 +4,7 @@ apply from: rootProject.file('config/publish.gradle')
 sourceSets {
     main {
         java {
-            exclude "$gradle.ext.groupId.${project.name.replaceAll('-', '')}.maven.**".replaceAll('\\.', '/')
+            exclude "$gradle.ext.groupId.${project.name.replaceAll('-', '').replaceAll('plugin', '')}.maven.**".replaceAll('\\.', '/')
         }
     }
 }
