@@ -1,0 +1,27 @@
+# Versions
+
+- 0.0.1 ( 2021.04.18 )
+  - annotations
+    - inline-tailor-plus和annotations-visitors所需要的注解
+  - gradle-android
+    - Gradle Android项目的主插件
+  - gradle-java
+    - Gradle Java项目的主插件
+  - plugin-trace-weaver
+    - Android项目的Trace工具
+  - plugin-const-sweeper
+    - 消除`static final`字段
+  - plugin-inline-tailor
+    - 类内内联
+  - plugin-inline-tailor-plus
+    - 类间内联
+  - plugin-recursive-tail
+    - 尾递归消除
+  - plugin-sourceline-eraser
+    - 清除行号与文件名
+  - plugin-annotations-visitors-mvn
+    - 两个小工具
+  - gradle-common
+    - Gradle子插件的依赖库
+  - maven-java
+    - Maven子插件的依赖库
