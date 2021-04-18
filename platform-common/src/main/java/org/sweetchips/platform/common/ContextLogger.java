@@ -6,11 +6,6 @@ import java.util.Locale;
 
 public class ContextLogger {
 
-    public static final int DEBUG = 3;
-    public static final int INFO = 4;
-    public static final int WARN = 5;
-    public static final int ERROR = 6;
-
     private static final ContextLogger sDefault = new ContextLogger();
 
     public static ContextLogger getDefault() {
