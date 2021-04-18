@@ -1,7 +1,6 @@
 package org.sweetchips.sourcelineeraser.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.objectweb.asm.Opcodes;
@@ -9,7 +8,7 @@ import org.objectweb.asm.Opcodes;
 import java.io.File;
 import java.util.Arrays;
 
-@Mojo(name = "sourcelineeraser", defaultPhase = LifecyclePhase.COMPILE)
+@Mojo(name = "sourcelineeraser")
 public class SourceLineEraserMavenMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "" + Opcodes.ASM5)

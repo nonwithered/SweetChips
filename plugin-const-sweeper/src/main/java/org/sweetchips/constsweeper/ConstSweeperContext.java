@@ -15,11 +15,6 @@ public final class ConstSweeperContext extends BasePluginContext {
         settings.addTransformAfter(it -> mConstants.clear());
     }
 
-    @Override
-    public synchronized boolean isIgnored(String clazz, String member) {
-        return super.isIgnored(clazz, member);
-    }
-
     public static final String NAME = "ConstSweeper";
 
     private final Map<String, Object> mConstants = new ConcurrentHashMap<>();
