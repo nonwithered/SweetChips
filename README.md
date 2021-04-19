@@ -2,8 +2,6 @@
 
 本框架为高效便捷地开发各种平台的编译插件而设计，这个项目可以作为相关插件的基础框架。
 
-如果您希望尝试在自己的项目中使用本项目所实现的插件，那么您可以在repositories添加https://raw.githubusercontent.com/nonwithered/SweetChips-repo/master/mvn。
-
 这里是[版本日志](docs/versions-log.md)，目前最新版本为`0.0.1`。
 
 本框架的目标是为JVM、LLVM等平台下各种项目的插件开发提供帮助，目前已经支持以下三类项目的插件：
@@ -25,5 +23,7 @@
 如果您希望以此为基础开发自己的JVM字节码插件，请阅读以下开发指南：
 
 - [JVM字节码插件开发手册](docs/developer-manual-jvm-plugin.md)
+
+如果您希望尝试在自己的项目中使用本项目所实现的插件，那么您可以参考[SweetChips-repo](https://github.com/nonwithered/SweetChips-repo)中的说明，配置好自己项目中的二进制仓库，然后按照各个模块的文档中的指引，实现您自己的需求。
 
 LLVM等其他平台的开发工具尚未完善，敬请期待！
