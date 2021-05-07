@@ -17,7 +17,7 @@ public class RecursiveTailMavenMojo extends AbstractMojo {
     @Parameter(defaultValue = "${basedir}", readonly = true)
     private File basedir;
 
-    @Parameter()
+    @Parameter
     private String[] ignores;
 
     @Parameter

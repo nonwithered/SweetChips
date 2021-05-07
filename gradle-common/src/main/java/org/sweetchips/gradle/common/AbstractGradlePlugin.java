@@ -6,7 +6,7 @@ import org.sweetchips.platform.jvm.BasePluginContext;
 import org.sweetchips.platform.jvm.WorkflowSettings;
 import org.sweetchips.utility.ClassesUtil;
 
-public abstract class AbstractGradlePlugin<E extends AbstractExtension<? extends BasePluginContext>> implements Plugin<Project> {
+public abstract class AbstractGradlePlugin<E extends AbstractGradleExtension<? extends BasePluginContext>> implements Plugin<Project> {
 
     private Project mProject;
     private E mExtension;

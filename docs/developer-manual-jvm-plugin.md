@@ -113,10 +113,10 @@ compileOnly "org.sweetchips:gradle-common:$version_sweetchips"
 // src/main/java/foobar/gradle/FoobarExtension.java
 package foobar.gradle;
 
-import org.sweetchips.gradle.common.AbstractExtension;
+import org.sweetchips.gradle.common.AbstractGradleExtension;
 import foobar.FoobarContext;
 
-public class FoobarExtension extends AbstractExtension<FoobarContext> {
+public class FoobarExtension extends AbstractGradleExtension<FoobarContext> {
 }
 
 // src/main/java/foobar/gradle/FoobarGradlePlugin.java
@@ -142,9 +142,9 @@ public final class FoobarGradlePlugin extends AbstractGradlePlugin<FoobarExtensi
 implementation-class=foobar.gradle.FoobarGradlePlugin
 ```
 
-`attach`、`ignore`、`notice`这三个成员方法已经从超类`org.sweetchips.gradle.common.AbstractExtension`中继承而来，可以在build.gradle中直接使用，通过它的成员方法`getContext`可以获得`org.sweetchips.platform.jvm.BasePluginContext`的实例，它的实现类要作为`org.sweetchips.gradle.common.AbstractExtension`的类型参数。
+`attach`、`ignore`、`notice`这三个成员方法已经从超类`org.sweetchips.gradle.common.AbstractGradleExtension`中继承而来，可以在build.gradle中直接使用，通过它的成员方法`getContext`可以获得`org.sweetchips.platform.jvm.BasePluginContext`的实例，它的实现类要作为`org.sweetchips.gradle.common.AbstractGradleExtension`的类型参数。
 
-`org.sweetchips.gradle.common.AbstractGradlePlugin`的子类需要继承自`org.sweetchips.gradle.common.AbstractExtension`的类型参数，`getExtension`方法可以获取这个实例，`getProject`可以获取`org.gradle.api.Project`的实例，重写`void onApply()`则可以定义一些初始化操作。`org.sweetchips.gradle.common.AbstractGradlePlugin`的子类必须实现`String getName()`方法，这将作为它的`Extension`的名称。
+`org.sweetchips.gradle.common.AbstractGradlePlugin`的子类需要继承自`org.sweetchips.gradle.common.AbstractGradleExtension`的类型参数，`getExtension`方法可以获取这个实例，`getProject`可以获取`org.gradle.api.Project`的实例，重写`void onApply()`则可以定义一些初始化操作。`org.sweetchips.gradle.common.AbstractGradlePlugin`的子类必须实现`String getName()`方法，这将作为它的`Extension`的名称。
 
 这个示例可以按以下方式使用：
 
@@ -235,7 +235,7 @@ public final class FoobarMavenMojo extends AbstractMojo {
     @Parameter(defaultValue = "${basedir}", readonly = true)
     private File basedir;
 
-    @Parameter()
+    @Parameter
     private String[] ignores;
 
     @Parameter

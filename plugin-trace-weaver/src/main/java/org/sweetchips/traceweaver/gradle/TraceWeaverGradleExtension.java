@@ -1,13 +1,13 @@
 package org.sweetchips.traceweaver.gradle;
 
-import org.sweetchips.gradle.common.AbstractExtension;
+import org.sweetchips.gradle.common.AbstractGradleExtension;
 import org.sweetchips.traceweaver.TraceWeaverContext;
 import org.sweetchips.traceweaver.ext.ClassInfo;
 import org.sweetchips.traceweaver.ext.MethodInfo;
 
 import java.util.function.BiFunction;
 
-public class TraceWeaverExtension extends AbstractExtension<TraceWeaverContext> {
+public class TraceWeaverGradleExtension extends AbstractGradleExtension<TraceWeaverContext> {
 
     public void maxDepth(int max) {
         getContext().setMaxDepth(max);
