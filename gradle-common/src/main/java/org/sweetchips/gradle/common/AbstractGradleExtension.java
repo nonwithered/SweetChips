@@ -7,14 +7,14 @@ import org.sweetchips.utility.ClassesUtil;
 import java.util.Arrays;
 import java.util.function.Function;
 
-public abstract class AbstractExtension<C extends BasePluginContext> {
+public abstract class AbstractGradleExtension<C extends BasePluginContext> {
 
     private Function<String, WorkflowSettings> mSettings;
     private final C mContext;
 
-    public AbstractExtension() {
+    public AbstractGradleExtension() {
         @SuppressWarnings("unchecked")
-        Class<C> clazz = (Class<C>) ClassesUtil.getSuperTypeArgs(getClass(), AbstractExtension.class)[0];
+        Class<C> clazz = (Class<C>) ClassesUtil.getSuperTypeArgs(getClass(), AbstractGradleExtension.class)[0];
         mContext = ClassesUtil.newInstance(ClassesUtil.getDeclaredConstructor(clazz));
     }
 

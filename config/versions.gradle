@@ -1,7 +1,7 @@
 def versions = [:]
 gradle.ext.versions = versions
 
-versions.root = '0.0.1'
+versions.root = '0.0.2-snapshot'
 versions.kotlin ='1.4.20'
 versions.asm = '5.1'
 versions.gradleApi = '3.1.4'
@@ -16,5 +16,3 @@ versions.constraintlayout = '2.0.4'
 versions.junit = '4.12'
 versions.testJunit = '1.1.2'
 versions.espresso = '3.3.0'
-
-
