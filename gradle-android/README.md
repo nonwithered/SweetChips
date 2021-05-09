@@ -31,13 +31,13 @@ SweetChips {
 
 `asmApi`是可选项，默认为`Opcodes.ASM5`。
 
-foo和bar都是将要被添加的阶段的名称，经过`addTransform`后将有与之同名的Extension被一同创建。
+foo和bar都是将要被添加的工作流的名称，经过`addTransform`后将有与之同名的Extension被一同创建。
 
 `incremental`是可选项，默认为`false`。
 
-`sameExtra`是可选项，每个阶段都有一个类型为`Map<Object, Object>`的extra。在上面的示例中，bar的extra将沿用foo的extra，因此可以通过这种方式将foo阶段采集到的信息传递到bar阶段。
+`sameExtra`是可选项，每个工作流都有一个类型为`Map<Object, Object>`的extra。在上面的示例中，bar的extra将沿用foo的extra，因此可以通过这种方式将foo工作流采集到的信息传递到bar工作流。
 
-当`addTransform`被调用后，就可以配置所创建的阶段：
+当`addTransform`被调用后，就可以配置所创建的工作流：
 
 ``` groovy
 foo {
@@ -56,9 +56,9 @@ foo {
 }
 ```
 
-每个阶段都有`prepare`和`transform`先后两个部分，可以为它们分别注册多个`before`任务与`after`任务，这些回调函数可以接受一个`Map<Object, Object>`类型的参数，也就是上面提到的`extra`。
+每个工作流都有`prepare`和`transform`先后两个部分，可以为它们分别注册多个`before`任务与`after`任务，这些回调函数可以接受一个`Map<Object, Object>`类型的参数，也就是上面提到的`extra`。
 
-在`prepare`和`transform`的`before`和`after`之间，则是`prepare`和`transform`的主要任务。`prepare`会对所有目标文件进行一次完整的扫描，`transform`则会对所有目标文件经过再一次扫描后写入文件系统并作为下一个阶段的输入。
+在`prepare`和`transform`的`before`和`after`之间，则是`prepare`和`transform`的主要任务。`prepare`会对所有目标文件进行一次完整的扫描，`transform`则会对所有目标文件经过再一次扫描后写入文件系统并作为下一个工作流的输入。
 
 `prepare`和`transform`两一部分中各有一个由`ClassVisitor`组成的任务队列，可以使用`first`或`last`向队首或队尾添加新的任务，这里的参数可以是`ClassVisitor`的类名，如果希望使用`ClassNode`那么可以用`adapt`做转换。
 
