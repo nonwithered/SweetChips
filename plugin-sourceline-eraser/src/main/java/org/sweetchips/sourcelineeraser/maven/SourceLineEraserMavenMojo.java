@@ -10,7 +10,7 @@ import org.sweetchips.sourcelineeraser.SourceLineEraserContext;
 import java.io.File;
 
 @Mojo(name = "sourcelineeraser")
-public class SourceLineEraserMavenMojo extends AbstractMojo implements AbstractMavenPlugin<SourceLineEraserContext> {
+public final class SourceLineEraserMavenMojo extends AbstractMojo implements AbstractMavenPlugin<SourceLineEraserContext> {
 
     @Parameter(defaultValue = "" + Opcodes.ASM5)
     private int asmApi;

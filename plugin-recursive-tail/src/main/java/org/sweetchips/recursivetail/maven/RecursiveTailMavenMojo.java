@@ -10,7 +10,7 @@ import org.sweetchips.recursivetail.RecursiveTailContext;
 import java.io.File;
 
 @Mojo(name = "recursivetail")
-public class RecursiveTailMavenMojo extends AbstractMojo implements AbstractMavenPlugin<RecursiveTailContext> {
+public final class RecursiveTailMavenMojo extends AbstractMojo implements AbstractMavenPlugin<RecursiveTailContext> {
 
     @Parameter(defaultValue = "" + Opcodes.ASM5)
     private int asmApi;

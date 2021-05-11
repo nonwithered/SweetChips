@@ -10,7 +10,7 @@ import org.sweetchips.maven.java.AbstractMavenPlugin;
 import java.io.File;
 
 @Mojo(name = "inlinetailor")
-public class InlineTailorMavenMojo extends AbstractMojo implements AbstractMavenPlugin<InlineTailorContext> {
+public final class InlineTailorMavenMojo extends AbstractMojo implements AbstractMavenPlugin<InlineTailorContext> {
 
     @Parameter(defaultValue = "" + Opcodes.ASM5)
     private int asmApi;
