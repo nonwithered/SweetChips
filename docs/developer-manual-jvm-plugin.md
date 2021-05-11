@@ -226,10 +226,10 @@ public final class FoobarMavenMojo extends AbstractMojo implements AbstractMaven
         return FoobarContext.NAME;
     }
 
-    @Override
-    public void onExecute(FoobarContext context) {
-        AbstractMavenPlugin.super.onExecute(context);
-    }
+//  @Override
+//  public void onExecute(FoobarContext context) {
+//      AbstractMavenPlugin.super.onExecute(context);
+//  }
 }
 ```
 
