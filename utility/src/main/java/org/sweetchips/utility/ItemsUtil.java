@@ -3,6 +3,7 @@ package org.sweetchips.utility;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public interface ItemsUtil {
 
@@ -28,5 +29,14 @@ public interface ItemsUtil {
             return;
         }
         deque.addFirst(e);
+    }
+
+    static <T> T findFirst(Collection<T> collection, Predicate<T> predicate) {
+        for (T it : collection) {
+            if (predicate.test(it)) {
+                return it;
+            }
+        }
+        return null;
     }
 }

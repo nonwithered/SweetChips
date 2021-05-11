@@ -1,84 +1,75 @@
 package org.sweetchips.maven.java;
 
-import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.Mojo;
 import org.sweetchips.platform.jvm.BasePluginContext;
-import org.sweetchips.platform.jvm.JvmContext;
+import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.ClassesUtil;
-import org.sweetchips.utility.FilesUtil;
 
 import java.io.File;
-import java.nio.file.Path;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 
-public abstract class AbstractMavenPlugin<C extends BasePluginContext> {
+public interface AbstractMavenPlugin<C extends BasePluginContext> extends Mojo {
 
-    private static final String TAG = "AbstractMavenPlugin";
-
-    private final SweetChipsMavenContextLogger mLogger;
-    private final C mContext;
-    private final int mAsmApi;
-    private final File mBasedir;
-
-    protected abstract String getName();
-
-    public final C getContext() {
-        return mContext;
-    }
-
-    public AbstractMavenPlugin(Log log, int asmApi, File basedir) {
-        mLogger = new SweetChipsMavenContextLogger(log);
-        mContext = newContext();
-        mAsmApi = asmApi;
-        mBasedir = basedir;
-    }
-
-    public final void execute() {
-        mLogger.d(TAG, getName() + ": execute: begin");
-        JvmContext context = new JvmContext(mLogger);
-        mContext.setLogger(mLogger);
-        mContext.onAttach(new WorkflowProfile(context));
-        work(context);
-        sweep();
-        mLogger.d(TAG, getName() + ": execute: end");
-    }
-
-    private C newContext() {
+    @Override
+    default void execute() {
         @SuppressWarnings("unchecked")
         Class<C> clazz = (Class<C>) ClassesUtil.getSuperTypeArgs(getClass(), AbstractMavenPlugin.class)[0];
-        return ClassesUtil.newInstance(ClassesUtil.getDeclaredConstructor(clazz));
+        C context = ClassesUtil.newInstance(ClassesUtil.getDeclaredConstructor(clazz));
+        onExecute(context);
+        new WorkflowWorker<>(this, context).run();
     }
 
-    private void work(JvmContext context) {
-        mLogger.d(TAG, getName() + ": work: begin");
-        Path from = getClassDir();
-        Path to = getTempDir();
-        FilesUtil.deleteIfExists(to);
-        context.setApi(mAsmApi);
-        new SweetchipsJavaMavenTransform(mLogger, context).transform(from, to);
-        mLogger.d(TAG, getName() + ": work: end");
+    default int getAsmApi() {
+        return AsyncUtil.call(() -> {
+            Field asmApi = getClass().getDeclaredField("asmApi");
+            asmApi.setAccessible(true);
+            return (int) asmApi.get(this);
+        });
     }
 
-    private void sweep() {
-        mLogger.d(TAG, getName() + ": sweep: begin");
-        Path from = getTempDir();
-        Path to = getClassDir();
-        FilesUtil.deleteIfExists(to);
-        JvmContext context = new JvmContext(mLogger);
-        context.setApi(mAsmApi);
-        new SweetchipsJavaMavenTransform(mLogger, context).transform(from, to);
-        mLogger.d(TAG, getName() + ": sweep: end");
+    default File getBaseDir() {
+        return AsyncUtil.call(() -> {
+            Field basedir = getClass().getDeclaredField("basedir");
+            basedir.setAccessible(true);
+            return (File) basedir.get(this);
+        });
     }
 
-    private Path getClassDir() {
-        return mBasedir.toPath()
-                .resolve("target")
-                .resolve("classes");
+    default String[] getIgnores() {
+        return AsyncUtil.call(() -> {
+            try {
+                Field ignores = getClass().getDeclaredField("ignores");
+                ignores.setAccessible(true);
+                return (String[]) ignores.get(this);
+            } catch (NoSuchFieldException e) {
+                return null;
+            }
+        });
     }
 
-    private Path getTempDir() {
-        return mBasedir.toPath()
-                .resolve("target")
-                .resolve("intermediates")
-                .resolve("transforms")
-                .resolve(getName());
+    default String[] getNotices() {
+        return AsyncUtil.call(() -> {
+            try {
+                Field notices = getClass().getDeclaredField("notices");
+                notices.setAccessible(true);
+                return (String[]) notices.get(this);
+            } catch (NoSuchFieldException e) {
+                return null;
+            }
+        });
     }
+
+    default void onExecute(C context) {
+        String[] ignores = getIgnores();
+        if (ignores != null) {
+            Arrays.stream(ignores).forEach(context::addIgnore);
+        }
+        String[] notices = getNotices();
+        if (notices != null) {
+            Arrays.stream(notices).forEach(context::addNotice);
+        }
+    }
+
+    String getName();
 }

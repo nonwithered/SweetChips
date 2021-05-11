@@ -195,26 +195,6 @@ Foobar {
 然后参考以下示例：
 
 ``` java
-// src/main/java/foobar/maven/FoobarMavenPlugin.java
-package foobar.maven;
-
-import java.io.File;
-import org.apache.maven.plugin.logging.Log;
-import org.sweetchips.maven.java.AbstractMavenPlugin;
-import foobar.FoobarContext;
-
-final class FoobarMavenPlugin extends AbstractMavenPlugin<FoobarContext> {
-
-    @Override
-    protected final String getName() {
-        return FoobarContext.NAME;
-    }
-
-    public FoobarMavenPlugin(Log log, int asmApi, File basedir) {
-        super(log, asmApi, basedir);
-    }
-}
-
 // src/main/java/foobar/maven/FoobarMavenMojo.java
 package foobar.maven;
 
@@ -227,7 +207,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.objectweb.asm.Opcodes;
 
 @Mojo(name = "foobar")
-public final class FoobarMavenMojo extends AbstractMojo {
+public final class FoobarMavenMojo extends AbstractMojo implements AbstractMavenPlugin<FoobarContext> {
 
     @Parameter(defaultValue = "" + Opcodes.ASM5)
     private int asmApi;
@@ -242,28 +222,26 @@ public final class FoobarMavenMojo extends AbstractMojo {
     private String[] notices;
 
     @Override
-    public void execute() {
-        FoobarMavenPlugin plugin = new FoobarMavenPlugin(getLog(), asmApi, basedir);
-        if (ignores != null) {
-            Arrays.stream(ignores).forEach(plugin.getContext()::addIgnore);
-        }
-        if (notices != null) {
-            Arrays.stream(notices).forEach(plugin.getContext()::addNotice);
-        }
-        plugin.execute();
+    public String getName() {
+        return FoobarContext.NAME;
+    }
+
+    @Override
+    public void onExecute(FoobarContext context) {
+        AbstractMavenPlugin.super.onExecute(context);
     }
 }
 ```
 
-`org.sweetchips.maven.java.AbstractMavenPlugin`需要的类型参数就是上面实现的`org.sweetchips.platform.jvm.BasePluginContext`子类，通过`getContext`可以获取对应实例。子类必须实现`String getName()`方法，它将作为临时目录的名称。
+`org.sweetchips.maven.java.AbstractMavenPlugin`需要的类型参数就是上面实现的`org.sweetchips.platform.jvm.BasePluginContext`子类，子类必须实现`String getName()`方法，它将作为临时目录的名称。
 
-`asmApi`的值可以按照需求自行设置合适的值。
+`asmApi`是必要参数，它的值可以根据需求自行设置。或者您也可以选择重写`getAsmApi`方法。
 
-`basedir`应设为`target`的上级目录，按示例方式设置即可。
+`basedir`是必要参数，它应被设为`target`的上级目录，按示例方式设置即可。或者您也可以选择重写`getBaseDir`方法。
 
-`ignores`和`notices`的设定方式可以直接参考以上示例。
+`ignores`和`notices`的都是可选参数。或者您也可以选择重写`getIgnores`方法和`getNotices`方法。
 
-最后在`org.apache.maven.plugin.AbstractMojo#execute()`中调用`org.sweetchips.maven.java.AbstractMavenPlugin#execute()`即可进行字节码转换操作。
+如果您希望对`org.sweetchips.platform.jvm.BasePluginContext`作更多其他设置，您也可以选择重写`onExecute`方法。
 
 这个示例可以按以下方式使用：
 

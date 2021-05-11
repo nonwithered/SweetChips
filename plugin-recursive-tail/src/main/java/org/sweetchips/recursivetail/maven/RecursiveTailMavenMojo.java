@@ -4,12 +4,13 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.objectweb.asm.Opcodes;
+import org.sweetchips.maven.java.AbstractMavenPlugin;
+import org.sweetchips.recursivetail.RecursiveTailContext;
 
 import java.io.File;
-import java.util.Arrays;
 
 @Mojo(name = "recursivetail")
-public class RecursiveTailMavenMojo extends AbstractMojo {
+public final class RecursiveTailMavenMojo extends AbstractMojo implements AbstractMavenPlugin<RecursiveTailContext> {
 
     @Parameter(defaultValue = "" + Opcodes.ASM5)
     private int asmApi;
@@ -24,14 +25,7 @@ public class RecursiveTailMavenMojo extends AbstractMojo {
     private String[] notices;
 
     @Override
-    public void execute() {
-        RecursiveTailMavenPlugin plugin = new RecursiveTailMavenPlugin(getLog(), asmApi, basedir);
-        if (ignores != null) {
-            Arrays.stream(ignores).forEach(plugin.getContext()::addIgnore);
-        }
-        if (notices != null) {
-            Arrays.stream(notices).forEach(plugin.getContext()::addNotice);
-        }
-        plugin.execute();
+    public String getName() {
+        return RecursiveTailContext.NAME;
     }
 }

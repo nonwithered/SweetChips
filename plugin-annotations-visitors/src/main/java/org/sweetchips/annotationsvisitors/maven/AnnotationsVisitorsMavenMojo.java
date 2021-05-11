@@ -4,11 +4,12 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.objectweb.asm.Opcodes;
+import org.sweetchips.maven.java.AbstractMavenPlugin;
 
 import java.io.File;
 
 @Mojo(name = "annotationsvisitors")
-public class AnnotationsVisitorsMavenMojo extends AbstractMojo {
+public final class AnnotationsVisitorsMavenMojo extends AbstractMojo implements AbstractMavenPlugin<AnnotationsVisitorsContext> {
 
     @Parameter(defaultValue = "" + Opcodes.ASM5)
     private int asmApi;
@@ -17,8 +18,7 @@ public class AnnotationsVisitorsMavenMojo extends AbstractMojo {
     private File basedir;
 
     @Override
-    public void execute() {
-        AnnotationsVisitorsMavenPlugin plugin = new AnnotationsVisitorsMavenPlugin(getLog(), asmApi, basedir);
-        plugin.execute();
+    public String getName() {
+        return AnnotationsVisitorsContext.NAME;
     }
 }
