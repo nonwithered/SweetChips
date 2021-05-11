@@ -7,7 +7,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import javax.tools.DiagnosticCollector;
@@ -30,19 +32,31 @@ public interface ClassesUtil {
         return owner + "->" + name + ":" + desc;
     }
 
-    static Type[] getSuperTypeArgs(Class<?> clazz, Class<?> superClazz) {
-        while (true) {
-            Class<?> temp = clazz.getSuperclass();
-            if (temp != superClazz) {
-                clazz = temp;
-                continue;
+    static Type[] getSuperTypeArgs(Class<?> clazz, final Class<?> superType) {
+        while (clazz != null) {
+            Class<?> superClass = clazz.getSuperclass();
+            Type type;
+            if (!superType.isInterface()) {
+                if (superClass != superType) {
+                    clazz = superClass;
+                    continue;
+                }
+                type = clazz.getGenericSuperclass();
+            } else {
+                if (!Arrays.asList(clazz.getInterfaces()).contains(superType)) {
+                    clazz = superClass;
+                    continue;
+                }
+                type = ItemsUtil.findFirst(Arrays.asList(clazz.getGenericInterfaces()), Predicate.<Type>isEqual(superType).or(it ->
+                        it instanceof ParameterizedType && ((ParameterizedType) it).getRawType() == superType
+                ));
             }
-            Type type = clazz.getGenericSuperclass();
             if (type instanceof ParameterizedType) {
                 return ((ParameterizedType) type).getActualTypeArguments();
             }
-            throw new IllegalArgumentException(superClazz.getName());
+            break;
         }
+        throw new IllegalArgumentException(superType.getName());
     }
 
     @SuppressWarnings("unchecked")
@@ -55,11 +69,11 @@ public interface ClassesUtil {
     }
 
     static <T> T newInstance(Constructor<T> constructor, Object... args) {
-        return AsyncUtil.call(() ->  constructor.newInstance(args));
+        return AsyncUtil.call(() -> constructor.newInstance(args));
     }
 
     static byte[] compile(String name, Supplier<String> content, DiagnosticListener<JavaFileObject> listener) {
-        String str = name.replaceAll("\\.","/");
+        String str = name.replaceAll("\\.", "/");
         return AsyncUtil.call(() -> {
             try (ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
                 JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -80,6 +94,7 @@ public interface ClassesUtil {
                     public JavaFileObject getJavaFileForInput(Location location, String className, JavaFileObject.Kind kind) {
                         return source;
                     }
+
                     @Override
                     public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) {
                         return target;
