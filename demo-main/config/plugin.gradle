@@ -2,10 +2,10 @@ if (gradle.ext.existsBuildTarget('gradle-java')) {
     apply plugin: 'SweetChips-java'
     SweetChips {
         asmApi = 5 << 16
-        addTransform 'mainA', incremental: false
-        addTransform 'mainB', incremental: true
-        addTransform 'mainC'
-        addTransform 'mainD'
+        newWorkflow 'mainA', incremental: false
+        newWorkflow 'mainB', incremental: true
+        newWorkflow 'mainC'
+        newWorkflow 'mainD'
     }
     mainA {
         transform {

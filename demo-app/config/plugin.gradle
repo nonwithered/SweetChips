@@ -1,11 +1,11 @@
 if (gradle.ext.existsBuildTarget('gradle-android')) {
     apply plugin: 'SweetChips-android'
     SweetChips {
-        addTransform 'mainappA', incremental: false
-        addTransform 'mainappB', incremental: true
-        addTransform 'mainappC'
-        addTransform 'mainappD'
-        addTransform 'mainappE'
+        newWorkflow 'mainappA', incremental: false
+        newWorkflow 'mainappB', incremental: true
+        newWorkflow 'mainappC'
+        newWorkflow 'mainappD'
+        newWorkflow 'mainappE'
     }
     mainappA {
         transform {

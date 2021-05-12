@@ -81,7 +81,7 @@ classpath "org.sweetchips:plugin-annotations-visitors:$version_sweetchips"
 
 ``` groovy
 SweetChips {
-    addTransform 'foobar'
+    newWorkflow 'foobar'
 }
 foobar {
     transform {

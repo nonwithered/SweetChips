@@ -34,7 +34,7 @@ classpath "org.sweetchips:plugin-trace-weaver:$version_sweetchips"
 
 ``` groovy
 SweetChips {
-    addTransform 'foobar'
+    newWorkflow 'foobar'
 }
 apply plugin: 'TraceWeaver'
 TraceWeaver {

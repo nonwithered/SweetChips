@@ -49,7 +49,7 @@ classpath "org.sweetchips:plugin-const-sweeper:$version_sweetchips"
 
 ``` groovy
 SweetChips {
-    addTransform 'foobar'
+    newWorkflow 'foobar'
 }
 apply plugin: 'ConstSweeper'
 ConstSweeper {
