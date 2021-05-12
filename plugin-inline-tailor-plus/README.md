@@ -67,7 +67,7 @@ classpath "org.sweetchips:plugin-inline-tailor-plus:$version_sweetchips"
 
 ``` groovy
 SweetChips {
-    addTransform 'foobar'
+    newWorkflow 'foobar'
 }
 apply plugin: 'InlineTailor-plus'
 InlineTailorPlus {

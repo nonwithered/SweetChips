@@ -55,7 +55,7 @@ classpath "org.sweetchips:plugin-recursive-tail:$version_sweetchips"
 
 ``` groovy
 SweetChips {
-    addTransform 'foobar'
+    newWorkflow 'foobar'
 }
 apply plugin: 'RecursiveTail'
 RecursiveTail {

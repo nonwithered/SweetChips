@@ -40,7 +40,7 @@ public class SweetChipsExtension {
         }
     }
 
-    public TransformExt addTransform(String name) {
+    public TransformExt newWorkflow(String name) {
         JvmContext context = new JvmContext(mPlugin.getLogger());
         context.setApi(mAsmApi);
         mPlugin.registerTransform(name, context);
@@ -48,8 +48,8 @@ public class SweetChipsExtension {
         return new TransformExt(extension);
     }
 
-    public TransformExt addTransform(Map<String, ?> opt, String name) {
-        TransformExt ext = addTransform(name);
+    public TransformExt newWorkflow(Map<String, ?> opt, String name) {
+        TransformExt ext = newWorkflow(name);
         Map<String, Object> map = new HashMap<>();
         opt.entrySet().forEach(it -> {
             String key = it.getKey();

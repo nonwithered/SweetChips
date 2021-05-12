@@ -150,7 +150,7 @@ implementation-class=foobar.gradle.FoobarGradlePlugin
 
 ``` groovy
 SweetChips {
-    addTransform 'foobar'
+    newWorkflow 'foobar'
 }
 apply plugin: 'Foobar'
 Foobar {

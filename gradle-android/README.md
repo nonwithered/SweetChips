@@ -24,20 +24,20 @@ apply plugin: 'SweetChips-android'
 ``` groovy
 SweetChips {
     asmApi = 5 << 16
-    addTransform 'foo'
-    addTransform 'bar', incremental: true, sameExtra: 'foo'
+    newWorkflow 'foo'
+    newWorkflow 'bar', incremental: true, sameExtra: 'foo'
 }
 ```
 
 `asmApi`是可选项，默认为`Opcodes.ASM5`。
 
-foo和bar都是将要被添加的工作流的名称，经过`addTransform`后将有与之同名的Extension被一同创建。
+foo和bar都是将要被添加的工作流的名称，经过`newWorkflow`后将有与之同名的Extension被一同创建。
 
 `incremental`是可选项，默认为`false`。
 
 `sameExtra`是可选项，每个工作流都有一个类型为`Map<Object, Object>`的extra。在上面的示例中，bar的extra将沿用foo的extra，因此可以通过这种方式将foo工作流采集到的信息传递到bar工作流。
 
-当`addTransform`被调用后，就可以配置所创建的工作流：
+当`newWorkflow`被调用后，就可以配置所创建的工作流：
 
 ``` groovy
 foo {
