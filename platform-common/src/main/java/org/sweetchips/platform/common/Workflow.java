@@ -1,20 +1,15 @@
 package org.sweetchips.platform.common;
 
-import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.ItemsUtil;
-import org.sweetchips.utility.StageWorker;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public final class Workflow {
 
@@ -49,32 +44,14 @@ public final class Workflow {
             throw new IllegalStateException();
         }
         mWorkSet = null;
-        Runnable[] runnables = new Runnable[]{
+        List<Transformer> transformers = list.stream().map(Transformer::new).collect(Collectors.toList());
+        Runnable runnable = () -> Transformer.Companion.doWork$platform_common(transformers,
                 this::prepareBefore,
-                () -> {
-                    prepareAfter();
-                    transformBefore();
-                },
-                this::transformAfter
-        };
-        ForkJoinPool pool = (ForkJoinPool) Executors.newWorkStealingPool();
-        StageWorker worker = new StageWorker(list.size(), runnables);
-        Runnable command = () -> AsyncUtil.with(list.stream()).forkJoin(it -> new Transformer(mLogger, worker, it).doWork());
-        ForkJoinTask<?> workerFuture = pool.submit(worker);
-        ForkJoinTask<?> commandFuture = pool.submit(command);
-        RunnableFuture<?> future = new FutureTask<Void>(() -> AsyncUtil.run(() -> {
-            try {
-                mLogger.d(TAG, "wait: begin");
-                commandFuture.get();
-                workerFuture.get();
-                mLogger.d(TAG, "wait: end");
-            } finally {
-                mLogger.d(TAG, "shutdown: begin");
-                pool.shutdownNow();
-                pool.awaitTermination(60, TimeUnit.SECONDS);
-                mLogger.d(TAG, "shutdown: end");
-            }
-        }), null);
+                this::prepareAfter,
+                this::transformBefore,
+                this::transformAfter,
+                mLogger);
+        RunnableFuture<?> future = new FutureTask<>(runnable, null);
         executor.execute(future);
         mLogger.d(TAG, "start: end");
         return future;

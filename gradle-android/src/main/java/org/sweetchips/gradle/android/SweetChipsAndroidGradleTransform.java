@@ -12,14 +12,14 @@ import com.android.build.api.transform.TransformInvocation;
 import com.android.build.gradle.internal.pipeline.TransformManager;
 
 import org.sweetchips.platform.common.ContextLogger;
-import org.sweetchips.platform.jvm.JvmContextCallbacks;
-import org.sweetchips.platform.common.AbstractUnit;
 import org.sweetchips.platform.common.FileUnit;
+import org.sweetchips.platform.common.IUnit;
 import org.sweetchips.platform.common.PathUnit;
 import org.sweetchips.platform.common.RootUnit;
 import org.sweetchips.platform.common.Workflow;
 import org.sweetchips.platform.common.ZipUnit;
 import org.sweetchips.platform.jvm.JvmContext;
+import org.sweetchips.platform.jvm.JvmContextCallbacks;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
@@ -158,15 +158,15 @@ final class SweetChipsAndroidGradleTransform extends Transform {
 
     private RootUnit forEachChangedFile(Path input, Path output, Status stat) {
         RootUnit.Status status = statusOf(stat);
-        AbstractUnit abstractUnit;
+        IUnit unit;
         if (FilesUtil.isDirectory(input)) {
             mLogger.d(TAG, mName + "changedFile: path: " + input.toAbsolutePath());
-            abstractUnit = new PathUnit(input, output, mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath());
+            unit = new PathUnit(input, output, mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath());
         } else {
             mLogger.d(TAG, mName + "changedFile: file: " + input.toAbsolutePath());
-            abstractUnit = new FileUnit(input, output, mContextCallbacks.onPrepareFile(), mContextCallbacks.onTransformFile());
+            unit = new FileUnit(input, output, mContextCallbacks.onPrepareFile(), mContextCallbacks.onTransformFile());
         }
-        return new RootUnit(status, abstractUnit);
+        return new RootUnit(status, unit);
     }
 
     private RootUnit.Status statusOf(Status status) {

@@ -42,6 +42,10 @@ public interface AsyncUtil {
         return call(() -> executor.submit(callable).get());
     }
 
+    static void forkJoin(Runnable runnable) {
+        ForkJoinTask.adapt(runnable).fork().join();
+    }
+
     static <T> Function<T, ForkJoinTask<?>> fork(Consumer<T> consumer) {
         return it -> ForkJoinTask.adapt(() -> consumer.accept(it)).fork();
     }
