@@ -2,8 +2,10 @@ package org.sweetchips.utility;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -34,16 +36,22 @@ public interface AsyncUtil {
         }
     }
 
+    static <T> T withScope(Callable<T> callable) {
+        ExecutorService executorService = Executors.newWorkStealingPool();
+        try {
+            return AsyncUtil.call(() -> executorService.submit(callable).get());
+        } finally {
+            executorService.shutdown();
+            AsyncUtil.run(() -> executorService.awaitTermination(60, TimeUnit.SECONDS));
+        }
+    }
+
     static void runBlocker(ExecutorService executor, Runnable runnable) {
         run(() -> executor.submit(runnable).get());
     }
 
     static <T> T callBlocker(ExecutorService executor, Callable<T> callable) {
         return call(() -> executor.submit(callable).get());
-    }
-
-    static void forkJoin(Runnable runnable) {
-        ForkJoinTask.adapt(runnable).fork().join();
     }
 
     static <T> Function<T, ForkJoinTask<?>> fork(Consumer<T> consumer) {
