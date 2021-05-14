@@ -38,7 +38,7 @@ final class SweetChipsJavaGradleTransform {
     void transform(Function<Path, Path> provider, Path path, Collection<Path> paths) {
         mLogger.d(TAG, mName + ": transform: begin");
         Workflow workflow = new Workflow(mLogger);
-        workflow.apply(mContext);
+        workflow.attach(mContext);
         initBytesWriter(provider, path, paths);
         paths.forEach(it -> workflow.addWork(Collections.singletonList(new RootUnit(RootUnit.Status.ADDED, new PathUnit(it, provider.apply(it), mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath())))));
         try {

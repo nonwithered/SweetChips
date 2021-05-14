@@ -30,7 +30,7 @@ final class SweetchipsJavaMavenTransform {
     void transform(Path from, Path to) {
         mLogger.d(TAG, "transform: begin");
         Workflow workflow = new Workflow(mLogger);
-        workflow.apply(mContext);
+        workflow.attach(mContext);
         mContext.setBytesWriter((str, bytes) -> FilesUtil.writeTo(to.resolve(str + ".class"), bytes));
         workflow.addWork(Collections.singletonList(new RootUnit(RootUnit.Status.ADDED, new PathUnit(from, to, mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath()))));
         try {

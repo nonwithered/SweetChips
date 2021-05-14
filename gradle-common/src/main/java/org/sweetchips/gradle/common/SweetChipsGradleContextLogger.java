@@ -7,7 +7,7 @@ final class SweetChipsGradleContextLogger extends ContextLogger {
 
     private final Logger mLogger;
 
-    public SweetChipsGradleContextLogger(Logger logger) {
+    SweetChipsGradleContextLogger(Logger logger) {
         mLogger = logger;
     }
 

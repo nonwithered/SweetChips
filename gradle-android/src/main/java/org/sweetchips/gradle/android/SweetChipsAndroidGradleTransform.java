@@ -74,7 +74,7 @@ final class SweetChipsAndroidGradleTransform extends Transform {
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
         mLogger.d(TAG, mName + ": transform: begin");
         Workflow workflow = new Workflow(mLogger);
-        workflow.apply(mContext);
+        workflow.attach(mContext);
         mTransformInvocation = transformInvocation;
         initBytesWriter();
         transformInvocation.getInputs().stream()

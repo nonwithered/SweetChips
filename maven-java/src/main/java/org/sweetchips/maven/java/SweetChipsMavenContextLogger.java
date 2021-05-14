@@ -7,7 +7,7 @@ final class SweetChipsMavenContextLogger extends ContextLogger {
 
     private final Log mLog;
 
-    public SweetChipsMavenContextLogger(Log log) {
+    SweetChipsMavenContextLogger(Log log) {
         mLog = log;
     }
 
