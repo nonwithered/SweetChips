@@ -20,7 +20,7 @@ final class TestTrace extends AbstractTest {
         try {
             Thread.sleep(sTime);
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new AssertionError(e);
         }
         run();
     }

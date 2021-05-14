@@ -6,8 +6,10 @@ import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
-final class WorkflowWorker<C extends BasePluginContext> implements Runnable {
+final class WorkflowWorker<C extends BasePluginContext> implements Callable<Void> {
 
     private static final String TAG = "WorkflowWorker";
 
@@ -22,7 +24,7 @@ final class WorkflowWorker<C extends BasePluginContext> implements Runnable {
     }
 
     @Override
-    public final void run() {
+    public final Void call() throws ExecutionException, InterruptedException {
         mLogger.d(TAG, mPlugin.getName() + ": execute: begin");
         JvmContext context = new JvmContext(mLogger);
         mContext.setLogger(mLogger);
@@ -30,9 +32,10 @@ final class WorkflowWorker<C extends BasePluginContext> implements Runnable {
         work(context);
         sweep();
         mLogger.d(TAG, mPlugin.getName() + ": execute: end");
+        return null;
     }
 
-    private void work(JvmContext context) {
+    private void work(JvmContext context) throws ExecutionException, InterruptedException {
         mLogger.d(TAG, mPlugin.getName() + ": work: begin");
         Path from = getClassDir();
         Path to = getTempDir();
@@ -42,7 +45,7 @@ final class WorkflowWorker<C extends BasePluginContext> implements Runnable {
         mLogger.d(TAG, mPlugin.getName() + ": work: end");
     }
 
-    private void sweep() {
+    private void sweep() throws ExecutionException, InterruptedException {
         mLogger.d(TAG, mPlugin.getName() + ": sweep: begin");
         Path from = getTempDir();
         Path to = getClassDir();

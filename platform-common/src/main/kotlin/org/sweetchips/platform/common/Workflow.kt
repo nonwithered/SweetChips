@@ -75,11 +75,11 @@ class Workflow(private val logger: ContextLogger) {
         addTransformAfter(context.onTransformAfter())
     }
 
-    fun start(executor: Executor): Future<Unit> {
+    fun start(executor: Executor): Future<Void> {
         val tag = "start"
         logger.d(TAG, "$tag: begin")
         val future = workSet!!.also { workSet = null }.let {
-            FutureTask { it.doWork() }
+            FutureTask<Void>({ it.doWork() }, null)
         }
         executor.execute(future)
         logger.d(TAG, "$tag: end")

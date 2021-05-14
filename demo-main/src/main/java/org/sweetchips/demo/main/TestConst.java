@@ -22,7 +22,7 @@ final class TestConst extends AbstractTest {
     }
 
     private void checkNotice() {
-        log("checkNotice", RuntimeException.class == getField(CheckInternal.class, "sNotice").getClass());
+        log("checkNotice", AssertionError.class == getField(CheckInternal.class, "sNotice").getClass());
     }
     private interface CheckInternal {
 
@@ -35,7 +35,7 @@ final class TestConst extends AbstractTest {
             Field field = clazz.getDeclaredField(name);
             return field.get(null);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            return new RuntimeException(e);
+            return new AssertionError(e);
         }
     }
 }

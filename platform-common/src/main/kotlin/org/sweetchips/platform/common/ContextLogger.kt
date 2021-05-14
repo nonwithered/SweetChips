@@ -6,6 +6,7 @@ import java.io.StringWriter
 open class ContextLogger {
 
     enum class Level {
+
         DEBUG {
             override fun log(logger: ContextLogger, tag: String, msg: String) {
                 logger.d(tag, msg)

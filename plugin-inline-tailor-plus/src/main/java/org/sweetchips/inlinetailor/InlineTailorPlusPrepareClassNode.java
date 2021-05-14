@@ -6,7 +6,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.sweetchips.annotations.Inline;
 import org.sweetchips.platform.jvm.BaseClassNode;
 import org.sweetchips.utility.ClassesUtil;
-import org.sweetchips.utility.ItemsUtil;
+import org.sweetchips.utility.EntryUtil;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public final class InlineTailorPlusPrepareClassNode extends BaseClassNode<Inline
                 if (an.desc.equals("L" + Inline.class.getName().replace(".", "/") + ";")) {
                     InsnList insnList = InlineTailorHelper.tryAndGetInsnList(this, mn);
                     if (insnList != null) {
-                        getContext().getItems().put(ClassesUtil.toStringMethod(name, mn.name, mn.desc), ItemsUtil.newPairEntry(insnList, mn.maxStack));
+                        getContext().getItems().put(ClassesUtil.toStringMethod(name, mn.name, mn.desc), EntryUtil.newPairEntry(insnList, mn.maxStack));
                     }
                     break;
                 }

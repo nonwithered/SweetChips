@@ -13,45 +13,24 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface AsyncUtil {
-
-    interface RunnableThrows {
-
-        void run() throws Exception;
-    }
-
-    static <T> T call(Callable<T> callable) {
-        try {
-            return callable.call();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    static void run(RunnableThrows runnable) {
-        try {
-            runnable.run();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+interface AsyncUtil {
 
     static <T> T withScope(Callable<T> callable) {
         ExecutorService executorService = Executors.newWorkStealingPool();
         try {
-            return AsyncUtil.call(() -> executorService.submit(callable).get());
+            return ExceptUtil.call(() -> executorService.submit(callable).get());
         } finally {
             executorService.shutdown();
-            AsyncUtil.run(() -> executorService.awaitTermination(60, TimeUnit.SECONDS));
+            ExceptUtil.run(() -> executorService.awaitTermination(60, TimeUnit.SECONDS));
         }
     }
 
     static void runBlocker(ExecutorService executor, Runnable runnable) {
-        run(() -> executor.submit(runnable).get());
+        ExceptUtil.run(() -> executor.submit(runnable).get());
     }
 
     static <T> T callBlocker(ExecutorService executor, Callable<T> callable) {
-        return call(() -> executor.submit(callable).get());
+        return ExceptUtil.call(() -> executor.submit(callable).get());
     }
 
     static <T> Function<T, ForkJoinTask<?>> fork(Consumer<T> consumer) {
@@ -116,7 +95,7 @@ public interface AsyncUtil {
     }
 
     static <E> WithResource<E> with(Callable<E> callable) {
-        return with(AsyncUtil.call(callable));
+        return with(ExceptUtil.call(callable));
     }
 
     final class RunBlocker implements ForkJoinPool.ManagedBlocker {
@@ -146,6 +125,6 @@ public interface AsyncUtil {
     }
 
     static void managedBlock(Runnable runnable) {
-        run(() -> ForkJoinPool.managedBlock(new RunBlocker(runnable)));
+        ExceptUtil.run(() -> ForkJoinPool.managedBlock(new RunBlocker(runnable)));
     }
 }

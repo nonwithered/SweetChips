@@ -81,7 +81,7 @@ final class SweetChipsAndroidGradleTransform extends Transform {
                 .map(this::forEachTransformInput)
                 .forEach(workflow::addWork);
         try {
-            Future<?> future = workflow.start(Runnable::run);
+            Future<Void> future = workflow.start(Runnable::run);
             mLogger.d(TAG, mName + ": wait: begin");
             future.get();
             mLogger.d(TAG, mName + ": wait: end");

@@ -1,63 +1,60 @@
 package org.sweetchips.maven.java;
 
 import org.apache.maven.plugin.Mojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.sweetchips.platform.jvm.BasePluginContext;
-import org.sweetchips.utility.AsyncUtil;
 import org.sweetchips.utility.ClassesUtil;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 public interface AbstractMavenPlugin<C extends BasePluginContext> extends Mojo {
 
     @Override
-    default void execute() {
+    default void execute() throws MojoExecutionException, MojoFailureException {
         @SuppressWarnings("unchecked")
         Class<C> clazz = (Class<C>) ClassesUtil.getSuperTypeArgs(getClass(), AbstractMavenPlugin.class)[0];
         C context = ClassesUtil.newInstance(ClassesUtil.getDeclaredConstructor(clazz));
         onExecute(context);
-        new WorkflowWorker<>(this, context).run();
+        try {
+            new WorkflowWorker<>(this, context).call();
+        } catch (ExecutionException e) {
+            throw new MojoExecutionException(getName(), e);
+        } catch (InterruptedException e) {
+            throw new MojoFailureException(getName(), e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    default <T> T getParameter(String parameter) {
+        try {
+            Field field = getClass().getDeclaredField(parameter);
+            field.setAccessible(true);
+            return (T) field.get(this);
+        } catch (NoSuchFieldException e) {
+            return null;
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     default int getAsmApi() {
-        return AsyncUtil.call(() -> {
-            Field asmApi = getClass().getDeclaredField("asmApi");
-            asmApi.setAccessible(true);
-            return (int) asmApi.get(this);
-        });
+        return getParameter("asmApi");
     }
 
     default File getBaseDir() {
-        return AsyncUtil.call(() -> {
-            Field basedir = getClass().getDeclaredField("basedir");
-            basedir.setAccessible(true);
-            return (File) basedir.get(this);
-        });
+        return getParameter("basedir");
     }
 
     default String[] getIgnores() {
-        return AsyncUtil.call(() -> {
-            try {
-                Field ignores = getClass().getDeclaredField("ignores");
-                ignores.setAccessible(true);
-                return (String[]) ignores.get(this);
-            } catch (NoSuchFieldException e) {
-                return null;
-            }
-        });
+        return getParameter("ignores");
     }
 
     default String[] getNotices() {
-        return AsyncUtil.call(() -> {
-            try {
-                Field notices = getClass().getDeclaredField("notices");
-                notices.setAccessible(true);
-                return (String[]) notices.get(this);
-            } catch (NoSuchFieldException e) {
-                return null;
-            }
-        });
+        return getParameter("notices");
     }
 
     default void onExecute(C context) {
