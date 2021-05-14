@@ -6,19 +6,18 @@ public final class ClassesSetting {
         throw new UnsupportedOperationException();
     }
 
-    private static final ThreadLocal<Boolean> sDeleteFlag = new ThreadLocal<>();
+    private static final ThreadLocal<ThreadLocal<?>> sDeleteFlag = new ThreadLocal<>();
 
-    static void resetDeleteFlag() {
-        if (sDeleteFlag.get() != Boolean.FALSE) {
-            sDeleteFlag.set(Boolean.FALSE);
+    static boolean checkDeleteFlag() {
+        if (sDeleteFlag.get() == null) {
+            return false;
+        } else {
+            sDeleteFlag.remove();
+            return true;
         }
     }
 
-    static boolean checkDeleteFlag() {
-        return sDeleteFlag.get() == Boolean.TRUE;
-    }
-
     public static void deleteCurrentClass() {
-        sDeleteFlag.set(Boolean.TRUE);
+        sDeleteFlag.set(sDeleteFlag);
     }
 }

@@ -1,9 +1,8 @@
 package org.sweetchips.platform.jvm;
 
-import org.sweetchips.platform.common.AbstractUnit;
 import org.sweetchips.platform.common.FileUnit;
+import org.sweetchips.platform.common.IUnit;
 import org.sweetchips.platform.common.PathUnit;
-import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
@@ -21,8 +20,8 @@ public final class JvmContextCallbacks {
     private final List<Function<ZipEntry, Function<byte[], byte[]>>> mTransformZip = new ArrayList<>();
     private final List<Function<Path, Consumer<byte[]>>> mPrepareFile = new ArrayList<>();
     private final List<Function<Path, Function<byte[], byte[]>>> mTransformFile = new ArrayList<>();
-    private final List<BiFunction<Path, Path, AbstractUnit>> mPreparePath = new ArrayList<>();
-    private final List<BiFunction<Path, Path, AbstractUnit>> mTransformPath = new ArrayList<>();
+    private final List<BiFunction<Path, Path, IUnit>> mPreparePath = new ArrayList<>();
+    private final List<BiFunction<Path, Path, IUnit>> mTransformPath = new ArrayList<>();
 
     public JvmContextCallbacks(JvmContext context) {
         mContext = context;
@@ -56,11 +55,11 @@ public final class JvmContextCallbacks {
         return mTransformFile;
     }
 
-    public List<BiFunction<Path, Path, AbstractUnit>> onPreparePath() {
+    public List<BiFunction<Path, Path, IUnit>> onPreparePath() {
         return mPreparePath;
     }
 
-    public List<BiFunction<Path, Path, AbstractUnit>> onTransformPath() {
+    public List<BiFunction<Path, Path, IUnit>> onTransformPath() {
         return mTransformPath;
     }
 }

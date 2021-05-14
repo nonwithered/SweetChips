@@ -35,7 +35,7 @@ public interface ClassesUtil {
     static Type[] getSuperTypeArgs(Class<?> clazz, final Class<?> superType) {
         while (clazz != null) {
             Class<?> superClass = clazz.getSuperclass();
-            Type type;
+            Type type = null;
             if (!superType.isInterface()) {
                 if (superClass != superType) {
                     clazz = superClass;
@@ -47,9 +47,11 @@ public interface ClassesUtil {
                     clazz = superClass;
                     continue;
                 }
-                type = ItemsUtil.findFirst(Arrays.asList(clazz.getGenericInterfaces()), Predicate.<Type>isEqual(superType).or(it ->
-                        it instanceof ParameterizedType && ((ParameterizedType) it).getRawType() == superType
-                ));
+                for (Type it : clazz.getGenericInterfaces()) {
+                    if (it instanceof ParameterizedType && ((ParameterizedType) it).getRawType() == superType) {
+                        type = it;
+                    }
+                }
             }
             if (type instanceof ParameterizedType) {
                 return ((ParameterizedType) type).getActualTypeArguments();
@@ -61,20 +63,20 @@ public interface ClassesUtil {
 
     @SuppressWarnings("unchecked")
     static <T> Class<T> forName(String name) {
-        return AsyncUtil.call(() -> (Class<T>) Class.forName(name));
+        return ExceptUtil.call(() -> (Class<T>) Class.forName(name));
     }
 
     static <T> Constructor<T> getDeclaredConstructor(Class<T> clazz, Class<?>... args) {
-        return AsyncUtil.call(() -> clazz.getDeclaredConstructor(args));
+        return ExceptUtil.call(() -> clazz.getDeclaredConstructor(args));
     }
 
     static <T> T newInstance(Constructor<T> constructor, Object... args) {
-        return AsyncUtil.call(() -> constructor.newInstance(args));
+        return ExceptUtil.call(() -> constructor.newInstance(args));
     }
 
     static byte[] compile(String name, Supplier<String> content, DiagnosticListener<JavaFileObject> listener) {
         String str = name.replaceAll("\\.", "/");
-        return AsyncUtil.call(() -> {
+        return ExceptUtil.call(() -> {
             try (ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
                 JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
                 JavaFileObject source = new SimpleJavaFileObject(URI.create("string:///" + str + JavaFileObject.Kind.SOURCE.extension), JavaFileObject.Kind.SOURCE) {

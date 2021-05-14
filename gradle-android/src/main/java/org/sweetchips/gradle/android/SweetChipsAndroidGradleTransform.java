@@ -12,14 +12,14 @@ import com.android.build.api.transform.TransformInvocation;
 import com.android.build.gradle.internal.pipeline.TransformManager;
 
 import org.sweetchips.platform.common.ContextLogger;
-import org.sweetchips.platform.jvm.JvmContextCallbacks;
-import org.sweetchips.platform.common.AbstractUnit;
 import org.sweetchips.platform.common.FileUnit;
+import org.sweetchips.platform.common.IUnit;
 import org.sweetchips.platform.common.PathUnit;
 import org.sweetchips.platform.common.RootUnit;
 import org.sweetchips.platform.common.Workflow;
 import org.sweetchips.platform.common.ZipUnit;
 import org.sweetchips.platform.jvm.JvmContext;
+import org.sweetchips.platform.jvm.JvmContextCallbacks;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
@@ -74,14 +74,14 @@ final class SweetChipsAndroidGradleTransform extends Transform {
     public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException {
         mLogger.d(TAG, mName + ": transform: begin");
         Workflow workflow = new Workflow(mLogger);
-        workflow.apply(mContext);
+        workflow.attach(mContext);
         mTransformInvocation = transformInvocation;
         initBytesWriter();
         transformInvocation.getInputs().stream()
                 .map(this::forEachTransformInput)
                 .forEach(workflow::addWork);
         try {
-            Future<?> future = workflow.start(Runnable::run);
+            Future<Void> future = workflow.start(Runnable::run);
             mLogger.d(TAG, mName + ": wait: begin");
             future.get();
             mLogger.d(TAG, mName + ": wait: end");
@@ -158,15 +158,15 @@ final class SweetChipsAndroidGradleTransform extends Transform {
 
     private RootUnit forEachChangedFile(Path input, Path output, Status stat) {
         RootUnit.Status status = statusOf(stat);
-        AbstractUnit abstractUnit;
+        IUnit unit;
         if (FilesUtil.isDirectory(input)) {
             mLogger.d(TAG, mName + "changedFile: path: " + input.toAbsolutePath());
-            abstractUnit = new PathUnit(input, output, mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath());
+            unit = new PathUnit(input, output, mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath());
         } else {
             mLogger.d(TAG, mName + "changedFile: file: " + input.toAbsolutePath());
-            abstractUnit = new FileUnit(input, output, mContextCallbacks.onPrepareFile(), mContextCallbacks.onTransformFile());
+            unit = new FileUnit(input, output, mContextCallbacks.onPrepareFile(), mContextCallbacks.onTransformFile());
         }
-        return new RootUnit(status, abstractUnit);
+        return new RootUnit(status, unit);
     }
 
     private RootUnit.Status statusOf(Status status) {

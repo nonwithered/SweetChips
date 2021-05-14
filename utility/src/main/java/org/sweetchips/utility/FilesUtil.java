@@ -32,7 +32,7 @@ public interface FilesUtil {
 
     static Stream<Path> list(Path path) {
         File file = path.toAbsolutePath().toFile();
-        return AsyncUtil.call(() -> {
+        return ExceptUtil.call(() -> {
             File[] listFiles = file.listFiles();
             if (listFiles == null) {
                 if (file.isDirectory()) {
@@ -55,7 +55,7 @@ public interface FilesUtil {
 
     static boolean deleteIfExists(Path path) {
         File file = path.toAbsolutePath().toFile();
-        return AsyncUtil.call(() -> {
+        return ExceptUtil.call(() -> {
             if (isDirectory(file.toPath())) {
                 list(file.toPath()).forEach(FilesUtil::deleteIfExists);
             }
@@ -65,7 +65,7 @@ public interface FilesUtil {
 
     static Path createDirectories(Path path) {
         File file = path.toAbsolutePath().toFile();
-        return AsyncUtil.call(() -> {
+        return ExceptUtil.call(() -> {
             if (!file.mkdirs()) {
                 if (isRegularFile(file.toPath())) {
                     throw new FileAlreadyExistsException(file.toString());
@@ -99,7 +99,7 @@ public interface FilesUtil {
     }
 
     static byte[] readFrom(Path path) {
-        return AsyncUtil.call(() -> {
+        return ExceptUtil.call(() -> {
             try (InputStream input = newInputStream(path)) {
                  return readFrom(input);
             }
@@ -110,7 +110,7 @@ public interface FilesUtil {
         if (bytes == null) {
             return;
         }
-        AsyncUtil.run(() -> {
+        ExceptUtil.run(() -> {
             try (OutputStream output = newOutputStream(path)) {
                 output.write(bytes);
             }
@@ -118,7 +118,7 @@ public interface FilesUtil {
     }
 
     static byte[] readFrom(InputStream input) {
-        return AsyncUtil.call(() -> {
+        return ExceptUtil.call(() -> {
             ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
             try (ReadableByteChannel inChannel = Channels.newChannel(input);
                  ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -140,7 +140,7 @@ public interface FilesUtil {
             this.zipFile = zipFile;
         }
         public byte[] readFrom(ZipEntry entry) {
-            return AsyncUtil.call(() -> {
+            return ExceptUtil.call(() -> {
                 try (InputStream input = zipFile.getInputStream(entry)) {
                     return FilesUtil.readFrom(input);
                 }
@@ -164,7 +164,7 @@ public interface FilesUtil {
         }
         @Override
         public void run() {
-            AsyncUtil.run(() -> {
+            ExceptUtil.run(() -> {
                 try (OutputStream output = newOutputStream(path);
                      ZipOutputStream zipOutput = new ZipOutputStream(output)
                 ) {
@@ -183,7 +183,7 @@ public interface FilesUtil {
                     }
                     zipOutput.flush();
                     if (!except.isEmpty()) {
-                        RuntimeException e = new RuntimeException();
+                        IOException e = new IOException();
                         except.forEach(e::addSuppressed);
                         throw e;
                     }
@@ -193,7 +193,7 @@ public interface FilesUtil {
         public void writeTo(String name, byte[] bytes) {
             ZipEntry entry = new ZipEntry(name);
             if (bytes == null) {
-                queue.offer(ItemsUtil.newPairEntry(entry, null));
+                queue.offer(EntryUtil.newPairEntry(entry, null));
                 return;
             }
             CRC32 crc32 = new CRC32();
@@ -206,13 +206,13 @@ public interface FilesUtil {
             entry.setLastAccessTime(fileTime);
             entry.setLastModifiedTime(fileTime);
             entry.setCreationTime(fileTime);
-            queue.offer(ItemsUtil.newPairEntry(entry, bytes));
+            queue.offer(EntryUtil.newPairEntry(entry, bytes));
         }
 
         @Override
         public void accept(Throwable e) {
             except.add(e);
-            queue.offer(ItemsUtil.newPairEntry(null, null));
+            queue.offer(EntryUtil.newPairEntry(null, null));
         }
     }
 

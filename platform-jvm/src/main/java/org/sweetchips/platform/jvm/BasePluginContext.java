@@ -9,7 +9,7 @@ import java.util.Set;
 
 public abstract class BasePluginContext {
 
-    private ContextLogger mLogger = ContextLogger.getDefault();
+    private ContextLogger mLogger = new ContextLogger();
 
     public final void setLogger(ContextLogger logger) {
         mLogger = logger;

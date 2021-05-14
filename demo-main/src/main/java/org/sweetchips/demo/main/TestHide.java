@@ -51,7 +51,7 @@ final class TestHide extends AbstractTest {
                     : clazz.getDeclaredMethod(name, types);
             return check(flags, member.getModifiers());
         } catch (NoSuchFieldException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            throw new AssertionError(e);
         }
     }
 

@@ -3,14 +3,12 @@ package org.sweetchips.gradle.java;
 import org.gradle.api.Task;
 import org.sweetchips.platform.jvm.JvmContext;
 import org.sweetchips.utility.FilesUtil;
-import org.sweetchips.utility.ItemsUtil;
 
 import java.nio.file.Path;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Queue;
 import java.util.function.Function;
 
 final class WorkflowActions {
@@ -19,7 +17,7 @@ final class WorkflowActions {
     private final Task mBefore;
     private final Task mSweep;
     private Task mLast;
-    private final Queue<Map.Entry<String, SweetChipsJavaGradleTransform>> mActions = new ArrayDeque<>();
+    private final Map<String, SweetChipsJavaGradleTransform> mActions = new LinkedHashMap<>();
 
     WorkflowActions(SweetChipsJavaGradlePlugin plugin, Task before, Task after) {
         mPlugin = plugin;
@@ -36,14 +34,14 @@ final class WorkflowActions {
         mSweep.dependsOn(task);
         task.dependsOn(mActions.isEmpty() ? mBefore : mLast);
         mLast = task;
-        mActions.offer(ItemsUtil.newPairEntry(name, transform));
+        mActions.put(name, transform);
         task.doLast(this::work);
     }
 
     private void work(Task task) {
         String name = fromTask(task.getName());
         String last = null;
-        for (Map.Entry<String, SweetChipsJavaGradleTransform> it : mActions) {
+        for (Map.Entry<String, SweetChipsJavaGradleTransform> it : mActions.entrySet()) {
             if (it.getKey().equals(name)) {
                 break;
             }
@@ -56,7 +54,7 @@ final class WorkflowActions {
         FilesUtil.list(from).forEach(it -> paths.add(it.resolve("main")));
         Function<Path, Path> provider = it -> to.resolve(from.relativize(it));
         SweetChipsJavaGradleTransform transform = null;
-        for (Map.Entry<String, SweetChipsJavaGradleTransform> it : mActions) {
+        for (Map.Entry<String, SweetChipsJavaGradleTransform> it : mActions.entrySet()) {
             if (it.getKey().equals(name)) {
                 transform = it.getValue();
                 break;

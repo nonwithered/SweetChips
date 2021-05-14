@@ -1,10 +1,19 @@
-apply plugin: 'java-library'
+apply plugin: 'kotlin'
 apply from: rootProject.file('config/publish.gradle')
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
 
 dependencies {
     implementation project(':utility')
     compileOnly project(':platform-common')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$gradle.ext.versions.kotlin"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$gradle.ext.versions.kotlinCoroutines"
     implementation "org.ow2.asm:asm:$gradle.ext.versions.asm"
     implementation "org.ow2.asm:asm-tree:$gradle.ext.versions.asm"
 }

@@ -1,17 +1,17 @@
 package org.sweetchips.gradle.java;
 
 import org.sweetchips.platform.common.ContextLogger;
-import org.sweetchips.platform.jvm.JvmContextCallbacks;
 import org.sweetchips.platform.common.PathUnit;
 import org.sweetchips.platform.common.RootUnit;
 import org.sweetchips.platform.common.Workflow;
 import org.sweetchips.platform.jvm.JvmContext;
-import org.sweetchips.utility.AsyncUtil;
+import org.sweetchips.platform.jvm.JvmContextCallbacks;
 import org.sweetchips.utility.FilesUtil;
 
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 
@@ -38,14 +38,16 @@ final class SweetChipsJavaGradleTransform {
     void transform(Function<Path, Path> provider, Path path, Collection<Path> paths) {
         mLogger.d(TAG, mName + ": transform: begin");
         Workflow workflow = new Workflow(mLogger);
-        workflow.apply(mContext);
+        workflow.attach(mContext);
         initBytesWriter(provider, path, paths);
         paths.forEach(it -> workflow.addWork(Collections.singletonList(new RootUnit(RootUnit.Status.ADDED, new PathUnit(it, provider.apply(it), mContextCallbacks.onPreparePath(), mContextCallbacks.onTransformPath())))));
         try {
-            Future<?> future = workflow.start(Runnable::run);
+            Future<Void> future = workflow.start(Runnable::run);
             mLogger.d(TAG, mName + ": wait: begin");
-            AsyncUtil.run(future::get);
+            future.get();
             mLogger.d(TAG, mName + ": wait: end");
+        } catch (ExecutionException | InterruptedException e) {
+            throw new IllegalStateException(e);
         } finally {
             mContextCallbacks = null;
             mContext = null;

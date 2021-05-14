@@ -2,8 +2,10 @@ package org.sweetchips.utility;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -11,35 +13,24 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface AsyncUtil {
+interface AsyncUtil {
 
-    interface RunnableThrows {
-
-        void run() throws Exception;
-    }
-
-    static <T> T call(Callable<T> callable) {
+    static <T> T withScope(Callable<T> callable) {
+        ExecutorService executorService = Executors.newWorkStealingPool();
         try {
-            return callable.call();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    static void run(RunnableThrows runnable) {
-        try {
-            runnable.run();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            return ExceptUtil.call(() -> executorService.submit(callable).get());
+        } finally {
+            executorService.shutdown();
+            ExceptUtil.run(() -> executorService.awaitTermination(60, TimeUnit.SECONDS));
         }
     }
 
     static void runBlocker(ExecutorService executor, Runnable runnable) {
-        run(() -> executor.submit(runnable).get());
+        ExceptUtil.run(() -> executor.submit(runnable).get());
     }
 
     static <T> T callBlocker(ExecutorService executor, Callable<T> callable) {
-        return call(() -> executor.submit(callable).get());
+        return ExceptUtil.call(() -> executor.submit(callable).get());
     }
 
     static <T> Function<T, ForkJoinTask<?>> fork(Consumer<T> consumer) {
@@ -104,7 +95,7 @@ public interface AsyncUtil {
     }
 
     static <E> WithResource<E> with(Callable<E> callable) {
-        return with(AsyncUtil.call(callable));
+        return with(ExceptUtil.call(callable));
     }
 
     final class RunBlocker implements ForkJoinPool.ManagedBlocker {
@@ -134,6 +125,6 @@ public interface AsyncUtil {
     }
 
     static void managedBlock(Runnable runnable) {
-        run(() -> ForkJoinPool.managedBlock(new RunBlocker(runnable)));
+        ExceptUtil.run(() -> ForkJoinPool.managedBlock(new RunBlocker(runnable)));
     }
 }

@@ -1,6 +1,14 @@
 apply plugin: 'java-library'
 apply from: rootProject.file('config/publish.gradle')
 
+sourceSets {
+    main {
+        java {
+            exclude "${gradle.ext.groupId}.${project.name}.AsyncUtil".replaceAll('\\.', '/') + ".java"
+        }
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }

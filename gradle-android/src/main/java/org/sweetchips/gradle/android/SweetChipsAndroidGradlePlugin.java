@@ -15,7 +15,7 @@ public final class SweetChipsAndroidGradlePlugin extends SweetChipsGradlePlugin 
         if (getProject().getPlugins().findPlugin("com.android.application") == null
                 && getProject().getPlugins().findPlugin("com.android.library") == null) {
             throw new ProjectConfigurationException("android plugin should be enabled first",
-                    new RuntimeException("android plugin should be enabled first"));
+                    new IllegalStateException("android plugin should be enabled first"));
         }
         mAndroid = (BaseExtension) getProject().getExtensions().getByName("android");
     }

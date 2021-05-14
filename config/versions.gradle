@@ -2,7 +2,8 @@ def versions = [:]
 gradle.ext.versions = versions
 
 versions.root = '0.0.2-snapshot'
-versions.kotlin ='1.4.20'
+versions.kotlin ='1.4.0'
+versions.kotlinCoroutines ='1.4.0'
 versions.asm = '5.1'
 versions.gradleApi = '3.1.4'
 versions.mavenApi = '3.6.0'
