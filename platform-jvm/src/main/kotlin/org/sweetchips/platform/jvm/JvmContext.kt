@@ -38,8 +38,8 @@ class JvmContext(val logger: ContextLogger) : PlatformContext {
     private var transformBefore: MutableList<Consumer<Map<Any, Any>>>? = mutableListOf()
     private var transformAfter: MutableList<Consumer<Map<Any, Any>>>? = mutableListOf()
 
-    private var additions: MutableCollection<Supplier<ClassNode>>? = ConcurrentLinkedQueue()
-    private var classes: MutableCollection<ClassNode>? = null
+    private var classes: MutableCollection<Supplier<ClassNode>>? = ConcurrentLinkedQueue()
+    private var additions: MutableCollection<ClassNode>? = null
 
     fun setBytesWriter(consumer: BiConsumer<String, ByteArray>) {
         bytesWriter = consumer
@@ -78,7 +78,7 @@ class JvmContext(val logger: ContextLogger) : PlatformContext {
     }
 
     fun addClass(action: Supplier<ClassNode>) {
-        additions?.add(action)
+        classes?.add(action)
     }
 
     override fun onPrepareBefore() = Runnable {
@@ -146,9 +146,9 @@ class JvmContext(val logger: ContextLogger) : PlatformContext {
         val tag = "onPrepareAdditions"
         logger.d(TAG, "$tag: begin")
         val actions = prepare!!.also { prepare = null }
-        val nodes = ConcurrentLinkedQueue<ClassNode>().also { classes = it }
+        val nodes = ConcurrentLinkedQueue<ClassNode>().also { additions = it }
         runBlocking {
-            additions!!.also { additions = null }.forEach {
+            classes!!.also { classes = null }.forEach {
                 launch {
                     val node = withContext(Dispatchers.IO) { it.get() }
                     logger.i(TAG, "$tag: create ${node.name}")
@@ -175,18 +175,17 @@ class JvmContext(val logger: ContextLogger) : PlatformContext {
         val tag = "onTransformAdditions"
         logger.d(TAG, "$tag: begin")
         val actions = transform!!
-        val writeNode = bytesWriter?.also { bytesWriter = null }?.run {
-            { cn: ClassNode ->
-                val name = cn.name
+        val writer = bytesWriter?.also { bytesWriter = null }
+        val writeNode: (ClassNode) -> Unit = {
+            writer?.run {
+                val name = it.name
                 val cw = ClassWriter(api)
-                cn.accept(cw)
+                it.accept(cw)
                 accept(name, cw.toByteArray())
             }
-        } ?: {
-            Unit
         }
         runBlocking {
-            classes!!.also { classes = null }.forEach {
+            additions!!.also { additions = null }.forEach {
                 launch {
                     if (actions.size == 0) {
                         writeNode(it)

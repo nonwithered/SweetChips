@@ -4,7 +4,7 @@ final class TestTrace extends AbstractTest {
 
     private static final int sDepth = 40;
 
-    private static final long sTime = 100;
+    private static final long sTime = 50;
 
     private int mDepth;
 
