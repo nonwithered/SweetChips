@@ -1,4 +1,4 @@
-def time = 10
+def time = 5
 
 def atraceName = 'a.trace'
 

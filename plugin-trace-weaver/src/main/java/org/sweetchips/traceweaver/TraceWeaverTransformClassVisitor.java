@@ -14,12 +14,8 @@ public final class TraceWeaverTransformClassVisitor extends BaseClassVisitor<Tra
         super(api, cv);
     }
 
-    private void init(String name) {
-    }
-
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        init(name);
         mClassInfo = new ClassInfo(version, access, name, signature, superName, interfaces);
         super.visit(version, access, name, signature, superName, interfaces);
     }
