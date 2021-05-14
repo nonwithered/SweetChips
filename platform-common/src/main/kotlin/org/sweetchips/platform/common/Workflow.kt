@@ -48,12 +48,25 @@ class Workflow(private val logger: ContextLogger) {
     private var transformBefore: MutableList<Runnable>? = mutableListOf()
     private var transformAfter: MutableList<Runnable>? = mutableListOf()
 
-    fun addWork(collection: Collection<RootUnit>) = workSet?.add(collection)
+    fun addWork(collection: Collection<RootUnit>) {
+        workSet?.add(collection)
+    }
 
-    fun addPrepareBefore(runnable: Runnable) = prepareBefore?.add(runnable)
-    fun addPrepareAfter(runnable: Runnable) = prepareAfter?.add(runnable)
-    fun addTransformBefore(runnable: Runnable) = transformBefore?.add(runnable)
-    fun addTransformAfter(runnable: Runnable) = transformAfter?.add(runnable)
+    fun addPrepareBefore(runnable: Runnable) {
+        prepareBefore?.add(runnable)
+    }
+
+    fun addPrepareAfter(runnable: Runnable) {
+        prepareAfter?.add(runnable)
+    }
+
+    fun addTransformBefore(runnable: Runnable) {
+        transformBefore?.add(runnable)
+    }
+
+    fun addTransformAfter(runnable: Runnable) {
+        transformAfter?.add(runnable)
+    }
 
     fun attach(context: PlatformContext) {
         addPrepareBefore(context.onPrepareBefore())
@@ -63,25 +76,27 @@ class Workflow(private val logger: ContextLogger) {
     }
 
     fun start(executor: Executor): Future<Unit> {
-        logger.d(TAG, "start: begin")
+        val tag = "start"
+        logger.d(TAG, "$tag: begin")
         val future = workSet!!.also { workSet = null }.let {
-            FutureTask { it.doRun() }
+            FutureTask { it.doWork() }
         }
         executor.execute(future)
-        logger.d(TAG, "start: end")
+        logger.d(TAG, "$tag: end")
         return future
     }
 
-    private fun Collection<Collection<RootUnit>>.doRun(
+    private fun Collection<Collection<RootUnit>>.doWork(
     ) {
-        logger.d(TAG, "doWork: begin")
+        val tag = "doWork"
+        logger.d(TAG, "$tag: begin")
         prepareBefore!!.also { prepareBefore = null }.phase("prepareBefore")
-        doWork("doPrepare") { doPrepare() }
+        work("doPrepare") { doPrepare() }
         prepareAfter!!.also { prepareBefore = null }.phase("prepareAfter")
         transformBefore!!.also { prepareBefore = null }.phase("transformBefore")
-        doWork("doTransform") { doTransform() }
+        work("doTransform") { doTransform() }
         transformAfter!!.also { prepareBefore = null }.phase("transformAfter")
-        logger.d(TAG, "doWork: end")
+        logger.d(TAG, "$tag: end")
     }
 
     private fun List<Runnable>.phase(tag: String) {
@@ -90,7 +105,7 @@ class Workflow(private val logger: ContextLogger) {
         logger.d(TAG, "$tag: end")
     }
 
-    private fun Collection<Collection<RootUnit>>.doWork(
+    private fun Collection<Collection<RootUnit>>.work(
         tag: String,
         work: suspend Collection<RootUnit>.() -> Unit
     ) {
