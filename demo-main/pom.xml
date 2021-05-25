@@ -5,11 +5,11 @@
     <parent>
         <groupId>org.sweetchips</groupId>
         <artifactId>root</artifactId>
-        <version>0.0.2-snapshot</version>
+        <version>0.0.2</version>
     </parent>
     <groupId>org.sweetchips</groupId>
     <artifactId>demo-main-mvn</artifactId>
-    <version>0.0.2-snapshot</version>
+    <version>0.0.2</version>
     <packaging>jar</packaging>
     <properties>
         <nameMainClass>org.sweetchips.demo.main.Main</nameMainClass>
