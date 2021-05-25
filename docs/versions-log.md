@@ -25,3 +25,12 @@
     - Gradle子插件的依赖库
   - maven-java
     - Maven子插件的依赖库
+- 0.0.2 ( 2021.5.25 )
+  - platform-common
+    - 这一用于封装并发与文件IO的模块目前已经全部用Kotlin和协程重构
+  - platform-jvm
+    - 其中与并发有关的部分已经用Kotlin协程重构
+  - maven-java
+    - 重新设计了API
+  - gradle-common
+    - 添加工作流的方法从addTransform更名为newWorkflow
