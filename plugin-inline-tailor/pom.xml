@@ -5,11 +5,11 @@
     <parent>
         <groupId>org.sweetchips</groupId>
         <artifactId>root</artifactId>
-        <version>0.0.2</version>
+        <version>0.0.3-snapshot</version>
     </parent>
     <groupId>org.sweetchips</groupId>
     <artifactId>plugin-inline-tailor-mvn</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3-snapshot</version>
     <packaging>maven-plugin</packaging>
     <properties>
         <excludeGradleDir>org/sweetchips/inlinetailor/gradle/*</excludeGradleDir>
