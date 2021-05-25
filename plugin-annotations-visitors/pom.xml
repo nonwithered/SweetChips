@@ -5,11 +5,11 @@
     <parent>
         <groupId>org.sweetchips</groupId>
         <artifactId>root</artifactId>
-        <version>0.0.2</version>
+        <version>0.0.3-snapshot</version>
     </parent>
     <groupId>org.sweetchips</groupId>
     <artifactId>plugin-annotations-visitors-mvn</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3-snapshot</version>
     <packaging>maven-plugin</packaging>
     <properties>
         <excludeDir>org/sweetchips/annotationsvisitors/*</excludeDir>
