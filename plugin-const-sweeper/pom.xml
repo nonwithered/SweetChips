@@ -5,11 +5,11 @@
     <parent>
         <groupId>org.sweetchips</groupId>
         <artifactId>root</artifactId>
-        <version>0.0.2-snapshot</version>
+        <version>0.0.2</version>
     </parent>
     <groupId>org.sweetchips</groupId>
     <artifactId>plugin-const-sweeper-mvn</artifactId>
-    <version>0.0.2-snapshot</version>
+    <version>0.0.2</version>
     <packaging>maven-plugin</packaging>
     <properties>
         <excludeGradleDir>org/sweetchips/constsweeper/gradle/*</excludeGradleDir>
